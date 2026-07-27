@@ -2950,16 +2950,20 @@ async function mountPlayerBoard(sessionId){
   const collectPids=st=>{const ids=new Set();
     (st.live||[]).concat(st.next||[]).forEach(x=>[].concat(x.t1||[],x.t2||[]).forEach(p=>{if(p.pid)ids.add(p.pid);}));
     (st.board||[]).forEach(p=>{if(p.pid)ids.add(p.pid);});
-    return [...ids];};
+    // only registered players have UUID ids — a walk-in's local id would 400 the whole query
+    return [...ids].filter(id=>UUID_RE.test(id));};
   const paint=state=>{ if(!state||!state.summary) return;
     window.__avCache=window.__avCache||{};
     const missing=collectPids(state).filter(id=>!(id in window.__avCache));
     if(missing.length){
       missing.forEach(id=>window.__avCache[id]="");
       sFetch("/rest/v1/profiles?id=in.("+missing.join(",")+")&select=id,avatar")
-        .then(r=>r.ok?r.json():[]).then(rows=>{ let any=false;
+        .then(r=>r.ok?r.json():Promise.reject(new Error("avatar fetch failed")))
+        .then(rows=>{ let any=false;
           rows.forEach(p=>{ if(p.avatar){ window.__avCache[p.id]=p.avatar; any=true; } });
-          if(any) paint(state); }).catch(()=>{});
+          if(any) paint(state); })
+        .catch(()=>{ /* don't poison the cache — drop placeholders so the next poll retries */
+          missing.forEach(id=>{ if(!window.__avCache[id]) delete window.__avCache[id]; }); });
     }
     pbAvg=state.summary.avgMs||pbAvg;
     wrap.innerHTML='<main>'+liveBoardHTML(state)+'<p class="upd">Live from the Upside Down · updates stream in automatically</p></main>';
