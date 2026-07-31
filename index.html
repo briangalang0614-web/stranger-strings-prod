@@ -335,6 +335,58 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .crow .cval.bad{color:var(--red)}
 .spark{width:100%;height:46px;display:block}
 .clab{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:12px 0 4px}
+.feechip{background:rgba(124,176,138,.2);border:1px solid rgba(124,176,138,.6);color:var(--green);
+  font-weight:900;font-size:10.5px;border-radius:999px;padding:3px 9px;margin-left:6px}
+.paydot{width:15px;height:15px;border-radius:50%;flex:none;cursor:pointer;border:2px solid transparent}
+.paydot.unpaid{background:#cf6b58;box-shadow:0 0 8px rgba(207,107,88,.55)}
+.paydot.sent{background:#e0a63c;box-shadow:0 0 8px rgba(224,166,60,.6)}
+.paydot.ok{background:#4e9a63;box-shadow:0 0 8px rgba(78,154,99,.6)}
+.payrow{display:flex;align-items:center;gap:11px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.payrow:last-child{border-bottom:none}
+.payrow .pm{flex:1;min-width:0}
+.payrow .pm b{display:block;font-size:14px}
+.payrow .pm span{font-size:11.5px;color:var(--muted)}
+.paysum{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px}
+.paysum div{flex:1;min-width:110px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.paysum b{display:block;font-size:20px}.paysum span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+#payQRimg{max-width:230px;width:100%;border-radius:14px;border:2px solid var(--line);background:#fff}
+.receipt-thumb{width:38px;height:38px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:pointer}
+.mrow{display:flex;align-items:center;gap:10px;padding:6px 0}
+.mrow label{flex:1;font-size:14px;color:var(--ink)}
+.mrow input{width:150px}
+.mline{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--line);margin:0}
+.mline span{font-size:13.5px;color:var(--muted)}
+.mline b{font-size:16px}
+.mline.total b{font-size:22px}
+.pos{color:var(--ok)} .neg{color:var(--red)}
+.pdrow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:13.5px}
+.pdrow:last-child{border-bottom:none}
+.pdrow .pn2{flex:1;min-width:0}
+.pdrow .pn2 b{display:block;font-size:14px}
+.pdrow .pn2 span{font-size:11px;color:var(--muted)}
+.paynotice{background:rgba(207,107,88,.14);border:1.5px solid rgba(207,107,88,.65);border-radius:12px;padding:12px 14px;margin-top:10px}
+.paynotice b{display:block;font-size:14px;color:var(--ink);margin-bottom:4px}
+.paynotice span{font-size:12.5px;color:var(--muted);line-height:1.5}
+.paynotice span b{display:inline;color:var(--red)}
+.payhint2{margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.55;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+.payhint2 b{color:var(--green)}
+.duehead{text-align:center;padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.duehead b{display:block;font-family:Georgia,serif;font-size:34px;color:var(--red)}
+.duehead span{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.duerow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.duerow:last-of-type{border-bottom:none}
+.duerow .dm{flex:1;min-width:0}
+.duerow .dm b{display:block;font-size:14px}
+.duerow .dm span{font-size:11.5px;color:var(--muted)}
+.duerow .damt{font-family:"Courier New",monospace;font-weight:800;color:var(--red)}
+.balrow{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line)}
+.balrow:last-child{border-bottom:none}
+.balrow .bm{flex:1;min-width:0}
+.balrow .bm b{display:block;font-size:14px}
+.balrow .bm span{font-size:11.5px;color:var(--muted)}
+.balrow .bval{text-align:right;min-width:92px}
+.balrow .bval b{display:block;font-family:"Courier New",monospace;font-size:15px}
+.balrow .bval span{font-size:10.5px;color:var(--muted)}
 #playerHome{padding-bottom:96px}
 #qStatus{padding:16px 18px;text-align:center}
 #qStatus .qlab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
@@ -593,42 +645,95 @@ window.SS_CONFIG = {
 
 <!-- ================= MONEY ================= -->
 <section id="tab-money" class="tab">
-  <div class="money-grid">
-    <div>
-      <div class="card" style="margin-bottom:14px">
-        <h3>Shuttles Used <span class="spacer"></span><button class="small" onclick="addShuttle()">+ Add</button></h3>
-        <div class="tablewrap"><table id="shuttleTable">
-          <thead><tr><th>Type</th><th>Tube Price</th><th>Qty</th><th class="num">Total</th><th></th></tr></thead>
-          <tbody></tbody></table></div>
-        <p style="text-align:right;margin:8px 0 0"><b>Total: <span id="shuttleTotal">₱0.00</span></b></p>
-      </div>
-      <div class="card" style="margin-bottom:14px">
-        <h3>Courts</h3>
-        <div class="mrow"><span>Cost per hour</span><input type="number" min="0" step="any" id="mRate" onchange="moneyChange()"></div>
-        <div class="mrow"><span>Hours</span><input type="number" min="0" step="any" id="mHours" onchange="moneyChange()"></div>
-        <div class="mrow"><span><b>Court total</b></span><b id="courtTotal" class="num">₱0.00</b></div>
-      </div>
-      <div class="card" style="margin-bottom:14px">
-        <h3>Players</h3>
-        <div class="mrow"><span>Number of players</span><input type="number" min="1" id="mPlayers" onchange="moneyChange()"></div>
-        <p class="hint">Defaults to your active roster — override if needed.</p>
-      </div>
-      <div class="card">
-        <h3>Additional Costs</h3>
-        <div class="mrow"><span>Queue master fee</span><input type="number" min="0" step="any" id="mQM" onchange="moneyChange()"></div>
-        <div class="mrow"><span>Club fund</span><input type="number" min="0" step="any" id="mFund" onchange="moneyChange()"></div>
-      </div>
+  <div class="card" style="max-width:820px;margin:0 auto 14px">
+    <h3>💰 Session Finances</h3>
+    <div class="controls" style="flex-wrap:wrap">
+      <select id="fnSession" style="flex:1;min-width:220px" onchange="loadSessionFinance()"><option value="">— choose a session —</option></select>
+      <button class="small ghost" onclick="loadSessionFinance()">⟳</button>
     </div>
-    <div class="card summary">
-      <h3>Summary</h3>
-      <p><span>Shuttle total</span><b id="sumShuttle">₱0</b></p>
-      <p><span>Court total</span><b id="sumCourt">₱0</b></p>
-      <p><span>Queue master fee</span><b id="sumQM">₱0</b></p>
-      <p><span>Total cost</span><b class="total" id="sumTotal">₱0</b></p>
-      <p><span>Cost per player</span><b class="per" id="sumPer">₱0</b></p>
-      <p><span>Club fund (collected separately)</span><b id="sumFund">₱0</b></p>
-      <p class="hint" style="border:none">Per-player share = total ÷ players, rounded up to the next peso. Club fund isn't part of the split.</p>
+    <p class="hint" id="fnHint" style="margin-top:8px">Pick a session to see collections, expenses and profit.</p>
+  </div>
+
+  <div class="card" id="fnCollectCard" style="max-width:820px;margin:0 auto 14px;display:none">
+    <h3>💳 Collection <span class="hint" style="font-weight:400">tick each player once paid</span></h3>
+    <div id="ptSummary"></div>
+    <div id="ptList"></div>
+    <div class="controls" id="ptPager" style="justify-content:space-between;display:none">
+      <button class="small ghost" id="ptPrev" onclick="ptPage(-1)">◀ Prev</button>
+      <span class="hint" id="ptPageLbl"></span>
+      <button class="small ghost" id="ptNext" onclick="ptPage(1)">Next ▶</button>
     </div>
+    <div class="controls" id="ptGuestWrap" style="margin-top:10px;flex-wrap:wrap">
+      <input id="ptGuestName" placeholder="Walk-in name" style="flex:1;min-width:150px">
+      <button class="small" onclick="addGuestPayment()">＋ Mark walk-in paid</button>
+    </div>
+  </div>
+
+  <div class="card" id="fnExpenseCard" style="max-width:820px;margin:0 auto 14px;display:none">
+    <h3>🧾 Expenses</h3>
+    <div class="mrow"><label>Court rate / hour</label><input id="exRate" type="number" min="0" step="10" oninput="calcFinance()"></div>
+    <div class="mrow"><label>Hours</label><input id="exHours" type="number" min="0" step="0.5" oninput="calcFinance()"></div>
+    <div class="mrow"><label>Courts used</label><input id="exCourts" type="number" min="0" step="1" oninput="calcFinance()"></div>
+    <p class="mline"><span>Court fee</span><b id="exCourtTotal">₱0</b></p>
+    <div class="mrow" style="margin-top:10px"><label>Cost per tube</label><input id="exTube" type="number" min="0" step="10" oninput="calcFinance()"></div>
+    <div class="mrow"><label>Tubes used</label><input id="exTubes" type="number" min="0" step="1" oninput="calcFinance()"></div>
+    <p class="mline"><span>Shuttlecock fee</span><b id="exShuttleTotal">₱0</b></p>
+    <div class="mrow" style="margin-top:10px"><label id="exOtherLbl">Other</label><input id="exOtherName" placeholder="e.g. Queue master fee" oninput="calcFinance()" style="max-width:210px"></div>
+    <div class="mrow"><label>Amount</label><input id="exOther" type="number" min="0" step="10" oninput="calcFinance()"></div>
+    <p class="mline total"><span>Total expenses</span><b id="exTotal">₱0</b></p>
+    <div class="controls" style="justify-content:flex-end;margin-top:8px">
+      <button class="small" onclick="saveSessionExpenses()">💾 Save expenses</button>
+    </div>
+  </div>
+
+  <div class="card" id="fnPnlCard" style="max-width:820px;margin:0 auto 14px;display:none">
+    <h3>📊 Session Profit / Loss</h3>
+    <p class="mline"><span>Collected so far</span><b id="pnlIn">₱0</b></p>
+    <p class="mline"><span>Total expenses</span><b id="pnlOut">₱0</b></p>
+    <p class="mline total"><span>Net (actual)</span><b id="pnlNet">₱0</b></p>
+    <p class="mline"><span>If everyone pays</span><b id="pnlPotential">₱0</b></p>
+    <p class="hint" style="border:none">Actual net uses only verified payments. "If everyone pays" assumes every player in the session settles the fee.</p>
+  </div>
+
+  <div class="card" style="max-width:820px;margin:0 auto 14px">
+    <h3>📈 Period Summary</h3>
+    <div class="controls" style="flex-wrap:wrap">
+      <button class="small" id="pdWeek" onclick="loadPeriod('week')">This week</button>
+      <button class="small ghost" id="pdMonth" onclick="loadPeriod('month')">This month</button>
+      <button class="small ghost" id="pdAll" onclick="loadPeriod('all')">All time</button>
+    </div>
+    <div id="pdSummary" style="margin-top:10px"></div>
+    <div id="pdList"></div>
+  </div>
+
+  <div class="card" style="max-width:820px;margin:0 auto 14px">
+    <h3>👥 Player Balances <button class="small ghost" style="float:right" onclick="loadBalances()">⟳</button></h3>
+    <div class="controls" style="flex-wrap:wrap">
+      <input id="balSearch" placeholder="🔍 Search player…" style="flex:1;min-width:160px" oninput="renderBalances(false)">
+      <select id="balSort" onchange="renderBalances(false)">
+        <option value="owed">Most owed first</option>
+        <option value="spent">Most spent first</option>
+        <option value="name">A–Z</option>
+      </select>
+    </div>
+    <div id="balSummary"></div>
+    <div id="balList"><p class="hint">Loading balances…</p></div>
+    <div class="controls" id="balPager" style="justify-content:space-between;display:none">
+      <button class="small ghost" id="balPrev" onclick="balPage(-1)">◀ Prev</button>
+      <span class="hint" id="balPageLbl"></span>
+      <button class="small ghost" id="balNext" onclick="balPage(1)">Next ▶</button>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:820px;margin:0 auto 0">
+    <h3>🏦 Payment QR <span class="hint" style="font-weight:400">shown to every player</span></h3>
+    <div class="controls" style="flex-wrap:wrap">
+      <input id="qrNote" placeholder="e.g. GCash · Brian G · 0917xxxxxxx" style="flex:1;min-width:200px">
+      <input type="file" id="qrFile" accept="image/*" style="display:none" onchange="uploadClubQR(this)">
+      <button class="small ghost" onclick="document.getElementById('qrFile').click()">🖼 Set / change QR</button>
+      <button class="small" onclick="saveClubNote()">Save note</button>
+    </div>
+    <div id="qrPreview" style="margin-top:10px"></div>
   </div>
 </section>
 
@@ -639,6 +744,7 @@ window.SS_CONFIG = {
     <div class="controls">
       <input id="asTitle" placeholder="Session title (e.g. Wednesday Night Smash)" style="flex:2;min-width:200px">
       <input id="asDate" type="date" style="width:160px">
+      <input id="asFee" type="number" min="0" step="10" placeholder="₱ fee" style="width:104px" title="Queue fee per player for this session">
       <label class="dxlab" title="Every match in this session is worth double XP"><input type="checkbox" id="asDouble"> ⚡ 2× XP</label>
       <button onclick="adminCreateSession()">+ Create</button>
     </div>
@@ -657,6 +763,11 @@ window.SS_CONFIG = {
   <div class="card" style="max-width:760px;margin:0 auto">
     <h3>Sessions</h3>
     <div id="sessList"><p class="hint">Loading sessions…</p></div>
+    <div class="controls" id="sessPager" style="justify-content:space-between;display:none">
+      <button class="small ghost" id="sessPrev" onclick="sessPage(-1)">◀ Prev</button>
+      <span class="hint" id="sessPageLbl"></span>
+      <button class="small ghost" id="sessNext" onclick="sessPage(1)">Next ▶</button>
+    </div>
   </div>
   <div class="card" style="max-width:760px;margin:14px auto 0">
     <h3>♛ Hall of Fame
@@ -782,6 +893,10 @@ window.SS_CONFIG = {
     </div>
   </div>
   <div class="phcard">
+    <h3>💳 Session Fees</h3>
+    <div id="duesBox"><p class="soon">Your session fees appear here.</p></div>
+  </div>
+  <div class="phcard">
     <h3>🎴 Session Stat Cards</h3>
     <div class="controls">
       <select id="scSel" style="flex:1;min-width:150px" onchange="renderSessionCard()"></select>
@@ -831,6 +946,10 @@ window.SS_CONFIG = {
   <div class="phcard" id="qStatusCard" style="display:none;padding:0;overflow:hidden">
     <div id="qStatus"></div>
   </div>
+  <div class="phcard" id="payCard" style="display:none">
+    <h3>💳 Session Fee</h3>
+    <div id="payBody"></div>
+  </div>
   <div class="phcard" id="benchCard" style="display:none">
     <h3>🪑 Bench &amp; Partner</h3>
     <div id="benchState" class="benchstate"></div>
@@ -838,9 +957,11 @@ window.SS_CONFIG = {
     <p class="hint" id="benchHelp" style="margin-top:8px"></p>
     <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
       <label style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800">Prefer to play with</label>
-      <select id="prefSel" style="width:100%;margin-top:6px" onchange="savePref()">
+      <select id="prefSel" style="width:100%;margin-top:6px" onchange="prefDirty()">
         <option value="">— anyone —</option>
       </select>
+      <button id="prefBtn" class="wide" style="margin-top:8px" onclick="savePref()" disabled>🤝 Confirm request</button>
+      <p class="hint" id="prefState" style="margin-top:6px"></p>
       <p class="hint" style="margin-top:8px">A hint, not a reservation. You’ll still be matched fairly by games played
         and time waited — but when it’s a close call, the Queue Master’s autofill will try to put you together.
         If you both pick each other, it counts double.</p>
@@ -2343,6 +2464,8 @@ function shareMyCard(){
   const s=window.__myShare;
   if(!s || !s.st || !s.st.g){ toast("Play a match first — your card unlocks once you\u2019ve battled."); return; }
   toast("Building your card\u2026");
+  const _styleEl=document.getElementById("scStyle");
+  const _variant=_styleEl? (_styleEl.value||"classic") : "classic";
   buildShareCard(s.name, s.st, s.ex, c=>{
     c.toBlob(async b=>{
       const fname=s.name.replace(/\s+/g,"_")+"_stranger_strings_card.png";
@@ -2354,7 +2477,7 @@ function shareMyCard(){
       }catch(e){}
       download(fname,b);   // fallback: straight download
     });
-  });
+  }, {variant:_variant});
 }
 function downloadIG(){
   const id=document.getElementById("igSelect").value;
@@ -2724,30 +2847,367 @@ function exportDetailedCSV(){
 }
 
 /* ======================= MONEY ======================= */
-function addShuttle(){ S.shuttles.push({type:"",price:"",qty:1}); save(); renderMoney(); }
-function renderMoney(){
-  const tb=document.querySelector("#shuttleTable tbody"); tb.innerHTML="";
-  S.shuttles.forEach((s,i)=>{
-    const tr=document.createElement("tr");
-    const mk=(val,type,key,w)=>{ const td=document.createElement("td");
-      const inp=document.createElement("input"); inp.type=type; if(type==="number"){inp.min=0;inp.step="any";}
-      inp.value=val; inp.style.width=w; inp.placeholder=key==="type"?"e.g. Aeroplane":"";
-      inp.onchange=()=>{ s[key]= type==="number"? (+inp.value||0):inp.value; save(); renderMoney(); };
-      td.appendChild(inp); return td; };
-    tr.append(mk(s.type,"text","type","130px"),mk(s.price,"number","price","90px"),mk(s.qty,"number","qty","70px"));
-    const tot=document.createElement("td"); tot.className="num"; tot.innerHTML="<b>"+P((+s.price||0)*(+s.qty||0))+"</b>";
-    const del=document.createElement("td");
-    const db=document.createElement("button"); db.className="small ghost"; db.textContent="✕";
-    db.onclick=()=>{ S.shuttles.splice(i,1); save(); renderMoney(); };
-    del.appendChild(db); tr.append(tot,del); tb.appendChild(tr);
+function addShuttle(){ /* retired — expenses now live per session */ }
+/* ---------- per-player balances ---------- */
+async function loadBalances(keepPage){
+  const list=document.getElementById("balList"); if(!list) return;
+  list.innerHTML='<p class="hint">Loading balances…</p>';
+  if(!window.__allSessions) await fillFinanceSessions();
+  const feeSess=(window.__allSessions||[]).filter(s=>feeOf(s)>0);
+  if(!feeSess.length){ list.innerHTML='<p class="hint">No sessions charge a fee yet.</p>';
+    document.getElementById("balSummary").innerHTML=""; return; }
+  const ids=feeSess.map(s=>s.id);
+  const [rr,pp]=await Promise.all([
+    sFetch("/rest/v1/session_players?session_id=in.("+ids.join(",")+
+      ")&select=session_id,profile_id,profiles!session_players_profile_id_fkey(reclub_name,full_name)").catch(()=>null),
+    sFetch("/rest/v1/payments?session_id=in.("+ids.join(",")+")&select=session_id,profile_id,guest_name,amount,verified").catch(()=>null)]);
+  const roster=(rr&&rr.ok)? await rr.json():[];
+  const pays=(pp&&pp.ok)? await pp.json():[];
+  const feeBy={}; feeSess.forEach(s=>feeBy[s.id]=feeOf(s));
+  const who={};
+  roster.forEach(r=>{
+    if(!r.profile_id) return;
+    const nm=(r.profiles&&(r.profiles.reclub_name||r.profiles.full_name))||"Player";
+    who[r.profile_id]=who[r.profile_id]||{name:nm,owed:0,spent:0,sessions:0,unpaid:0};
+    who[r.profile_id].owed+=feeBy[r.session_id]||0;
+    who[r.profile_id].sessions++;
   });
-  if(!S.shuttles.length) tb.innerHTML=`<tr><td colspan="5" class="hint">Add the shuttle tubes you opened tonight.</td></tr>`;
-  const M=S.money;
-  document.getElementById("mRate").value=M.rate; document.getElementById("mHours").value=M.hours;
-  document.getElementById("mPlayers").value=M.nPlayers||S.players.filter(p=>p.active).length||"";
-  document.getElementById("mQM").value=M.qm; document.getElementById("mFund").value=M.fund;
-  calcMoney();
+  pays.forEach(p=>{
+    if(!p.verified) return;
+    const key=p.profile_id||("guest:"+(p.guest_name||"Walk-in"));
+    who[key]=who[key]||{name:p.guest_name||"Walk-in",owed:0,spent:0,sessions:0,unpaid:0,guest:!p.profile_id};
+    who[key].spent+=Number(p.amount||0);
+  });
+  Object.values(who).forEach(x=>{ x.balance=Math.max(0,x.owed-x.spent);
+    x.unpaid=x.balance>0? Math.round(x.balance/Math.max(1,(x.owed/Math.max(1,x.sessions)))) : 0; });
+  window.__balances=Object.values(who);
+  renderBalances(keepPage!==false);
 }
+const LIST_PAGE=15;
+let balPageNo=0;
+function balPage(d){ balPageNo=Math.max(0,balPageNo+d); renderBalances(true); }
+function renderBalances(keepPage){
+  const list=document.getElementById("balList"), sum=document.getElementById("balSummary");
+  if(!list) return;
+  let all=window.__balances||[];
+  const q=(document.getElementById("balSearch").value||"").toLowerCase().trim();
+  if(q) all=all.filter(x=>x.name.toLowerCase().includes(q));
+  const mode=document.getElementById("balSort").value;
+  all=[...all].sort((a,b)=> mode==="spent"? b.spent-a.spent
+      : mode==="name"? a.name.localeCompare(b.name)
+      : (b.balance-a.balance)||b.owed-a.owed);
+  const owing=all.filter(x=>x.balance>0);
+  const totOwed=all.reduce((a,b)=>a+b.balance,0), totSpent=all.reduce((a,b)=>a+b.spent,0);
+  sum.innerHTML='<div class="paysum">'+
+    '<div><b class="pos">'+pesos(totSpent)+'</b><span>collected all-time</span></div>'+
+    '<div><b class="neg">'+pesos(totOwed)+'</b><span>outstanding</span></div>'+
+    '<div><b>'+owing.length+'</b><span>players owing</span></div>'+
+    '<div><b>'+all.length+'</b><span>players</span></div></div>';
+  if(!all.length){ list.innerHTML='<p class="hint">No matching players.</p>'; return; }
+  if(!keepPage) balPageNo=0;
+  const pages=Math.max(1,Math.ceil(all.length/LIST_PAGE));
+  if(balPageNo>=pages) balPageNo=pages-1;
+  const pager=document.getElementById("balPager");
+  if(pager){
+    pager.style.display= all.length>LIST_PAGE? "flex":"none";
+    document.getElementById("balPageLbl").textContent="Page "+(balPageNo+1)+" of "+pages+" · "+all.length+" players";
+    document.getElementById("balPrev").disabled=balPageNo<=0;
+    document.getElementById("balNext").disabled=balPageNo>=pages-1;
+  }
+  list.innerHTML="";
+  all.slice(balPageNo*LIST_PAGE,(balPageNo+1)*LIST_PAGE).forEach(x=>{
+    const d=document.createElement("div"); d.className="balrow";
+    const dot=document.createElement("span");
+    dot.className="paydot "+(x.balance>0?"unpaid":"ok"); dot.style.cursor="default";
+    dot.title=x.balance>0? "Has an outstanding balance":"All settled";
+    const m=document.createElement("div"); m.className="bm";
+    m.innerHTML='<b>'+esc(x.name)+(x.guest?' <span class="hint">· walk-in</span>':'')+'</b>'+
+      '<span>'+(x.sessions? x.sessions+' session'+(x.sessions===1?"":"s")+' joined':'walk-in payments only')+'</span>';
+    const v=document.createElement("div"); v.className="bval";
+    v.innerHTML='<b class="'+(x.balance>0?"neg":"pos")+'">'+(x.balance>0? pesos(x.balance):"—")+'</b>'+
+      '<span>'+pesos(x.spent)+' spent</span>';
+    d.append(dot,m,v); list.appendChild(d);
+  });
+}
+/* ---------- payment tracker (admin) ---------- */
+async function fillPaymentSessions(){ return fillFinanceSessions(); }
+async function _retiredFillPaymentSessions(){
+  const sel=document.getElementById("ptSession"); if(!sel) return;
+  const r=await sFetch("/rest/v1/sessions?select=id,title,session_date,status,settings&order=session_date.desc&limit=40").catch(()=>null);
+  if(!r||!r.ok) return;
+  const rows=(await r.json()).filter(s=>feeOf(s)>0);
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— choose a session —</option>';
+  rows.forEach(s=>{ const o=document.createElement("option"); o.value=s.id;
+    o.textContent=s.title+" · "+s.session_date+" · "+pesos(feeOf(s));
+    o._s=s; sel.appendChild(o); });
+  if(cur) sel.value=cur;
+}
+async function loadPaymentTracker(){
+  const list=document.getElementById("ptList"),
+        sum=document.getElementById("ptSummary"), gw=document.getElementById("ptGuestWrap");
+  if(!list) return;
+  const s=window.__fnSession||null;
+  const sid=s&&s.id;
+  if(!sid){ list.innerHTML='<p class="hint">Pick a session to see who has paid.</p>'; sum.innerHTML=""; if(gw) gw.style.display="none"; return; }
+  const fee=feeOf(s);
+  if(gw) gw.style.display="flex";
+  list.innerHTML='<p class="hint">Loading…</p>';
+  const [rr,pp]=await Promise.all([
+    sFetch("/rest/v1/session_players?session_id=eq."+sid+
+      "&select=profile_id,profiles!session_players_profile_id_fkey(reclub_name,full_name)").catch(()=>null),
+    sFetch("/rest/v1/payments?session_id=eq."+sid+"&select=*").catch(()=>null)]);
+  const roster=(rr&&rr.ok)? await rr.json() : [];
+  const pays=(pp&&pp.ok)? await pp.json() : [];
+  const byId={}; pays.forEach(p=>{ if(p.profile_id) byId[p.profile_id]=p; });
+  const guests=pays.filter(p=>!p.profile_id);
+  if(window.__ptSid!==sid) ptPageNo=0;      // keep the page when just refreshing
+  window.__ptFee=fee; window.__ptSid=sid;
+  // everyone who joined the session is charged — scanning the QR is the check-in
+  const rows=roster.map(r=>({id:r.profile_id,
+      name:(r.profiles&&(r.profiles.reclub_name||r.profiles.full_name))||"Player", pay:byId[r.profile_id]||null}))
+    .concat(guests.map(g=>({id:null,name:g.guest_name||"Walk-in",pay:g,guest:true})));
+  const paid=rows.filter(x=>x.pay&&x.pay.verified).length;
+  const collected=rows.filter(x=>x.pay&&x.pay.verified).reduce((a,b)=>a+Number(b.pay.amount||fee),0);
+  window.__fnCollected=collected; window.__fnExpected=rows.length*fee;
+  if(document.getElementById("exTotal")) calcFinance();
+  sum.innerHTML='<div class="paysum">'+
+    '<div><b style="color:var(--ok)">'+paid+'</b><span>collected</span></div>'+
+    '<div><b style="color:var(--red)">'+(rows.length-paid)+'</b><span>uncollected</span></div>'+
+    '<div><b>'+pesos(collected)+'</b><span>of '+pesos(rows.length*fee)+'</span></div></div>';
+  if(!rows.length){ list.innerHTML='<p class="hint">Nobody has joined this session yet.</p>'; return; }
+  window.__ptRows=rows.slice();
+  renderCollectionPage();
+}
+let ptPageNo=0;
+function ptPage(d){ ptPageNo=Math.max(0,ptPageNo+d); renderCollectionPage(); }
+function renderCollectionPage(){
+  const list=document.getElementById("ptList"); if(!list) return;
+  const rows=(window.__ptRows||[]).slice();
+  const fee=window.__ptFee||0;
+  list.innerHTML="";
+  rows.sort((a,b)=>{
+    const rank=x=> x.pay&&x.pay.verified?1:0;
+    return rank(a)-rank(b) || a.name.localeCompare(b.name);
+  });
+  const pages=Math.max(1,Math.ceil(rows.length/LIST_PAGE));
+  if(ptPageNo>=pages) ptPageNo=pages-1;
+  const pager=document.getElementById("ptPager");
+  if(pager){
+    pager.style.display= rows.length>LIST_PAGE? "flex":"none";
+    document.getElementById("ptPageLbl").textContent="Page "+(ptPageNo+1)+" of "+pages+" · "+rows.length+" players";
+    document.getElementById("ptPrev").disabled=ptPageNo<=0;
+    document.getElementById("ptNext").disabled=ptPageNo>=pages-1;
+  }
+  rows.slice(ptPageNo*LIST_PAGE,(ptPageNo+1)*LIST_PAGE).forEach(x=>{
+    const state = x.pay&&x.pay.verified? "ok":"unpaid";
+    const div=document.createElement("div"); div.className="payrow";
+    const dot=document.createElement("span"); dot.className="paydot "+state;
+    dot.title = state==="ok"? "Collected — tap to undo" : "Tap to mark as collected";
+    dot.onclick=()=>togglePaid(x);
+    const mid=document.createElement("div"); mid.className="pm";
+    mid.innerHTML='<b>'+esc(x.name)+(x.guest?' <span class="hint">· walk-in</span>':'')+'</b><span>'+
+      (state==="ok"? "Collected"+(x.pay.verified_at?" · "+String(x.pay.verified_at).slice(0,10):"") : "Not yet collected")+'</span>';
+    div.append(dot,mid);
+    list.appendChild(div);
+  });
+}
+function _retiredViewReceipt(x){
+  const f=document.getElementById("achFace");
+  f.className="achbig"; f.innerHTML='<img src="'+x.pay.receipt+'" style="width:100%;max-width:300px;height:auto;border-radius:12px">';
+  document.getElementById("achName").textContent=x.name;
+  document.getElementById("achDesc").textContent=(x.pay.ref_no? "Ref "+x.pay.ref_no+" · ":"")+pesos(x.pay.amount||window.__ptFee);
+  const st=document.getElementById("achState");
+  st.textContent=x.pay.verified? "VERIFIED ✦":"Tap the dot in the list to verify";
+  st.style.color=x.pay.verified? "var(--ok)":"var(--warn)";
+  openModal("achModal");
+}
+async function togglePaid(x){
+  const sid=window.__ptSid, fee=window.__ptFee;
+  const nowVerified=!(x.pay&&x.pay.verified);
+  if(nowVerified && !await uiConfirm("Mark "+x.name+" as collected?\n"+pesos(fee)+" for this session.",
+      {title:"✅ Payment collected",ok:"Mark collected"})) return;
+  let r;
+  if(x.pay){
+    r=await sFetch("/rest/v1/payments?id=eq."+x.pay.id,{method:"PATCH",body:{
+      verified:nowVerified, verified_by:nowVerified?auth.uid:null,
+      verified_at:nowVerified?new Date().toISOString():null,
+      amount:x.pay.amount||fee}}).catch(()=>null);
+  }else{
+    r=await sFetch("/rest/v1/payments",{method:"POST",body:[{session_id:sid,profile_id:x.id,
+      guest_name:x.guest?x.name:"", amount:fee, verified:true, verified_by:auth.uid,
+      verified_at:new Date().toISOString()}]}).catch(()=>null);
+  }
+  if(!r||!r.ok){ toast("Could not update payment"); return; }
+  toast(nowVerified? "✅ "+x.name+" marked collected" : x.name+" set back to uncollected");
+  loadPaymentTracker(); loadBalances(true);
+}
+async function addGuestPayment(){
+  const nm=(document.getElementById("ptGuestName").value||"").trim();
+  if(!nm) return toast("Enter the walk-in's name");
+  if(!window.__ptSid) return toast("Pick a session first");
+  const r=await sFetch("/rest/v1/payments",{method:"POST",body:[{session_id:window.__ptSid,
+    guest_name:nm, amount:window.__ptFee, verified:true, verified_by:auth.uid,
+    verified_at:new Date().toISOString()}]}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not add walk-in");
+  document.getElementById("ptGuestName").value="";
+  toast("✅ "+nm+" marked paid");
+  loadPaymentTracker();
+}
+/* ---------- club payment QR ---------- */
+async function loadClubQR(){
+  const box=document.getElementById("qrPreview"); if(!box) return;
+  const r=await sFetch("/rest/v1/club_settings?id=eq.1&select=payment_qr,payment_note").catch(()=>null);
+  if(!r||!r.ok){ box.innerHTML='<p class="hint">Run payments.sql to enable payment tracking.</p>'; return; }
+  const s=(await r.json())[0]||{};
+  document.getElementById("qrNote").value=s.payment_note||"";
+  box.innerHTML = s.payment_qr
+    ? '<img src="'+s.payment_qr+'" style="max-width:200px;border-radius:12px;border:2px solid var(--line);background:#fff">'
+    : '<p class="hint">No QR set yet — players will be told to ask you where to send payment.</p>';
+}
+function uploadClubQR(input){
+  const f=input.files&&input.files[0]; input.value="";
+  if(!f) return;
+  fileToReceipt(f, async url=>{
+    const r=await sFetch("/rest/v1/club_settings?id=eq.1",{method:"PATCH",
+      body:{payment_qr:url, updated_by:auth.uid, updated_at:new Date().toISOString()}}).catch(()=>null);
+    toast(r&&r.ok? "🏦 Payment QR updated":"Could not save QR");
+    loadClubQR();
+  });
+}
+async function saveClubNote(){
+  const note=(document.getElementById("qrNote").value||"").trim();
+  const r=await sFetch("/rest/v1/club_settings?id=eq.1",{method:"PATCH",
+    body:{payment_note:note, updated_by:auth.uid, updated_at:new Date().toISOString()}}).catch(()=>null);
+  toast(r&&r.ok? "Saved":"Could not save");
+}
+function renderMoney(){ fillFinanceSessions(); loadClubQR(); loadPeriod(window.__pdRange||"week"); loadBalances(); }
+function expensesOf(s){ const e=(s&&s.settings&&s.settings.expenses)||{}; return {
+  rate:+e.rate||0, hours:+e.hours||0, courts:+e.courts||0,
+  tube:+e.tube||0, tubes:+e.tubes||0, otherName:e.otherName||"", other:+e.other||0 }; }
+function expenseTotal(e){ return (e.rate*e.hours*e.courts)+(e.tube*e.tubes)+e.other; }
+async function fillFinanceSessions(){
+  const sel=document.getElementById("fnSession"); if(!sel) return;
+  const r=await sFetch("/rest/v1/sessions?select=id,title,session_date,status,settings&order=session_date.desc&limit=60").catch(()=>null);
+  if(!r||!r.ok) return;
+  window.__allSessions=await r.json();
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— choose a session —</option>';
+  window.__allSessions.forEach(s=>{ const o=document.createElement("option"); o.value=s.id;
+    o.textContent=s.title+" · "+s.session_date+(feeOf(s)?" · "+pesos(feeOf(s)):" · no fee"); o._s=s; sel.appendChild(o); });
+  if(cur){ sel.value=cur; }
+}
+async function loadSessionFinance(){
+  const sel=document.getElementById("fnSession"); const sid=sel.value;
+  const show=id=>document.getElementById(id).style.display= sid? "block":"none";
+  ["fnCollectCard","fnExpenseCard","fnPnlCard"].forEach(show);
+  if(!sid){ document.getElementById("fnHint").textContent="Pick a session to see collections, expenses and profit."; return; }
+  const s=(sel.selectedOptions[0]||{})._s||{};
+  window.__fnSession=s;
+  document.getElementById("fnHint").textContent=s.title+" · "+s.session_date+" · fee "+(feeOf(s)?pesos(feeOf(s)):"none set");
+  const e=expensesOf(s);
+  document.getElementById("exRate").value=e.rate||"";
+  document.getElementById("exHours").value=e.hours||"";
+  document.getElementById("exCourts").value=e.courts||"";
+  document.getElementById("exTube").value=e.tube||"";
+  document.getElementById("exTubes").value=e.tubes||"";
+  document.getElementById("exOtherName").value=e.otherName||"";
+  document.getElementById("exOther").value=e.other||"";
+  window.__ptSid=sid; window.__ptFee=feeOf(s);
+  await loadPaymentTracker();
+  calcFinance();
+}
+function readExpenseInputs(){
+  return {rate:+document.getElementById("exRate").value||0,
+    hours:+document.getElementById("exHours").value||0,
+    courts:+document.getElementById("exCourts").value||0,
+    tube:+document.getElementById("exTube").value||0,
+    tubes:+document.getElementById("exTubes").value||0,
+    otherName:document.getElementById("exOtherName").value||"",
+    other:+document.getElementById("exOther").value||0};
+}
+function calcFinance(){
+  const e=readExpenseInputs();
+  const court=e.rate*e.hours*e.courts, shut=e.tube*e.tubes, tot=court+shut+e.other;
+  document.getElementById("exCourtTotal").textContent=pesos(court);
+  document.getElementById("exShuttleTotal").textContent=pesos(shut);
+  document.getElementById("exTotal").textContent=pesos(tot);
+  const collected=window.__fnCollected||0, expected=window.__fnExpected||0;
+  const net=collected-tot, pot=expected-tot;
+  document.getElementById("pnlIn").textContent=pesos(collected);
+  document.getElementById("pnlOut").textContent="−"+pesos(tot);
+  const nEl=document.getElementById("pnlNet");
+  nEl.textContent=(net<0?"−":"")+pesos(Math.abs(net))+(net<0?"  (loss)":net>0?"  (profit)":"");
+  nEl.className=net<0?"neg":net>0?"pos":"";
+  const pEl=document.getElementById("pnlPotential");
+  pEl.textContent=(pot<0?"−":"")+pesos(Math.abs(pot));
+  pEl.className=pot<0?"neg":pot>0?"pos":"";
+}
+async function saveSessionExpenses(){
+  const s=window.__fnSession; if(!s) return;
+  const e=readExpenseInputs();
+  const settings=Object.assign({},s.settings||{},{expenses:e});
+  const r=await sFetch("/rest/v1/sessions?id=eq."+s.id,{method:"PATCH",body:{settings}}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not save expenses");
+  s.settings=settings;
+  toast("💾 Expenses saved for "+s.title);
+  loadPeriod(window.__pdRange||"week");
+}
+/* ---------- weekly / monthly roll-up ---------- */
+function periodStart(range){
+  const d=new Date();
+  if(range==="week"){ const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); }
+  else if(range==="month"){ d.setDate(1); }
+  else return null;
+  d.setHours(0,0,0,0); return d;
+}
+async function loadPeriod(range){
+  window.__pdRange=range;
+  ["pdWeek","pdMonth","pdAll"].forEach(id=>{ const b=document.getElementById(id);
+    if(b) b.className="small"+(id.toLowerCase().includes(range)?"":" ghost"); });
+  const sum=document.getElementById("pdSummary"), list=document.getElementById("pdList");
+  if(!sum) return;
+  if(!window.__allSessions) await fillFinanceSessions();
+  const from=periodStart(range);
+  const sess=(window.__allSessions||[]).filter(s=>!from || new Date(s.session_date+"T12:00:00")>=from);
+  if(!sess.length){ sum.innerHTML='<p class="hint">No sessions in this period.</p>'; list.innerHTML=""; return; }
+  const ids=sess.map(s=>s.id);
+  const [pr,rr]=await Promise.all([
+    sFetch("/rest/v1/payments?session_id=in.("+ids.join(",")+")&select=session_id,profile_id,amount,verified").catch(()=>null),
+    sFetch("/rest/v1/session_players?session_id=in.("+ids.join(",")+")&select=session_id,profile_id").catch(()=>null)]);
+  const pays=(pr&&pr.ok)? await pr.json() : [];
+  const roster=(rr&&rr.ok)? await rr.json() : [];
+  // chargeable = everyone who joined (walk-ins counted via their payment rows)
+  const heads={};
+  roster.forEach(r=>{ heads[r.session_id]=(heads[r.session_id]||0)+1; });
+  let inTot=0,outTot=0,dueTot=0; const rows=[];
+  sess.forEach(s=>{
+    const e=expensesOf(s), exp=expenseTotal(e), fee=feeOf(s);
+    const mine=pays.filter(p=>p.session_id===s.id);
+    const got=mine.filter(p=>p.verified).reduce((a,b)=>a+Number(b.amount||0),0);
+    const guests=mine.filter(p=>!p.profile_id).length;      // walk-ins the admin added
+    const due=fee*((heads[s.id]||0)+guests);
+    inTot+=got; outTot+=exp; dueTot+=due;
+    rows.push({s,got,exp,due,net:got-exp});
+  });
+  const net=inTot-outTot, potential=dueTot-outTot;
+  sum.innerHTML='<div class="paysum">'+
+    '<div><b class="pos">'+pesos(inTot)+'</b><span>collected</span></div>'+
+    '<div><b class="neg">'+pesos(outTot)+'</b><span>expenses</span></div>'+
+    '<div><b class="'+(net<0?"neg":"pos")+'">'+(net<0?"−":"")+pesos(Math.abs(net))+'</b><span>net '+(net<0?"loss":"profit")+'</span></div>'+
+    '<div><b class="'+(potential<0?"neg":"pos")+'">'+(potential<0?"−":"")+pesos(Math.abs(potential))+'</b><span>if all collected</span></div>'+
+    '<div><b>'+sess.length+'</b><span>sessions</span></div></div>'+
+    (dueTot-inTot>0? '<p class="hint" style="margin-top:2px">'+pesos(dueTot-inTot)+' still uncollected across this period.</p>':'');
+  list.innerHTML="";
+  rows.forEach(r=>{
+    const d=document.createElement("div"); d.className="pdrow";
+    d.innerHTML='<div class="pn2"><b>'+esc(r.s.title)+'</b><span>'+r.s.session_date+
+      ' · in '+pesos(r.got)+' of '+pesos(r.due)+' · out '+pesos(r.exp)+'</span></div>'+
+      '<b class="'+(r.net<0?"neg":"pos")+'">'+(r.net<0?"−":"")+pesos(Math.abs(r.net))+'</b>';
+    list.appendChild(d);
+  });
+}
+
 function moneyChange(){
   S.money={rate:document.getElementById("mRate").value,hours:document.getElementById("mHours").value,
     nPlayers:document.getElementById("mPlayers").value,qm:document.getElementById("mQM").value,
@@ -2926,6 +3386,7 @@ async function enterApp(cachedProfile){
     loadHall();
     loadPlayerStats();
     loadPartnersAdmin();
+    fillFinanceSessions(); loadClubQR();
     fillQuestPlayers();
     loadQuestLog();
     loadBadgeStudio();
@@ -2944,10 +3405,28 @@ async function enterApp(cachedProfile){
     consumePendingJoin().then(playerAutoBoard);
     Promise.all([loadMyQuests(),loadCustomBadges()]).then(loadMyHistory);
     loadPartners();
+    loadMyPayments();
     loadHall();
   }
 }
 /* ---------- admin: sessions ---------- */
+function feeOf(s){ const f=s&&s.settings&&s.settings.queueFee; return f>0? f : 0; }
+function pesos(n){ return "₱"+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:2}); }
+/* receipts are compressed hard — they are evidence for checking, not an archive */
+function fileToReceipt(file,cb){
+  const img=new Image();
+  img.onload=()=>{
+    const MAX=760;
+    const scale=Math.min(1, MAX/Math.max(img.width,img.height));
+    const c=document.createElement("canvas");
+    c.width=Math.round(img.width*scale); c.height=Math.round(img.height*scale);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    URL.revokeObjectURL(img.src);
+    cb(c.toDataURL("image/jpeg",0.62));
+  };
+  img.onerror=()=>{ URL.revokeObjectURL(img.src); toast("Could not read that image"); };
+  img.src=URL.createObjectURL(file);
+}
 function isDoubleXp(s){ return !!(s && s.settings && s.settings.doubleXp); }
 async function toggleDoubleXp(s){
   const on=!isDoubleXp(s);
@@ -2967,7 +3446,11 @@ async function adminCreateSession(){
   const r=await sFetch("/rest/v1/sessions",{method:"POST",
     headers:{Prefer:"return=representation"},
     body:{title,session_date:date,created_by:auth.uid,
-          settings:document.getElementById("asDouble").checked?{doubleXp:true}:{}}});
+          settings:(function(){ const s={};
+            if(document.getElementById("asDouble").checked) s.doubleXp=true;
+            const f=parseFloat(document.getElementById("asFee").value);
+            if(f>0) s.queueFee=f;
+            return s; })()}});
   if(!r.ok){
     const j=await r.json().catch(()=>({}));
     alert("Could not create session (HTTP "+r.status+").\n\n"+
@@ -2979,23 +3462,43 @@ async function adminCreateSession(){
   document.getElementById("asTitle").value="";
   const wasDouble=document.getElementById("asDouble").checked;
   document.getElementById("asDouble").checked=false;
+  document.getElementById("asFee").value="";
   toast((wasDouble?"⚡ 2× XP session created — code ":"Session created — code ")+row.code);
   adminLoadSessions();
 }
+let sessPageNo=0;
+const SESS_PAGE=7;
+function sessPage(d){ sessPageNo=Math.max(0,sessPageNo+d); renderSessionList(); }
 async function adminLoadSessions(){
   const box=document.getElementById("sessList");
   const r=await sFetch("/rest/v1/sessions?select=*&order=created_at.desc");
   if(!r.ok){ const j=await r.json().catch(()=>({}));
     box.innerHTML='<p class="hint">Could not load sessions — HTTP '+r.status+' '+esc(j.message||"")+'</p>'; return; }
-  const rows=await r.json();
-  if(!rows.length){ box.innerHTML='<p class="hint">No sessions yet — create the first one above.</p>'; return; }
+  window.__sessRows=await r.json();
+  renderSessionList();
+}
+function renderSessionList(){
+  const box=document.getElementById("sessList");
+  const all=window.__sessRows||[];
+  const pager=document.getElementById("sessPager");
+  if(!all.length){ box.innerHTML='<p class="hint">No sessions yet — create the first one above.</p>';
+    if(pager) pager.style.display="none"; return; }
+  const pages=Math.max(1,Math.ceil(all.length/SESS_PAGE));
+  if(sessPageNo>=pages) sessPageNo=pages-1;
+  if(pager){
+    pager.style.display= all.length>SESS_PAGE? "flex":"none";
+    document.getElementById("sessPageLbl").textContent="Page "+(sessPageNo+1)+" of "+pages+" · "+all.length+" sessions";
+    document.getElementById("sessPrev").disabled=sessPageNo<=0;
+    document.getElementById("sessNext").disabled=sessPageNo>=pages-1;
+  }
   box.innerHTML="";
-  rows.forEach(s=>{
+  all.slice(sessPageNo*SESS_PAGE,(sessPageNo+1)*SESS_PAGE).forEach(s=>{
     const div=document.createElement("div"); div.className="sessrow";
     div.innerHTML='<div class="st"><b>'+esc(s.title)+'</b><span>'+esc(s.session_date)+'</span></div>'+
       '<span class="sesscode">'+esc(s.code)+'</span>'+
       '<span class="badge '+s.status+'">'+s.status.toUpperCase()+'</span>'+
-      (isDoubleXp(s)?'<span class="dxchip">⚡ 2× XP</span>':'');
+      (isDoubleXp(s)?'<span class="dxchip">⚡ 2× XP</span>':'')+
+      (feeOf(s)?'<span class="feechip">₱'+feeOf(s)+'</span>':'');
     const copy=document.createElement("button"); copy.className="small ghost"; copy.textContent="Copy code";
     copy.onclick=async()=>{ try{ await navigator.clipboard.writeText(s.code); }catch(e){} toast("Code "+s.code+" copied"); };
     const dx=document.createElement("button"); dx.className="small ghost";
@@ -3524,6 +4027,78 @@ function attachPullToRefresh(){
   },{passive:true});
 }
 function myBoardName(){ return myProfile? (myProfile.reclub_name||myProfile.full_name||"") : ""; }
+/* ---------- session fee + receipt submission ---------- */
+async function loadMyPayments(){
+  const card=document.getElementById("payCard"); if(!card||!auth) return;
+  // every session I've joined that charges a fee — open or closed, because people settle up after
+  const sp=await sFetch("/rest/v1/session_players?profile_id=eq."+auth.uid+
+    "&select=session_id,sessions(id,title,session_date,status,settings)&order=time_in.desc&limit=12").catch(()=>null);
+  if(!sp||!sp.ok){ card.style.display="none"; window.__payAll=[]; renderDues(); return; }
+  const rows=(await sp.json()).filter(r=>r.sessions && (r.sessions.settings||{}).queueFee>0);
+  if(!rows.length){ card.style.display="none"; window.__payAll=[]; renderDues(); return; }
+  const ids=rows.map(r=>r.session_id);
+  const pr=await sFetch("/rest/v1/payments?profile_id=eq."+auth.uid+
+    "&session_id=in.("+ids.join(",")+")&select=session_id,amount,ref_no,verified,submitted_at").catch(()=>null);
+  const mine={}; if(pr&&pr.ok) (await pr.json()).forEach(p=>mine[p.session_id]=p);
+  // show the most recent session that still needs paying, else the latest verified one
+  const pending=rows.filter(r=>!mine[r.session_id]||!mine[r.session_id].verified);
+  // keep the whole picture for the Profile summary
+  window.__payAll=rows.map(r=>({s:r.sessions, paid:!!(mine[r.session_id]&&mine[r.session_id].verified),
+    amount:(mine[r.session_id]&&mine[r.session_id].amount)||((r.sessions.settings||{}).queueFee||0)}));
+  renderDues();
+  const target=(pending[0]||rows[0]);
+  if(!target){ card.style.display="none"; return; }
+  window.__payTarget=target.sessions;
+  window.__payMine=mine[target.session_id]||null;
+  if(!window.__clubQR){
+    const cs=await sFetch("/rest/v1/club_settings?id=eq.1&select=payment_qr,payment_note").catch(()=>null);
+    if(cs&&cs.ok){ const r0=(await cs.json())[0]||{}; window.__clubQR=r0.payment_qr||""; window.__clubNote=r0.payment_note||""; }
+  }
+  card.style.display="block";
+  renderMyPayment();
+}
+function renderDues(){
+  const box=document.getElementById("duesBox"); if(!box) return;
+  const all=window.__payAll||[];
+  if(!all.length){ box.innerHTML='<p class="soon">No session fees on your account.</p>'; return; }
+  const unpaid=all.filter(x=>!x.paid);
+  const owed=unpaid.reduce((a,b)=>a+Number(b.amount||0),0);
+  let html="";
+  if(!unpaid.length){
+    html='<div class="benchstate inplay">✅ <b>All settled.</b><br>Nothing outstanding — thank you!</div>';
+  }else{
+    html='<div class="duehead"><b>'+pesos(owed)+'</b><span>outstanding across '+unpaid.length+
+      ' session'+(unpaid.length===1?"":"s")+'</span></div>';
+    html+=unpaid.map(x=>'<div class="duerow"><div class="dm"><b>'+esc(x.s.title)+'</b><span>'+
+      (x.s.session_date||"")+'</span></div><b class="damt">'+pesos(x.amount)+'</b></div>').join("");
+    html+='<p class="hint" style="margin-top:10px">Pay on the <b>⚡ Gate</b> tab, then send your receipt to the '+
+      '<b>Reclub chat</b> — payments are only verified once the receipt is posted there.</p>';
+  }
+  const paid=all.filter(x=>x.paid);
+  if(paid.length) html+='<p class="hint" style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px">'+
+    '✅ '+paid.length+' session'+(paid.length===1?"":"s")+' already settled.</p>';
+  box.innerHTML=html;
+}
+function renderMyPayment(){
+  const s=window.__payTarget, mine=window.__payMine, box=document.getElementById("payBody");
+  if(!s||!box) return;
+  const fee=(s.settings||{}).queueFee||0;
+  let head;
+  if(mine&&mine.verified) head='<div class="benchstate inplay">✅ <b>Paid — thank you!</b><br>'+
+      esc(s.title)+' · '+pesos(mine.amount||fee)+' marked received by the Party Leader.</div>';
+  else head='<div class="benchstate benched">💳 <b>'+pesos(fee)+' due for '+esc(s.title)+'</b><br>'+
+      'Scan the QR below to pay.</div>';
+  let qr="";
+  if(window.__clubQR) qr='<div style="text-align:center;margin:12px 0"><img id="payQRimg" src="'+window.__clubQR+'" alt="Payment QR">'+
+      (window.__clubNote?'<p class="hint" style="margin-top:6px">'+esc(window.__clubNote)+'</p>':'')+'</div>';
+  else qr='<p class="hint" style="margin:10px 0">No QR set yet — ask the Party Leader where to send payment.</p>';
+  const notice=(mine&&mine.verified)? "" :
+    '<div class="paynotice"><b>📤 Send your receipt to the Reclub chat</b>'+
+    '<span>Your payment is only verified once the receipt is posted there. <b>No receipt, no verification.</b></span></div>'+
+    '<div class="payhint2">💳 <b>Digital payment via QR is highly encouraged.</b><br>'+
+    'For cash payment, approach the Party Leader.</div>';
+  box.innerHTML=head+qr+notice;
+}
 /* ---------- bench (sitting out) + partner preference ---------- */
 let benchBusy=false;
 function renderBench(){
@@ -3581,6 +4156,7 @@ async function loadBench(sessionId){
   sel.value=window.__myPref||"";
   const cur=sel.selectedOptions[0];
   window.__myPrefName = (window.__myPref && cur)? cur.textContent : null;
+  prefDirty(); prefState();
 }
 async function toggleBench(){
   if(benchBusy||!window.__benchSession) return;
@@ -3597,6 +4173,20 @@ async function toggleBench(){
   renderBench();
   toast(goingOut? "🪑 You\u2019re on the bench" : "🏸 Welcome back \u2014 you\u2019re in the rotation");
 }
+function prefDirty(){
+  const sel=document.getElementById("prefSel"), btn=document.getElementById("prefBtn");
+  if(!sel||!btn) return;
+  const cur=sel.value||"", saved=window.__myPref||"";
+  btn.disabled=(cur===saved);
+  btn.textContent = cur? "\uD83E\uDD1D Confirm request" : (saved? "\u2716 Clear request" : "\uD83E\uDD1D Confirm request");
+}
+function prefState(){
+  const p=document.getElementById("prefState"); if(!p) return;
+  if(!window.__myPref){ p.innerHTML="No request saved \u2014 you\u2019ll be matched with anyone."; return; }
+  const sel=document.getElementById("prefSel");
+  const nm=window.__myPrefName || (sel&&sel.selectedOptions[0]? sel.selectedOptions[0].textContent : "your pick");
+  p.innerHTML="\u2705 Request saved \u2014 we\u2019ll try to pair you with <b>"+esc(nm)+"</b>.";
+}
 async function savePref(){
   if(!window.__benchSession) return;
   const v=document.getElementById("prefSel").value||null;
@@ -3605,6 +4195,8 @@ async function savePref(){
   if(!r||!r.ok){ toast("Could not save preference — the club may need to run bench-prefs.sql"); return; }
   window.__myPref=v||"";
   const nm=v? document.getElementById("prefSel").selectedOptions[0].textContent : null;
+  window.__myPrefName=nm;
+  prefDirty(); prefState();
   toast(nm? "🤝 Noted \u2014 we\u2019ll try to pair you with "+nm : "Partner preference cleared");
 }
 /* ---------- "where am I in line?" ---------- */
@@ -3953,10 +4545,19 @@ function renderSessionCard(){
   }, {variant:document.getElementById("scStyle").value});
 }
 function downloadSessionCard(){
-  if(!scCanvas) return;
-  const s=mySessions[document.getElementById("scSel").value];
-  const v=document.getElementById("scStyle").value==="upside"?"_upsidedown":"";
-  scCanvas.toBlob(b=>download(((myProfile.reclub_name||"player")+"_"+(s?s.session_date:"session")+v+"_card.png").replace(/\s+/g,"_"),b));
+  // always rebuild from the CURRENT style — never trust a cached canvas
+  const sid=document.getElementById("scSel").value;
+  const rows=(myMatches||[]).filter(m=>m.session_id===sid);
+  if(!rows.length) return toast("No matches in that session yet");
+  const s=mySessions[sid];
+  const variant=document.getElementById("scStyle").value||"classic";
+  const v=variant==="upside"?"_upsidedown":"";
+  const {st,ex}=careerStatsFrom(rows,auth.uid);
+  toast("Building your card\u2026");
+  buildShareCard(myProfile.reclub_name||"Player", st, ex, c=>{
+    scCanvas=c;
+    c.toBlob(b=>download(((myProfile.reclub_name||"player")+"_"+(s?s.session_date:"session")+v+"_card.png").replace(/\s+/g,"_"),b));
+  }, {variant});
 }
 
 /* ======================= HALL OF FAME + NAME REPAIR ======================= */
