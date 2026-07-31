@@ -3778,7 +3778,7 @@ class MiniPhoenix{
 function pePickAvatar(input){
   const f=input.files&&input.files[0]; input.value="";
   if(!f) return;
-  fileToBadgeDataUrl(f,url=>{ window._peAv=url;
+  fileToPhotoDataUrl(f,url=>{ window._peAv=url;
     const pv=document.getElementById("peAvPrev"); pv.src=url; pv.style.display="inline-block"; });
 }
 function toggleProfileEdit(){
@@ -3974,7 +3974,14 @@ async function mountPlayerBoard(sessionId){
   };
   window.__pbPull=pull;               // expose for pull-to-refresh gesture
   await pull();
-  clearInterval(pbPoll); pbPoll=setInterval(pull,12000);
+  clearInterval(pbPoll);
+  pbPoll=setInterval(()=>{ if(!document.hidden) pull(); },25000);   // idle phones stop polling
+  if(!window.__pbVis){
+    window.__pbVis=true;
+    document.addEventListener("visibilitychange",()=>{
+      if(!document.hidden && window.__pbPull) window.__pbPull();     // refresh the moment they look
+    });
+  }
   attachPullToRefresh();
   clearInterval(pbTick); pbTick=setInterval(()=>{
     wrap.querySelectorAll("[data-start]").forEach(el=>{
@@ -4600,6 +4607,19 @@ function hallMode(m){ hfMode=m; hfOffset=0;
   loadHall();
 }
 function hallNav(dir){ if(hfMode==="a") return; if(hfOffset+dir>0) return; hfOffset+=dir; loadHall(); }
+async function ensureAvatars(ids){
+  window.__avCache=window.__avCache||{};
+  const want=[...new Set((ids||[]).filter(id=>id&&UUID_RE.test(id)&&!(id in window.__avCache)))];
+  if(!want.length) return;
+  want.forEach(id=>window.__avCache[id]="");
+  try{
+    const r=await sFetch("/rest/v1/profiles?id=in.("+want.join(",")+")&select=id,avatar");
+    if(!r.ok) throw new Error("avatar fetch failed");
+    (await r.json()).forEach(p=>{ if(p.avatar) window.__avCache[p.id]=p.avatar; });
+  }catch(e){
+    want.forEach(id=>{ if(!window.__avCache[id]) delete window.__avCache[id]; });  // allow a retry later
+  }
+}
 async function loadHall(manual){
   const seq=++hfSeq;
   const boxes=[...document.querySelectorAll(".hallbox")];
@@ -4611,9 +4631,11 @@ async function loadHall(manual){
     ? (hfOffset===0? "This Week" : "Week of "+new Date(start+"T00:00:00Z").toLocaleDateString(undefined,{month:"short",day:"numeric"}))
     : new Date(start+"T00:00:00Z").toLocaleDateString(undefined,{month:"long",year:"numeric"});
   boxes.forEach(b=>b.querySelector(".hfLabel").textContent=labelTxt);
-  const url= hfMode==="a"? "/rest/v1/leaderboard_alltime?select=*"
+  // avatars are fetched separately for just the rows we show (they are ~40x the size of the row itself)
+  const COLS="select=profile_id,display_name,games,wins,win_rate,diff,xp";
+  const url= hfMode==="a"? "/rest/v1/leaderboard_alltime?"+COLS
     : "/rest/v1/"+(hfMode==="w"?"leaderboard_weekly":"leaderboard_monthly")+"?"+
-      (hfMode==="w"?"week_start":"month_start")+"=eq."+start+"&select=*";
+      (hfMode==="w"?"week_start":"month_start")+"=eq."+start+"&"+COLS;
   const r=await sFetch(url).catch(()=>null);
   if(!r||!r.ok){ if(manual) toast("Could not load the leaderboard"); return; }
   let rows=await r.json();
@@ -4626,18 +4648,23 @@ async function loadHall(manual){
   const xpOfRow=x=>(x.xp!=null? x.xp : x.wins*30+(x.games-x.wins)*10);
   rows.sort((a,b)=>xpOfRow(b)-xpOfRow(a)||b.wins-a.wins||b.diff-a.diff);
   const medals=["🥇","🥈","🥉"];
+  const myIdxPre=auth? rows.findIndex(x=>x.profile_id===auth.uid) : -1;
+  const shownIds=rows.slice(0,10).map(x=>x.profile_id);
+  if(myIdxPre>=10) shownIds.push(rows[myIdxPre].profile_id);
+  await ensureAvatars(shownIds);
+  const avOf=id=>(window.__avCache&&window.__avCache[id])||"";
   let html=rows.slice(0,10).map((x,i)=>{
     const me=auth&&x.profile_id===auth.uid;
     return '<div class="lbprow'+(me?" me":"")+'">'+
       '<span class="lbrank">'+(medals[i]||(i+1))+'</span>'+
-      (x.avatar? '<img class="lbav" src="'+x.avatar+'" alt="">':'')+
+      (avOf(x.profile_id)? '<img class="lbav" src="'+avOf(x.profile_id)+'" alt="">':'')+
       '<span class="lbnm">'+esc(x.display_name||"Player")+(me?'<span class="youpill">YOU</span>':"")+'</span>'+
       '<span class="lbst">'+xpOfRow(x)+' XP <small>· '+x.wins+'W · '+x.games+'G · '+Math.round(x.win_rate)+'%</small></span></div>';
   }).join("");
   const myIdx=auth? rows.findIndex(x=>x.profile_id===auth.uid) : -1;
   if(myIdx>=10){ const x=rows[myIdx];
     html+='<div class="lbprow me"><span class="lbrank">'+(myIdx+1)+'</span>'+
-      (x.avatar? '<img class="lbav" src="'+x.avatar+'" alt="">':'')+
+      (avOf(x.profile_id)? '<img class="lbav" src="'+avOf(x.profile_id)+'" alt="">':'')+
       '<span class="lbnm">'+esc(x.display_name||"You")+'<span class="youpill">YOU</span></span>'+
       '<span class="lbst">'+xpOfRow(x)+' XP <small>· '+x.wins+'W · '+x.games+'G</small></span></div>'; }
   paintAll(html);
@@ -4769,6 +4796,21 @@ function customBadgeUnlocked(b,st,ex,ns){
   const fn=CRIT_FNS[b.criteria]; return fn? fn(st,ex,ns)>=b.threshold : false;
 }
 /* ---- admin: badge studio ---- */
+/* player photos are JPEG (far smaller); badge/partner logos stay PNG for transparency */
+function fileToPhotoDataUrl(file,cb){
+  const img=new Image();
+  img.onload=()=>{
+    const c=document.createElement("canvas"); c.width=c.height=96;
+    const x=c.getContext("2d");
+    x.fillStyle="#12180f"; x.fillRect(0,0,96,96);      // JPEG has no alpha — fill first
+    const s=Math.min(img.width,img.height);
+    x.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,96,96);
+    URL.revokeObjectURL(img.src);
+    cb(c.toDataURL("image/jpeg",0.82));
+  };
+  img.onerror=()=>{ URL.revokeObjectURL(img.src); toast("Could not read that image"); };
+  img.src=URL.createObjectURL(file);
+}
 function fileToBadgeDataUrl(file,cb){
   const img=new Image();
   img.onload=()=>{
