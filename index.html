@@ -753,6 +753,10 @@ window.SS_CONFIG = {
   <div class="card" style="max-width:760px;margin:0 auto 14px">
     <h3>👥 Players <button class="small" style="float:right" onclick="exportPlayers()">⬇ Export Excel</button></h3>
     <p id="plStats" class="hint" style="font-size:14px;margin:4px 0 2px">Loading…</p>
+    <div class="controls" style="margin-top:8px">
+      <input id="plSearch" placeholder="🔍 Search name or username…" style="flex:1;min-width:170px" oninput="plSearchNow()">
+      <button class="small ghost" onclick="document.getElementById('plSearch').value='';plSearchNow()">✕</button>
+    </div>
     <div id="plList" style="margin-top:10px"></div>
     <div class="controls" id="plPager" style="justify-content:space-between;display:none">
       <button class="small ghost" id="plPrev" onclick="plPage(-1)">◀ Prev</button>
@@ -879,7 +883,7 @@ window.SS_CONFIG = {
     <div class="phrow"><span>Skill level</span><b id="phLevel">—</b></div>
     <div class="phrow"><span>Username</span><b id="phUser">—</b></div>
     <div class="pedit" id="pedit">
-      <div class="fld"><label>Reclub name</label><input id="peReclub"></div>
+      <div class="fld"><label>Nickname</label><input id="peReclub"></div>
       <div class="fld"><label>Full name</label><input id="peFull"></div>
       <div class="fld"><label>Level</label><select id="peLevel"></select></div>
       <div class="fld"><label>Avatar</label>
@@ -1009,7 +1013,7 @@ window.SS_CONFIG = {
     <div class="fld"><label>Password</label><input id="auPass" type="password" autocomplete="current-password"></div>
     <div id="signupFields" style="display:none">
       <div class="fld"><label>Full name</label><input id="auFull"></div>
-      <div class="fld"><label>Reclub name (shows on boards)</label><input id="auReclub"></div>
+      <div class="fld"><label>Nickname (shows on boards)</label><input id="auReclub"></div>
       <div class="fld"><label>Level</label><select id="auLevel"></select></div>
     </div>
     <div class="autherr" id="authErr"></div>
@@ -3350,7 +3354,7 @@ async function authSubmit(){
       const full=document.getElementById("auFull").value.trim();
       const rec=document.getElementById("auReclub").value.trim();
       const lvl=document.getElementById("auLevel").value;
-      if(!full||!rec) throw new Error("Full name and Reclub name are required.");
+      if(!full||!rec) throw new Error("Full name and nickname are required.");
       await sbSignup(u,p,full,rec,lvl);
     }else{
       await sbLogin(u,p);
@@ -3804,7 +3808,7 @@ async function saveProfile(){
   const full=document.getElementById("peFull").value.trim();
   const lvl=document.getElementById("peLevel").value;
   const pass=document.getElementById("pePass").value;
-  if(!rec||!full){ msg.style.color="var(--red)"; return msg.textContent="Reclub name and full name are required."; }
+  if(!rec||!full){ msg.style.color="var(--red)"; return msg.textContent="Nickname and full name are required."; }
   if(pass && pass.length<6){ msg.style.color="var(--red)"; return msg.textContent="New password must be at least 6 characters."; }
   const r=await sFetch("/rest/v1/profiles?id=eq."+auth.uid,{method:"PATCH",
     headers:{Prefer:"return=representation"},
@@ -4943,9 +4947,45 @@ let playerStatsTimer=null;
 let plPageNo=0, plTotal=0;
 const PL_PAGE=15;
 function plPage(d){ plPageNo=Math.max(0,plPageNo+d); loadPlayerList(); }
+let plSearchTimer=null;
+function plSearchNow(){
+  clearTimeout(plSearchTimer);
+  plSearchTimer=setTimeout(()=>{ plPageNo=0; loadPlayerList(); loadPlayerStats(); },250);
+}
+function randPass(){
+  const a="abcdefghjkmnpqrstuvwxyz23456789";
+  let s=""; for(let i=0;i<8;i++) s+=a[Math.floor(Math.random()*a.length)];
+  return s;
+}
+async function resetPlayerPassword(p){
+  const name=p.reclub_name||p.username||"this player";
+  const suggested=randPass();
+  const pw=await uiPrompt("Temporary password for "+name+" \u2014 they should change it in the app afterwards.",
+    suggested, {title:"\uD83D\uDD11 Reset password", ok:"Set password"});
+  if(pw===null) return;
+  const val=(pw||"").trim();
+  if(val.length<6) return toast("Password must be at least 6 characters");
+  const r=await sFetch("/rest/v1/rpc/admin_reset_password",
+    {method:"POST",body:{p_id:p.id,p_password:val}}).catch(()=>null);
+  if(!r||!r.ok){
+    const j=r? await r.json().catch(()=>({})) : {};
+    toast((j.message||"").includes("function")? "Run admin-reset-password.sql first" : "Could not reset password");
+    return;
+  }
+  try{ await navigator.clipboard.writeText(val); }catch(e){}
+  await uiConfirm("New password for "+name+":  "+val+"\n\nCopied to your clipboard. Send it to them and ask them to change it in Profile \u2192 Edit.",
+    {title:"\u2705 Password reset", ok:"Done"});
+}
 async function loadPlayerList(){
   const box=document.getElementById("plList"); if(!box) return;
-  const r=await sFetch("/rest/v1/profiles?select=id,username,reclub_name,full_name,created_at,avatar"+
+  const qEl=document.getElementById("plSearch");
+  const q=(qEl&&qEl.value||"").trim();
+  let filter="";
+  if(q){
+    const safe=encodeURIComponent("*"+q.replace(/[(),*]/g,"")+"*");
+    filter="&or=(reclub_name.ilike."+safe+",username.ilike."+safe+",full_name.ilike."+safe+")";
+  }
+  const r=await sFetch("/rest/v1/profiles?select=id,username,reclub_name,full_name,created_at,avatar"+filter+
     "&order=created_at.desc&limit="+PL_PAGE+"&offset="+(plPageNo*PL_PAGE)).catch(()=>null);
   if(!r||!r.ok){ box.innerHTML='<p class="hint">Could not load players.</p>'; return; }
   const rows=await r.json();
@@ -4958,6 +4998,9 @@ async function loadPlayerList(){
     div.innerHTML=av+'<div class="st"><b>'+esc(p.reclub_name||"Player")+'</b>'+
       '<span>@'+esc(p.username||"")+' \u00b7 joined '+(p.created_at||"").slice(0,10)+'</span></div>';
     if(p.id!==auth.uid){
+      const key=document.createElement("button"); key.className="small ghost"; key.textContent="🔑";
+      key.title="Set a temporary password"; key.onclick=()=>resetPlayerPassword(p);
+      div.appendChild(key);
       const del=document.createElement("button"); del.className="small ghost"; del.textContent="🗑";
       del.onclick=async()=>{
         if(!await uiConfirm('Delete "'+(p.reclub_name||p.username)+'" and their account?\nProfile, roster spots, quest XP and badges are removed permanently. Recorded matches keep their stored name.',
@@ -5019,7 +5062,7 @@ async function exportPlayers(){
     rows.sort((a,b)=>(b.xp||0)-(a.xp||0)||b.wins-a.wins||b.diff-a.diff);
     rows.forEach((x,i)=>rank[x.profile_id]="#"+(i+1));
   }
-  const header=["Username","Full name","Reclub name","Joined since","Last session attended","Current rank"];
+  const header=["Username","Full name","Nickname","Joined since","Last session attended","Current rank"];
   const data=profs.map(p=>[
     p.username||"", p.full_name||"", p.reclub_name||"",
     (p.created_at||"").slice(0,10),
