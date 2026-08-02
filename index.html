@@ -614,6 +614,7 @@ window.SS_CONFIG = {
       <select id="activeSess" style="flex:1;min-width:180px" onchange="selectSession(this.value)"></select>
       <button class="small ghost" onclick="importRoster(true)">🔄 Roster</button>
       <button class="small ghost" onclick="adminAddRegistered()">➕ Add player</button>
+      <button class="small" onclick="shareSessionBoard()" title="Download tonight's leaderboard as an image">🏆 Leaderboard card</button>
       <button class="small ghost" onclick="adminRepairNames()" title="Backfill player names on old database matches from this device's local record">🩹 Fix names</button>
       <span class="hint" id="sessInfo"></span>
     </div>
@@ -648,41 +649,55 @@ window.SS_CONFIG = {
 
 <!-- ================= STATS ================= -->
 <section id="tab-stats" class="tab">
-  <div class="card" style="margin-bottom:14px">
-    <h3>Session Summary</h3>
-    <div class="filterrow">
-      <label>Exclude Players:</label>
-      <input type="text" id="sumExcl" placeholder="Comma-separated names (e.g. Mike, Eleven, Demogorgon)"
-        oninput="S.ui.sumExcl=this.value;save();renderStats(true)">
+  <div class="card" style="max-width:900px;margin:0 auto 14px">
+    <h3>📊 Analysis Center</h3>
+    <div class="controls" style="flex-wrap:wrap">
+      <select id="anRange" onchange="loadAnalytics()">
+        <option value="30">Last 30 days</option>
+        <option value="90">Last 90 days</option>
+        <option value="0">All time</option>
+      </select>
+      <button class="small ghost" onclick="loadAnalytics()">⟳ Refresh</button>
+      <span class="spacer"></span>
+      <button class="small" onclick="exportAnalytics()">⬇ Export Excel</button>
     </div>
-    <div class="statcards" id="statCards"></div>
-    <h4 class="serif" style="margin:10px 0 6px;color:var(--green)">Skill Level Distribution</h4>
-    <div class="tablewrap"><table id="skillTable">
-      <thead><tr><th>Level</th><th class="num"># Players</th><th class="num">Avg Win %</th><th class="num">Avg Games</th></tr></thead>
-      <tbody></tbody></table></div>
-    <h4 class="serif" style="margin:14px 0 8px;color:var(--green)">Insights</h4>
-    <div class="inscards" id="insights"></div>
+    <p class="hint" id="anHint" style="margin-top:8px">Club-wide numbers across every session — for planning, not for the board.</p>
   </div>
 
-  <div class="card" style="margin-bottom:14px">
-    <h3>Leaderboard</h3>
-    <div class="filterrow">
-      <label>Min Games:</label>
-      <input type="number" min="0" style="width:70px" id="minGames" onchange="S.ui.minGames=+this.value||0;save();renderStats(true)">
-      <label>Exclude Players:</label>
-      <input type="text" id="lbExcl" placeholder="Comma-separated names (e.g. Mike, Eleven, Demogorgon)"
-        oninput="S.ui.lbExcl=this.value;save();renderStats(true)">
-    </div>
-    <div class="tablewrap"><table id="lbTable">
-      <thead><tr><th>Rank</th><th>Player</th><th class="num">Wins</th><th class="num">Games</th><th class="num">Win Rate ▼</th><th class="num">+/-</th><th class="num">Avg Wait</th></tr></thead>
-      <tbody></tbody></table></div>
+  <div class="card" style="max-width:900px;margin:0 auto 14px">
+    <h3>📈 At a glance</h3>
+    <div id="anKpis"></div>
   </div>
 
-  <div class="card">
-    <h3>Game Results</h3>
-    <div class="tablewrap"><table id="resultsTable">
-      <thead><tr><th>#</th><th>Court</th><th>Team 1</th><th>Team 2</th><th>Winner</th><th>Score</th><th>Duration</th><th>Edit</th></tr></thead>
-      <tbody></tbody></table></div>
+  <div class="card" style="max-width:900px;margin:0 auto 14px">
+    <h3>🗓 Attendance by session</h3>
+    <div id="anAttend"></div>
+    <p class="hint">How many players turned up each night — your demand signal for booking courts.</p>
+  </div>
+
+  <div class="card" style="max-width:900px;margin:0 auto 14px">
+    <h3>👥 Player activity</h3>
+    <div class="controls">
+      <input id="anSearch" placeholder="🔍 Search player…" style="flex:1;min-width:160px" oninput="renderAnPlayers()">
+      <select id="anSort" onchange="renderAnPlayers()">
+        <option value="sessions">Most sessions</option>
+        <option value="games">Most games</option>
+        <option value="lapsed">Longest absent</option>
+        <option value="name">A–Z</option>
+      </select>
+    </div>
+    <div id="anPlayers"></div>
+    <div class="controls" id="anPager" style="justify-content:space-between;display:none">
+      <button class="small ghost" id="anPrev" onclick="anPage(-1)">◀ Prev</button>
+      <span class="hint" id="anPageLbl"></span>
+      <button class="small ghost" id="anNext" onclick="anPage(1)">Next ▶</button>
+    </div>
+  </div>
+
+  <div class="card" style="max-width:900px;margin:0 auto 0">
+    <h3>⏱ Court utilisation</h3>
+    <div id="anCourts"></div>
+    <p class="hint">Average match length and matches per session — how hard your courts are working.</p>
   </div>
 </section>
 
@@ -768,6 +783,15 @@ window.SS_CONFIG = {
     </div>
   </div>
 
+  <div class="card" style="max-width:820px;margin:0 auto 14px">
+    <h3>🔒 Money Lock</h3>
+    <p class="hint">The Money tab asks for a PIN each time it's opened, and re-locks as soon as you switch tabs.</p>
+    <div class="controls" style="margin-top:8px">
+      <button class="small ghost" onclick="changeMoneyPin()">🔑 Change PIN</button>
+      <button class="small ghost" onclick="lockMoney();showTab('home')">🔒 Lock now</button>
+    </div>
+  </div>
+
   <div class="card" style="max-width:820px;margin:0 auto 0">
     <h3>🏦 Payment QR <span class="hint" style="font-weight:400">shown to every player</span></h3>
     <div class="controls" style="flex-wrap:wrap">
@@ -841,7 +865,10 @@ window.SS_CONFIG = {
         <option value="m">This month</option>
         <option value="a">All-time</option>
       </select>
-      <button class="small ghost" onclick="resetHall()">↺ Reset Hall</button></p>
+      <button class="small ghost" onclick="resetHall()">↺ Reset Hall</button>
+      <button class="small ghost" onclick="masterResetHall()" title="Start the Hall of Fame and levels from a clean slate">🧨 Master reset</button>
+      <button class="small ghost" onclick="restoreHallHistory()" title="Undo a master reset">↩ Restore full history</button></p>
+      <p class="hint" id="hofEpochNote" style="margin-top:4px"></p>
   </div>
   <div class="card" style="max-width:760px;margin:14px auto 0">
     <h3>🎞 Match Manager <button class="small ghost" style="float:right" onclick="adminLoadMatches(true)">🔄</button></h3>
@@ -988,7 +1015,7 @@ window.SS_CONFIG = {
       <button onclick="playerJoin()">Join</button>
     </div>
     <p class="autherr" id="joinMsg"></p>
-    <p class="soon" id="gateHint" style="margin-top:8px;font-size:12.5px">📱 Scan the session QR at the front desk, or ask the Queue Master for tonight's 6-character code.</p>
+    <p class="soon" id="gateHint" style="margin-top:8px;font-size:12.5px">📱 Scan the session QR at the front desk, or ask the Party Leader for tonight's 6-character code.</p>
   </div>
   <div class="phcard" id="qStatusCard" style="display:none;padding:0;overflow:hidden">
     <div id="qStatus"></div>
@@ -1010,7 +1037,7 @@ window.SS_CONFIG = {
       <button id="prefBtn" class="wide" style="margin-top:8px" onclick="savePref()" disabled>🤝 Confirm request</button>
       <p class="hint" id="prefState" style="margin-top:6px"></p>
       <p class="hint" style="margin-top:8px">A hint, not a reservation. You’ll still be matched fairly by games played
-        and time waited — but when it’s a close call, the Queue Master’s autofill will try to put you together.
+        and time waited — but when it’s a close call, the Party Leader will try to put you together.
         If you both pick each other, it counts double.</p>
     </div>
   </div>
@@ -1287,10 +1314,65 @@ function parseNames(txt){ return (txt||"").split(",").map(s=>s.trim().toLowerCas
 function excluded(txt,p){ return parseNames(txt).includes(p.name.toLowerCase()); }
 
 /* ======================= CHROME ======================= */
-function showTab(t){
+async function sha256hex(s){
+  const b=new TextEncoder().encode("ss-pin:"+s);
+  const d=await crypto.subtle.digest("SHA-256",b);
+  return [...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+async function moneyPinHash(){
+  if(window.__pinHash!==undefined) return window.__pinHash;
+  const r=await sFetch("/rest/v1/club_settings?id=eq.1&select=money_pin").catch(()=>null);
+  window.__pinHash=(r&&r.ok)? ((await r.json())[0]||{}).money_pin||"" : "";
+  return window.__pinHash;
+}
+async function unlockMoney(){
+  if(window.__moneyOpen) return true;                 // already unlocked this visit
+  const stored=await moneyPinHash();
+  if(!stored){                                        // no PIN set yet — first run
+    const set=await uiPrompt("No PIN set yet. Choose a 4\u20136 digit PIN to protect the Money tab.\nLeave blank to skip for now.","",
+      {title:"\uD83D\uDD12 Set Money PIN", ok:"Set PIN"});
+    if(set===null) return false;
+    const v=(set||"").trim();
+    if(!v){ window.__moneyOpen=true; return true; }
+    if(!/^\d{4,6}$/.test(v)){ toast("PIN must be 4\u20136 digits"); return false; }
+    const r=await sFetch("/rest/v1/club_settings?id=eq.1",{method:"PATCH",
+      body:{money_pin:await sha256hex(v),updated_by:auth.uid,updated_at:new Date().toISOString()}}).catch(()=>null);
+    if(!r||!r.ok){ toast("Could not save PIN"); return false; }
+    window.__pinHash=await sha256hex(v); window.__moneyOpen=true;
+    toast("\uD83D\uDD12 Money PIN set");
+    return true;
+  }
+  const pin=await uiPrompt("Enter the Money PIN.","",{title:"\uD83D\uDD12 Money tab locked", ok:"Unlock"});
+  if(pin===null) return false;
+  if(await sha256hex((pin||"").trim())!==stored){ toast("Wrong PIN"); return false; }
+  window.__moneyOpen=true;
+  return true;
+}
+function lockMoney(){ window.__moneyOpen=false; toast("\uD83D\uDD12 Money tab locked"); }
+async function changeMoneyPin(){
+  const stored=await moneyPinHash();
+  if(stored){
+    const oldp=await uiPrompt("Enter your current PIN.","",{title:"\uD83D\uDD11 Change Money PIN", ok:"Next"});
+    if(oldp===null) return;
+    if(await sha256hex((oldp||"").trim())!==stored) return toast("Wrong current PIN");
+  }
+  const np=await uiPrompt("New 4\u20136 digit PIN.\nLeave blank to remove the lock.","",
+    {title:"\uD83D\uDD11 Change Money PIN", ok:"Save"});
+  if(np===null) return;
+  const v=(np||"").trim();
+  if(v && !/^\d{4,6}$/.test(v)) return toast("PIN must be 4\u20136 digits");
+  const r=await sFetch("/rest/v1/club_settings?id=eq.1",{method:"PATCH",
+    body:{money_pin: v? await sha256hex(v):"", updated_by:auth.uid,updated_at:new Date().toISOString()}}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not save PIN");
+  window.__pinHash= v? await sha256hex(v) : "";
+  toast(v? "\uD83D\uDD11 PIN updated" : "Money lock removed");
+}
+async function showTab(t){
+  if(t==="money" && !(await unlockMoney())) return;
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
   document.getElementById("tab-"+t).classList.add("on");
   ["home","stats","money","admin"].forEach(k=>{const b=document.getElementById("tab"+k[0].toUpperCase()+k.slice(1)+"Btn"); if(b)b.classList.toggle("on",k===t);});
+  if(t!=="money") window.__moneyOpen=false;          // re-lock the moment you leave
   if(t==="stats") renderStats();
   if(t==="money") renderMoney();
 }
@@ -1893,121 +1975,156 @@ function touchDragStart(e,pid,el){
 }
 
 /* ======================= STATS TAB ======================= */
-function renderStats(keepFocus){
-  const seF=document.getElementById("sumExcl"), lbF=document.getElementById("lbExcl");
-  if(!keepFocus){ seF.value=S.ui.sumExcl||""; lbF.value=S.ui.lbExcl||""; }
-  document.getElementById("minGames").value=S.ui.minGames;
-  const inc=S.players.filter(p=>!excluded(S.ui.sumExcl,p));
-  const perP=inc.map(p=>({p,st:statsFor(p.id)}));
-  const totalGames=S.matches.length;
-  const played=perP.filter(x=>x.st.g>0);
-  const avgG=inc.length? played.reduce((a,x)=>a+x.st.g,0)/(inc.length||1):0;
-  const durs=S.matches.map(m=>(m.end-m.start)/60000);
-  const avgDur=durs.length? durs.reduce((a,b)=>a+b,0)/durs.length:0;
-  const exclIds=new Set(S.players.filter(p=>excluded(S.ui.sumExcl,p)).map(p=>p.id));
-  const allWaits=[]; S.matches.forEach(m=>{ for(const k in (m.waits||{})) if(!exclIds.has(k)) allWaits.push(m.waits[k]); });
-  const avgW=allWaits.length? allWaits.reduce((a,b)=>a+b,0)/allWaits.length:0;
-  const cards=[["Players",inc.length],["Matches",totalGames],
-    ["Avg Games / Player",fmtMin(avgG)],["Avg Match (mins)",fmtMin(avgDur)],["Avg Wait (mins)",fmtMin(avgW)]];
-  document.getElementById("statCards").innerHTML=cards.map(c=>
-    `<div class="stat"><div class="v">${c[1]}</div><div class="l">${c[0]}</div></div>`).join("");
-
-  const tb=document.querySelector("#skillTable tbody"); tb.innerHTML="";
-  const maxLvl=Math.max(1,...LEVELS.map(lv=>perP.filter(x=>x.p.level===lv).length));
-  LEVELS.forEach(lv=>{
-    const grp=perP.filter(x=>x.p.level===lv);
-    if(!grp.length) return;
-    const wr=grp.reduce((a,x)=>a+x.st.winRate,0)/grp.length;
-    const g=grp.reduce((a,x)=>a+x.st.g,0)/grp.length;
-    const col=LEVEL_COLORS[LEVELS.indexOf(lv)];
-    tb.insertAdjacentHTML("beforeend",
-      `<tr><td><span class="lvl" style="background:${col}">${lv}</span></td>
-       <td style="width:42%"><div class="bartrack"><span class="tr"><i style="width:${Math.round(grp.length/maxLvl*100)}%;background:${col}"></i></span><b>${grp.length}</b></div></td>
-       <td class="num">${fmtMin(wr)}%</td><td class="num">${fmtMin(g)}</td></tr>`);
+function renderStats(){ loadAnalytics(); }
+let anPageNo=0;
+function anPage(d){ anPageNo=Math.max(0,anPageNo+d); renderAnPlayers(true); }
+async function loadAnalytics(){
+  const kpi=document.getElementById("anKpis"); if(!kpi) return;
+  kpi.innerHTML='<p class="hint">Loading…</p>';
+  const days=+document.getElementById("anRange").value||0;
+  let from=null;
+  if(days){ const d=new Date(); d.setDate(d.getDate()-days); from=d.toISOString().slice(0,10); }
+  const sq="/rest/v1/sessions?select=id,title,session_date,status,settings&order=session_date.desc"+
+    (from? "&session_date=gte."+from : "");
+  const sr=await sFetch(sq).catch(()=>null);
+  if(!sr||!sr.ok){ kpi.innerHTML='<p class="hint">Could not load sessions.</p>'; return; }
+  const sess=await sr.json();
+  if(!sess.length){ kpi.innerHTML='<p class="hint">No sessions in this range.</p>';
+    ["anAttend","anPlayers","anCourts"].forEach(i=>document.getElementById(i).innerHTML=""); return; }
+  const ids=sess.map(s=>s.id);
+  const [rr,mr]=await Promise.all([
+    sFetch("/rest/v1/session_players?session_id=in.("+ids.join(",")+
+      ")&select=session_id,profile_id,profiles!session_players_profile_id_fkey(reclub_name,full_name)").catch(()=>null),
+    sFetch("/rest/v1/matches?session_id=in.("+ids.join(",")+
+      ")&select=session_id,t1,t2,s1,s2,started_at,ended_at&limit=4000").catch(()=>null)]);
+  const roster=(rr&&rr.ok)? await rr.json():[];
+  const matches=(mr&&mr.ok)? await mr.json():[];
+  const byDate={}; sess.forEach(s=>byDate[s.id]=s.session_date);
+  // per-session attendance + matches
+  const att={}; roster.forEach(r=>{ att[r.session_id]=(att[r.session_id]||0)+1; });
+  const mps={}; matches.forEach(m=>{ mps[m.session_id]=(mps[m.session_id]||0)+1; });
+  // per-player
+  const who={};
+  roster.forEach(r=>{
+    if(!r.profile_id) return;
+    const nm=(r.profiles&&(r.profiles.reclub_name||r.profiles.full_name))||"Player";
+    who[r.profile_id]=who[r.profile_id]||{name:nm,sessions:0,games:0,wins:0,last:null};
+    who[r.profile_id].sessions++;
+    const d=byDate[r.session_id];
+    if(d && (!who[r.profile_id].last || d>who[r.profile_id].last)) who[r.profile_id].last=d;
   });
-
-  /* ---- insights as cards ---- */
-  const cards2=[];
-  const addCard=(emoji,lab,val,sub)=>cards2.push(
-    `<div class="inscard"><div class="lab">${emoji} ${lab}</div><div class="val">${val}</div>${sub?`<div class="sub">${sub}</div>`:""}</div>`);
-  if(played.length){
-    // most wins
-    const topW=[...played].sort((a,b)=>b.st.w-a.st.w||b.st.winRate-a.st.winRate)[0];
-    if(topW.st.w>0) addCard("👑","The Upside Down Conqueror",esc(topW.p.name),topW.st.w+" wins · most on the night");
-    // longest win streak & clutch wins (from chronological history)
-    const bestStreak={},curStreak={},clutchW={};
-    [...S.matches].sort((a,b)=>a.n-b.n).forEach(m=>{
-      const winT1=m.s1>m.s2, margin=Math.abs(m.s1-m.s2);
-      [...m.t1,...m.t2].forEach(id2=>{
-        const won=(m.t1.includes(id2)&&winT1)||(m.t2.includes(id2)&&!winT1);
-        curStreak[id2]=won?(curStreak[id2]||0)+1:0;
-        bestStreak[id2]=Math.max(bestStreak[id2]||0,curStreak[id2]);
-        if(won&&margin<=2) clutchW[id2]=(clutchW[id2]||0)+1;
-      });
-    });
-    const inSummary=id2=>played.some(x=>x.p.id===id2);
-    const strk=Object.entries(bestStreak).filter(([id2])=>inSummary(id2)).sort((a,b)=>b[1]-a[1])[0];
-    if(strk&&strk[1]>=2) addCard("🔥","Hottest Streak",esc(pname(strk[0])),strk[1]+" wins in a row");
-    const qual=played.filter(x=>x.st.g>=Math.max(2,S.ui.minGames));
-    if(qual.length){ const best=[...qual].sort((a,b)=>b.st.winRate-a.st.winRate)[0];
-      addCard("🏆","Greenfield MVP",esc(best.p.name),fmtMin(best.st.winRate)+"% win rate over "+best.st.g+" games"); }
-    const most=[...played].sort((a,b)=>b.st.g-a.st.g)[0];
-    addCard("🎮","Leader of the Party",esc(most.p.name),most.st.g+" games · most active");
-    if(qual.length>1){ const tough=[...qual].sort((a,b)=>a.st.winRate-b.st.winRate)[0];
-      if(tough.st.winRate<50) addCard("🙃","Stuck in the Upside Down",esc(tough.p.name),fmtMin(tough.st.winRate)+"% win rate — rough night"); }
-    const cl=Object.entries(clutchW).filter(([id2])=>inSummary(id2)).sort((a,b)=>b[1]-a[1])[0];
-    if(cl&&cl[1]>=1) addCard("🧠","Mind Flayer Slayer",esc(pname(cl[0])),cl[1]+" clutch win"+(cl[1]>1?"s":"")+" (2-pt margins or closer)");
-    const patient=[...played].sort((a,b)=>b.st.avgWait-a.st.avgWait)[0];
-    if(patient.st.avgWait>0) addCard("⏳","Eleven's Patience",esc(patient.p.name),fmtMin(patient.st.avgWait)+" min average between games");
+  matches.forEach(m=>{
+    const won=m.s1>m.s2;
+    (m.t1||[]).forEach(id=>{ if(who[id]){ who[id].games++; if(won) who[id].wins++; } });
+    (m.t2||[]).forEach(id=>{ if(who[id]){ who[id].games++; if(!won) who[id].wins++; } });
+  });
+  const today=new Date().toISOString().slice(0,10);
+  const dayGap=(a,b)=>Math.round((new Date(b)-new Date(a))/86400000);
+  Object.values(who).forEach(p=>{ p.absent=p.last? dayGap(p.last,today):999; });
+  window.__an={sess,att,mps,matches,who,from};
+  // KPIs
+  const totalMatches=matches.length;
+  const uniquePlayers=Object.keys(who).length;
+  const avgAtt=sess.length? Math.round(Object.values(att).reduce((a,b)=>a+b,0)/sess.length*10)/10 : 0;
+  const durs=matches.filter(m=>m.started_at&&m.ended_at)
+    .map(m=>(new Date(m.ended_at)-new Date(m.started_at))/60000).filter(x=>x>0&&x<120);
+  const avgLen=durs.length? Math.round(durs.reduce((a,b)=>a+b,0)/durs.length) : 0;
+  const returning=Object.values(who).filter(p=>p.sessions>1).length;
+  const retention=uniquePlayers? Math.round(100*returning/uniquePlayers) : 0;
+  kpi.innerHTML='<div class="paysum">'+
+    '<div><b>'+sess.length+'</b><span>sessions</span></div>'+
+    '<div><b>'+uniquePlayers+'</b><span>unique players</span></div>'+
+    '<div><b>'+avgAtt+'</b><span>avg attendance</span></div>'+
+    '<div><b>'+totalMatches+'</b><span>matches</span></div>'+
+    '<div><b class="'+(retention>=50?"pos":"neg")+'">'+retention+'%</b><span>came back</span></div>'+
+    '<div><b>'+avgLen+'m</b><span>avg match</span></div></div>';
+  document.getElementById("anHint").textContent=
+    sess.length+" sessions"+(from? " since "+from : " (all time)")+" · "+totalMatches+" matches recorded";
+  // attendance bars
+  const maxA=Math.max(1,...Object.values(att));
+  document.getElementById("anAttend").innerHTML=sess.slice(0,14).map(s=>{
+    const n=att[s.id]||0, pct=Math.round(100*n/maxA);
+    return '<div class="pdrow"><div class="pn2" style="flex:0 0 190px"><b>'+esc(s.title)+'</b><span>'+s.session_date+'</span></div>'+
+      '<div style="flex:1;background:var(--panel2);border-radius:8px;height:16px;overflow:hidden;margin:0 10px">'+
+      '<div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,var(--green),var(--gold))"></div></div>'+
+      '<b style="min-width:78px;text-align:right">'+n+' players</b></div>';
+  }).join("");
+  // court utilisation
+  const perSess=sess.map(s=>mps[s.id]||0);
+  const avgMps=perSess.length? Math.round(perSess.reduce((a,b)=>a+b,0)/perSess.length*10)/10 : 0;
+  const busiest=sess.reduce((best,s)=>((mps[s.id]||0)>(mps[best.id]||0)?s:best),sess[0]);
+  document.getElementById("anCourts").innerHTML='<div class="paysum">'+
+    '<div><b>'+avgMps+'</b><span>matches / session</span></div>'+
+    '<div><b>'+avgLen+' min</b><span>avg match length</span></div>'+
+    '<div><b>'+(mps[busiest.id]||0)+'</b><span>busiest night</span></div>'+
+    '<div><b>'+esc(busiest.session_date)+'</b><span>'+esc(busiest.title.slice(0,16))+'</span></div></div>';
+  anPageNo=0; renderAnPlayers();
+}
+function renderAnPlayers(keep){
+  const box=document.getElementById("anPlayers"); if(!box||!window.__an) return;
+  if(!keep) anPageNo=0;
+  let all=Object.values(window.__an.who);
+  const q=(document.getElementById("anSearch").value||"").toLowerCase().trim();
+  if(q) all=all.filter(p=>p.name.toLowerCase().includes(q));
+  const mode=document.getElementById("anSort").value;
+  all=[...all].sort((a,b)=> mode==="games"? b.games-a.games
+    : mode==="lapsed"? b.absent-a.absent
+    : mode==="name"? a.name.localeCompare(b.name)
+    : b.sessions-a.sessions);
+  const PAGE=15;
+  const pages=Math.max(1,Math.ceil(all.length/PAGE));
+  if(anPageNo>=pages) anPageNo=pages-1;
+  const pager=document.getElementById("anPager");
+  if(pager){
+    pager.style.display= all.length>PAGE? "flex":"none";
+    document.getElementById("anPageLbl").textContent="Page "+(anPageNo+1)+" of "+pages+" · "+all.length+" players";
+    document.getElementById("anPrev").disabled=anPageNo<=0;
+    document.getElementById("anNext").disabled=anPageNo>=pages-1;
   }
-  if(durs.length){
-    const longest=S.matches.reduce((a,m)=>((m.end-m.start)>(a.end-a.start)?m:a));
-    addCard("🕰","Longest Battle",fmtMin((longest.end-longest.start)/60000)+" min",
-      esc(longest.t1n.join("/"))+" vs "+esc(longest.t2n.join("/"))+" · "+longest.s1+"–"+longest.s2);
-    const closest=S.matches.reduce((a,m)=>Math.abs(m.s1-m.s2)<Math.abs(a.s1-a.s2)?m:a);
-    addCard("⚖️","Closest Call",Math.abs(closest.s1-closest.s2)+" pt"+(Math.abs(closest.s1-closest.s2)===1?"":"s"),
-      esc(closest.t1n.join("/"))+" vs "+esc(closest.t2n.join("/"))+" · "+closest.s1+"–"+closest.s2);
-    const blow=S.matches.reduce((a,m)=>Math.abs(m.s1-m.s2)>Math.abs(a.s1-a.s2)?m:a);
-    addCard("💥","Demogorgon Stomp",Math.abs(blow.s1-blow.s2)+" pts",
-      "Biggest blowout · "+esc(blow.t1n.join("/"))+" vs "+esc(blow.t2n.join("/"))+" · "+blow.s1+"–"+blow.s2);
-    const courts={}; S.matches.forEach(m=>courts[m.court]=(courts[m.court]||0)+1);
-    const busy=Object.entries(courts).sort((a,b)=>b[1]-a[1])[0];
-    if(busy) addCard("🎯","The Greenfield Lab (Busiest Court)",esc(busy[0]),busy[1]+" matches hosted");
-  }
-  if(!cards2.length) addCard("🏸","Waiting for the Party","No matches yet","Play some games and the insights light up like Joyce's wall");
-  document.getElementById("insights").innerHTML=cards2.join("");
-
-  /* leaderboard — medals for top 3 */
-  const lb=S.players.filter(p=>!excluded(S.ui.lbExcl,p))
-    .map(p=>({p,st:statsFor(p.id)}))
-    .filter(x=>x.st.g>=S.ui.minGames && x.st.g>0)
-    .sort((a,b)=>b.st.winRate-a.st.winRate||b.st.w-a.st.w||b.st.diff-a.st.diff);
-  const lt=document.querySelector("#lbTable tbody"); lt.innerHTML="";
-  lb.forEach((x,i)=>{
-    const medal=i<3? `<span class="medal">${["🥇","🥈","🥉"][i]}</span> ${i+1}` : (i+1);
-    lt.insertAdjacentHTML("beforeend",
-      `<tr><td>${medal}</td><td>${esc(x.p.name)}</td><td class="num">${x.st.w}</td><td class="num">${x.st.g}</td>
-       <td class="num">${fmtMin(x.st.winRate)}%</td><td class="num">${x.st.diff>0?"+":""}${x.st.diff}</td>
-       <td class="num">${fmtMin(x.st.avgWait)}m</td></tr>`);
-  });
-  if(!lb.length) lt.innerHTML=`<tr><td colspan="7" class="hint">No qualifying players yet.</td></tr>`;
-
-  const rt=document.querySelector("#resultsTable tbody"); rt.innerHTML="";
-  [...S.matches].sort((a,b)=>b.n-a.n).forEach(m=>{
-    const win=m.s1>m.s2? m.t1n.join(" / ") : m.t2n.join(" / ");
-    const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${m.n}</td><td>${esc(m.court)}</td><td>${esc(m.t1n.join(" / "))}</td>
-      <td>${esc(m.t2n.join(" / "))}</td><td><b>${esc(win)}</b></td><td>${m.s1}–${m.s2}</td>
-      <td>${fmtMin((m.end-m.start)/60000)}m</td><td></td>`;
-    const eb=document.createElement("button"); eb.className="small ghost"; eb.textContent="✎";
-    eb.onclick=()=>openScore({match:m});
-    tr.lastElementChild.appendChild(eb); rt.appendChild(tr);
-  });
-  if(!S.matches.length) rt.innerHTML=`<tr><td colspan="8" class="hint">Finished matches will appear here.</td></tr>`;
+  if(!all.length){ box.innerHTML='<p class="hint">No matching players.</p>'; return; }
+  box.innerHTML=all.slice(anPageNo*PAGE,(anPageNo+1)*PAGE).map(p=>{
+    const wr=p.games? Math.round(100*p.wins/p.games) : 0;
+    const lapsed=p.absent>=21;
+    return '<div class="balrow"><span class="paydot '+(lapsed?"unpaid":"ok")+'" style="cursor:default" title="'+
+      (lapsed?"Not seen in a while":"Active")+'"></span>'+
+      '<div class="bm"><b>'+esc(p.name)+'</b><span>'+p.sessions+' session'+(p.sessions===1?"":"s")+
+      ' · '+p.games+' games · '+wr+'%</span></div>'+
+      '<div class="bval"><b class="'+(lapsed?"neg":"pos")+'">'+(p.last||"—")+'</b><span>last seen</span></div></div>';
+  }).join("");
+}
+function exportAnalytics(){
+  const a=window.__an;
+  if(!a) return toast("Nothing to export yet");
+  const rows=Object.values(a.who).sort((x,y)=>y.sessions-x.sessions).map(p=>({
+    Player:p.name, Sessions:p.sessions, Games:p.games, Wins:p.wins,
+    "Win %":p.games? Math.round(100*p.wins/p.games):0,
+    "Last seen":p.last||"", "Days absent":p.absent>=999?"":p.absent}));
+  const sessRows=a.sess.map(s=>({Session:s.title, Date:s.session_date, Status:s.status,
+    Players:a.att[s.id]||0, Matches:a.mps[s.id]||0,
+    Fee:(s.settings&&s.settings.queueFee)||0}));
+  try{
+    if(window.XLSX){ return xlsxDownload(rows,sessRows); }
+    const s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+    s.onload=()=>xlsxDownload(rows,sessRows);
+    s.onerror=()=>csvFallback(rows);
+    document.head.appendChild(s);
+  }catch(e){ csvFallback(rows); }
+}
+function xlsxDownload(rows,sessRows){
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),"Players");
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sessRows),"Sessions");
+  XLSX.writeFile(wb,"stranger-strings-analytics-"+new Date().toISOString().slice(0,10)+".xlsx");
+  toast("⬇ Analytics exported");
+}
+function csvFallback(rows){
+  const hdr=Object.keys(rows[0]||{Player:""});
+  const csv=[hdr.join(",")].concat(rows.map(r=>hdr.map(k=>'"'+String(r[k]??"").replace(/"/g,'""')+'"').join(","))).join("\n");
+  download("stranger-strings-analytics.csv",new Blob([csv],{type:"text/csv"}));
+  toast("⬇ Exported as CSV");
 }
 
-/* ======================= PLAYER STATS MODAL ======================= */
-let statsPid=null;
 function pill(name,count){
   const cls=count>=3?" o3":count>=2?" o2":"";
   return `<span class="opill${cls}">${esc(name)} (${count})</span>`;
@@ -2151,6 +2268,242 @@ function udCreature(x, bx, by, s, alpha, flip){
   x.globalAlpha=alpha*0.85;
   for(let k=0;k<5;k++){ x.beginPath(); x.moveTo(0,-60-k*14); x.lineTo(6,-66-k*14); x.lineTo(0,-70-k*14); x.closePath(); x.fill(); }
   x.restore();
+}
+/* ---------- session leaderboard card (IG 1080x1350) ----------
+   Vertical budget (nothing may cross a boundary):
+     logo      66- 170 | club  196 | title  248 | 2x badge 267-313
+     crown     334     | avatars 368-616 | stage line 700
+     names/stats 742-844 | ranks 884-1050 | chips 1072-1176
+     note 1206 | session+date 1252 | tags 1292
+---------------------------------------------------------------- */
+function solidGlyph(x,glyph,px,py,size,glow){
+  x.save(); x.font=size+"px Georgia"; x.textAlign="center";
+  x.globalAlpha=1;
+  if(glow){ x.shadowColor=glow; x.shadowBlur=15; x.fillText(glyph,px,py);
+            x.shadowBlur=8;  x.fillText(glyph,px,py); }
+  x.shadowBlur=0; x.fillText(glyph,px,py);      // solid pass — no blur washing it out
+  x.restore();
+}
+function buildSessionBoardCard(d, done){
+  const W=1080,H=1350,cx=W/2;
+  const c=document.createElement("canvas"); c.width=W; c.height=H;
+  const x=c.getContext("2d");
+  const GOLD="#eac25f", GOLD2="#caa64e", SILVER="#cfd6dc", BRONZE="#d08a53",
+        INK="#f5edd8", MUTE="#8fae95", GREEN="#7cd18f";
+  const g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,"#0e1c14"); g.addColorStop(.55,"#070f0a"); g.addColorStop(1,"#04120b");
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  const spot=x.createRadialGradient(cx,470,20,cx,470,500);
+  spot.addColorStop(0,"rgba(202,166,78,.20)"); spot.addColorStop(1,"rgba(202,166,78,0)");
+  x.fillStyle=spot; x.fillRect(0,0,W,H);
+  for(let i=0;i<150;i++){ x.fillStyle="rgba(202,166,78,"+(0.05+Math.random()*0.3)+")";
+    x.beginPath(); x.arc(Math.random()*W,Math.random()*H,Math.random()<0.85?1.1:2.1,0,7); x.fill(); }
+  x.strokeStyle="rgba(255,255,255,.18)"; x.lineWidth=2;
+  x.beginPath(); x.moveTo(46,48); x.quadraticCurveTo(cx,92,W-46,48); x.stroke();
+  ["#d9453a","#eac25f","#6fbf82","#f0e6cc","#d9453a","#eac25f","#6fbf82","#d9453a","#eac25f"].forEach((col,i,arr)=>{
+    const t=(i+1)/(arr.length+1), bx=46+(W-92)*t, by=48+2*(1-t)*t*2*(92-48);
+    x.save(); x.shadowColor=col; x.shadowBlur=16; x.fillStyle=col;
+    x.beginPath(); x.arc(bx,by+7,7,0,7); x.fill(); x.restore(); });
+  x.save(); x.shadowColor="rgba(202,166,78,.75)"; x.shadowBlur=18;
+  x.strokeStyle=GOLD2; x.lineWidth=3; x.strokeRect(22,22,W-44,H-44); x.restore();
+  x.textAlign="center";
+
+  const b5=(d.board||[]).slice(0,5);
+  const paint=(logoImg)=>{
+    // ---- LOGO ON TOP ----
+    if(logoImg){
+      x.save(); x.beginPath(); x.arc(cx,118,52,0,7); x.clip();
+      x.drawImage(logoImg,cx-52,66,104,104); x.restore();
+      x.save(); x.shadowColor="rgba(124,209,143,.6)"; x.shadowBlur=14;
+      x.strokeStyle=GREEN; x.lineWidth=3; x.beginPath(); x.arc(cx,118,52,0,7); x.stroke(); x.restore();
+    }
+    x.fillStyle=MUTE; x.font="600 18px Georgia";
+    x.fillText("STRANGER STRINGS  \u00b7  GREENFIELD BADMINTON CLUB", cx, 196);
+    x.save(); x.shadowColor="rgba(124,209,143,.5)"; x.shadowBlur=26;
+    x.fillStyle=GOLD; x.font="bold 60px Georgia";
+    x.fillText("SESSION LEADERBOARD", cx, 250); x.restore();
+    if(d.doubleXp){
+      x.save(); x.translate(cx,292); x.rotate(-0.022);
+      const bw=344,bh=58;
+      // solid glow ring behind the pill
+      x.save(); x.shadowColor="rgba(243,208,116,1)"; x.shadowBlur=15;
+      x.fillStyle="#caa64e";
+      x.beginPath(); x.roundRect(-bw/2-4,-bh/2-4,bw+8,bh+8,999); x.fill(); x.restore();
+      const lg=x.createLinearGradient(-bw/2,0,bw/2,0);
+      lg.addColorStop(0,"#4a8f5a"); lg.addColorStop(.48,"#f7dc8a"); lg.addColorStop(1,"#d9b458");
+      x.fillStyle=lg; x.beginPath(); x.roundRect(-bw/2,-bh/2,bw,bh,999); x.fill();
+      x.strokeStyle="#fff6d8"; x.lineWidth=3;
+      x.beginPath(); x.roundRect(-bw/2,-bh/2,bw,bh,999); x.stroke();
+      x.fillStyle="#0a1410"; x.font="bold 28px Georgia"; x.textAlign="center";
+      x.fillText("2\u00D7 XP NIGHT",0,10);
+      solidGlyph(x,"\u26A1",-bw/2+38,11,30,null);
+      solidGlyph(x,"\u26A1", bw/2-38,11,30,null);
+      x.restore();
+    }
+    if(!b5.length){
+      x.fillStyle=MUTE; x.font="italic 28px Georgia";
+      x.fillText("No qualified players yet.", cx, 640);
+    } else {
+      const STAGE=700;
+      const cols=[
+        {i:1,x:cx-274,r:64,ped:100,col:SILVER,medal:"\uD83E\uDD48"},
+        {i:0,x:cx,    r:84,ped:150,col:GOLD2, medal:"\uD83E\uDD47"},
+        {i:2,x:cx+274,r:64,ped:70, col:BRONZE,medal:"\uD83E\uDD49"}];
+      cols.forEach(cfg=>{
+        const p=b5[cfg.i]; if(!p) return;
+        const ay=STAGE-cfg.ped-cfg.r-14;                 // avatar centre, clear of the header
+        const pw=cfg.i===0?232:196;
+        const pg=x.createLinearGradient(0,STAGE-cfg.ped,0,STAGE);
+        pg.addColorStop(0,"rgba(255,255,255,.12)"); pg.addColorStop(1,"rgba(255,255,255,.02)");
+        x.fillStyle=pg;
+        x.beginPath(); x.roundRect(cfg.x-pw/2,STAGE-cfg.ped,pw,cfg.ped,[14,14,0,0]); x.fill();
+        x.strokeStyle=cfg.col+"55"; x.lineWidth=2; x.stroke();
+        // rank numeral carved into the pedestal
+        x.fillStyle="rgba(255,255,255,.09)";
+        x.font="bold "+Math.round(cfg.ped*0.48)+"px Georgia";
+        x.fillText(String(cfg.i+1), cfg.x, STAGE-16);
+        if(cfg.i===0){
+          const cyc=ay-cfg.r+4;
+          x.save();                                   // dark disc behind the crown for contrast
+          x.fillStyle="rgba(8,16,11,.9)";
+          x.beginPath(); x.ellipse(cfg.x,cyc+4,52,34,0,0,7); x.fill();
+          x.restore();
+          solidGlyph(x,"\uD83D\uDC51",cfg.x,cyc+24,78,"rgba(243,208,116,1)");
+        }
+        if(cfg.i===0){                    // golden radiance behind the champion
+          x.save();
+          const rg=x.createRadialGradient(cfg.x,ay,cfg.r*0.75,cfg.x,ay,cfg.r*1.55);
+          rg.addColorStop(0,"rgba(234,194,95,.40)"); rg.addColorStop(1,"rgba(234,194,95,0)");
+          x.fillStyle=rg; x.beginPath(); x.arc(cfg.x,ay,cfg.r*1.55,0,7); x.fill();
+          x.globalAlpha=.5; x.strokeStyle="rgba(243,208,116,.8)"; x.lineWidth=2;
+          for(let k=0;k<12;k++){                        // light rays
+            const a=(k/12)*Math.PI*2+0.26;
+            x.beginPath();
+            x.moveTo(cfg.x+Math.cos(a)*(cfg.r+14), ay+Math.sin(a)*(cfg.r+14));
+            x.lineTo(cfg.x+Math.cos(a)*(cfg.r+34), ay+Math.sin(a)*(cfg.r+34));
+            x.stroke();
+          }
+          x.restore();
+        }
+        const im=(window.__avImgs||{})[p.pid];
+        if(im){ x.save(); x.beginPath(); x.arc(cfg.x,ay,cfg.r,0,7); x.clip();
+          x.drawImage(im,cfg.x-cfg.r,ay-cfg.r,cfg.r*2,cfg.r*2); x.restore(); }
+        else { x.fillStyle="rgba(255,255,255,.07)";
+          x.beginPath(); x.arc(cfg.x,ay,cfg.r,0,7); x.fill();
+          x.fillStyle=cfg.col; x.font="bold "+Math.round(cfg.r*0.95)+"px Georgia";
+          x.fillText((p.n||"?").trim().slice(0,1).toUpperCase(), cfg.x, ay+cfg.r*0.33); }
+        x.save(); x.shadowColor=cfg.col; x.shadowBlur=cfg.i===0?28:16;
+        x.strokeStyle=cfg.i===0?"#f3d074":cfg.col; x.lineWidth=cfg.i===0?8:4;
+        x.beginPath(); x.arc(cfg.x,ay,cfg.r,0,7); x.stroke(); x.restore();
+        x.save(); x.fillStyle="rgba(8,16,11,.92)";
+        x.beginPath(); x.arc(cfg.x, ay+cfg.r+10, 24, 0, 7); x.fill();
+        x.strokeStyle=cfg.col; x.lineWidth=2.5; x.stroke(); x.restore();
+        solidGlyph(x,cfg.medal,cfg.x,ay+cfg.r+20,34,cfg.col);
+      });
+      // stage line
+      x.strokeStyle="rgba(202,166,78,.5)"; x.lineWidth=3;
+      x.beginPath(); x.moveTo(cx-420,STAGE+2); x.lineTo(cx+420,STAGE+2); x.stroke();
+      // aligned text block below the stage
+      cols.forEach(cfg=>{
+        const p=b5[cfg.i]; if(!p) return;
+        const pw=cfg.i===0?250:210;
+        let nm=p.n||"Player", size=cfg.i===0?34:28;
+        x.font="bold "+size+"px Georgia";
+        while(x.measureText(nm).width>pw && size>15){ size-=2; x.font="bold "+size+"px Georgia"; }
+        x.fillStyle=INK; x.fillText(nm, cfg.x, 744);
+        x.fillStyle=cfg.col; x.font="bold "+(cfg.i===0?50:40)+"px Georgia";
+        x.fillText(p.wr+"%", cfg.x, 794);
+        if(p.xp!=null){ x.fillStyle=GOLD; x.font="bold "+(cfg.i===0?24:21)+"px Georgia";
+          x.fillText("\u26A1 "+p.xp+" XP", cfg.x, 826); }
+        x.fillStyle=MUTE; x.font="600 17px Georgia";
+        x.fillText(p.w+"W \u00b7 "+p.g+"G", cfg.x, 852);
+      });
+      // ranks 4-5
+      let ry=884;
+      b5.slice(3).forEach((p,k)=>{
+        x.fillStyle="rgba(255,255,255,.05)";
+        x.beginPath(); x.roundRect(112,ry,W-224,76,15); x.fill();
+        x.strokeStyle="rgba(202,166,78,.22)"; x.lineWidth=1.5; x.stroke();
+        x.textAlign="left";
+        x.fillStyle=MUTE; x.font="bold 27px Georgia"; x.fillText(String(k+4), 146, ry+48);
+        x.fillStyle=INK; x.font="bold 27px Georgia";
+        let nm=p.n||"Player"; if(x.measureText(nm).width>360) nm=nm.slice(0,16)+"\u2026";
+        x.fillText(nm, 198, ry+48);
+        x.textAlign="right";
+        x.fillStyle=INK; x.font="bold 28px Georgia"; x.fillText(p.wr+"%", W-146, ry+38);
+        x.fillStyle=GOLD; x.font="600 17px Georgia";
+        x.fillText((p.xp!=null? "\u26A1 "+p.xp+" XP \u00b7 ":"")+p.w+"W \u00b7 "+p.g+"G", W-146, ry+64);
+        x.textAlign="center";
+        ry+=90;
+      });
+    }
+    // ---- summary chips ----
+    const sm=d.summary||{};
+    const chips=[["\uD83D\uDC65", String(sm.players||b5.length||0), "PLAYERS"],
+                 ["\uD83C\uDFAE", String(sm.matches||0), "GAMES"],
+                 ["\u26A1", String(d.totalXp||0), "TOTAL XP"]];
+    const cw=264, gap=22, x0=cx-(cw*3+gap*2)/2, cy=1072, chh=104;
+    chips.forEach((ch,i)=>{
+      const bx=x0+i*(cw+gap);
+      x.fillStyle="rgba(202,166,78,.07)";
+      x.beginPath(); x.roundRect(bx,cy,cw,chh,18); x.fill();
+      x.strokeStyle="rgba(202,166,78,.4)"; x.lineWidth=2; x.stroke();
+      x.font="25px Georgia"; x.fillStyle=GOLD; x.fillText(ch[0], bx+cw/2, cy+34);
+      x.fillStyle=INK; x.font="bold 37px Georgia"; x.fillText(ch[1], bx+cw/2, cy+73);
+      x.fillStyle=MUTE; x.font="600 14px Georgia"; x.fillText(ch[2], bx+cw/2, cy+95);
+    });
+    // ---- footer: ranking note, then SESSION | DATE ----
+    x.fillStyle=MUTE; x.font="italic 20px Georgia";
+    x.fillText("Rankings are based on win %", cx, 1212);
+    const dt=new Date();
+    const dstr=String(dt.getDate()).padStart(2,"0")+" "+
+      dt.toLocaleDateString(undefined,{month:"long"})+" "+dt.getFullYear();
+    const line=((d.sessTitle||"SESSION").toUpperCase())+"  |  "+dstr;
+    let fs=30; x.font="bold "+fs+"px Georgia";
+    while(x.measureText(line).width>W-140 && fs>15){ fs-=1; x.font="bold "+fs+"px Georgia"; }
+    x.save(); x.shadowColor="rgba(202,166,78,.55)"; x.shadowBlur=18;
+    x.fillStyle=GOLD; x.fillText(line, cx, 1262); x.restore();
+    x.fillStyle="#9dc2a6"; x.font="600 17px Georgia";
+    x.fillText("#StrangerStrings   #TheGrindIsReal", cx, 1298);
+    done(c);
+  };
+  const img=new Image();
+  img.onload=()=>paint(img);
+  img.onerror=()=>paint(null);
+  img.src=LOGO;
+}
+/* fetch the podium avatars — the admin Queue view never loads them otherwise */
+async function shareSessionBoardPrefetch(d){
+  window.__avImgs=window.__avImgs||{};
+  const podium=(d.board||[]).slice(0,3).map(p=>p.pid).filter(Boolean);
+  try{ await ensureAvatars(podium); }catch(e){}
+  const ids=podium.filter(id=>(window.__avCache||{})[id] && !window.__avImgs[id]);
+  await Promise.all(ids.map(id=>new Promise(res=>{
+    const im=new Image(); im.onload=()=>{ window.__avImgs[id]=im; res(); }; im.onerror=res;
+    im.src=window.__avCache[id];
+  })));
+}
+async function shareSessionBoard(){
+  const d=liveData();
+  const sid=S.db&&S.db.sessionId;
+  const srow=(window.__sessRows||[]).find(z=>z.id===sid);
+  d.sessTitle=(srow&&srow.title)||"Session";
+  if(!d.board||!d.board.length) return toast("No qualified players yet — play a few matches first");
+  toast("Building the leaderboard card…");
+  await shareSessionBoardPrefetch(d);
+
+  buildSessionBoardCard(d, c=>{
+    c.toBlob(async b=>{
+      const fname="stranger-strings-leaderboard-"+new Date().toISOString().slice(0,10)+".png";
+      try{
+        if(navigator.canShare){
+          const f=new File([b],fname,{type:"image/png"});
+          if(navigator.canShare({files:[f]})){ await navigator.share({files:[f],title:"Session Leaderboard"}); return; }
+        }
+      }catch(e){}
+      download(fname,b);
+    });
+  });
 }
 function buildShareCard(name, st, ex, done, opts){
   opts=opts||{};
@@ -2555,6 +2908,11 @@ function exportMatchesCSV(){
   toast("Matches CSV downloaded");
 }
 /* ======================= LIVE BOARD (shareable) ======================= */
+function sessionIsDouble(){
+  const sid=S.db&&S.db.sessionId;
+  const s=(window.__sessRows||[]).find(x=>x.id===sid);
+  return !!(s&&s.settings&&s.settings.doubleXp);
+}
 function liveData(){
   const avgMs=S.matches.length? S.matches.reduce((a,m)=>a+(m.end-m.start),0)/S.matches.length : 15*60000;
   const pl=id=>{const p=player(id);return{n:p?p.name:"?",pid:p?p.id:null};};
@@ -2568,9 +2926,28 @@ function liveData(){
       .map(q=>({name:q.name,t1:q.slots.slice(0,2).filter(Boolean).map(pl),t2:q.slots.slice(2).filter(Boolean).map(pl)})),
     // every queue in order — lets each player find their own place in line
     queues:S.queues.map(q=>({n:q.name,p:q.slots.filter(Boolean).map(pl)})),
-    board:S.players.map(p=>({p,st:statsFor(p.id)})).filter(x=>x.st.g>0)
-      .sort((a,b)=>b.st.winRate-a.st.winRate||b.st.w-a.st.w||b.st.diff-a.st.diff).slice(0,5)
-      .map(x=>({n:x.p.name,pid:x.p.id,w:x.st.w,g:x.st.g,wr:Math.round(x.st.winRate),d:x.st.diff})),
+    board:(function(){
+      // you qualify once you've played at least the session average (rounded down)
+      const all=S.players.map(p=>({p,st:statsFor(p.id)})).filter(x=>x.st.g>0);
+      const totalG=all.reduce((a,b)=>a+b.st.g,0);
+      const minG=all.length? Math.floor(totalG/all.length) : 0;
+      const q=all.filter(x=>x.st.g>=minG);
+      return (q.length? q : all)
+        .sort((a,b)=>b.st.winRate-a.st.winRate||b.st.w-a.st.w||b.st.diff-a.st.diff).slice(0,5)
+        .map(x=>({n:x.p.name,pid:x.p.id,w:x.st.w,g:x.st.g,wr:Math.round(x.st.winRate),d:x.st.diff,min:minG,
+          xp:(x.st.w*30+(x.st.g-x.st.w)*10)*(sessionIsDouble()?2:1)}));
+    })(),
+    doubleXp:sessionIsDouble(),
+    totalXp:(function(){
+      const mult=sessionIsDouble()?2:1;
+      return S.players.map(p=>statsFor(p.id)).filter(s=>s.g>0)
+        .reduce((a,s)=>a+(s.w*30+(s.g-s.w)*10)*mult,0);
+    })(),
+    boardMin:(function(){
+      const all=S.players.map(p=>({p,st:statsFor(p.id)})).filter(x=>x.st.g>0);
+      const totalG=all.reduce((a,b)=>a+b.st.g,0);
+      return all.length? Math.floor(totalG/all.length) : 0;
+    })(),
     history:[...S.matches].sort((a,b)=>b.n-a.n).slice(0,15)
       .map(m=>({n:m.n,t1:m.t1n,t2:m.t2n,s1:m.s1,s2:m.s2,dur:m.end-m.start}))
   };
@@ -2672,6 +3049,11 @@ function avFace(pid,name,cls){
 function lbPill(p,t){return '<div class="pp '+t+'">'+avFace(p.pid,p.n,"av")+'<span class="pn">'+esc(p.n)+'</span></div>';}
 function lbBox(t1,t2){return '<div class="cbox"><div class="trow">'+t1.map(p=>lbPill(p,"t1")).join("")+
   '</div><div class="vs"><span>VS</span></div><div class="trow">'+t2.map(p=>lbPill(p,"t2")).join("")+'</div></div>';}
+function boardQualNote(d){
+  const m=d&&d.boardMin;
+  return (m&&m>1)? '<p class="dim" style="font-size:12px;margin-top:6px;text-align:center">'+
+    'Qualified: '+m+'+ games played this session</p>' : '';
+}
 function liveBoardHTML(d){
   const liveH=d.live.length? d.live.map(c=>
     '<div class="panel golive" data-start="'+(+c.start)+'"><div class="ptitle">'+esc(c.court)+'</div>'+lbBox(c.t1,c.t2)+
@@ -2688,10 +3070,10 @@ function liveBoardHTML(d){
       '<div class="mrk">'+['🥇','🥈','🥉'][i]+'</div>'+
       '<div class="snm">'+esc(x.n)+'</div>'+
       '<div class="swr">'+x.wr+'%</div>'+
-      '<div class="ssub">'+x.w+'W · '+x.g+'G · '+(x.d>0?'+':'')+x.d+'</div></div>'; };
+      '<div class="ssub">'+(x.xp!=null? '<b style="color:#caa64e">'+x.xp+' XP</b> · ':'')+x.w+'W · '+x.g+'G</div></div>'; };
   const restH=b5.slice(3).map((x,k)=>
     '<div class="lbrow"><span class="lrk">'+(k+4)+'</span>'+avFace(x.pid,x.n,"lrkav")+'<span class="lnm">'+esc(x.n)+
-    '</span><span class="lst">'+x.wr+'% · '+x.w+'W</span></div>').join("");
+    '</span><span class="lst">'+(x.xp!=null? x.xp+' XP · ':'')+x.wr+'% · '+x.w+'W</span></div>').join("");
   const boardH=b5.length?
     '<div class="lbhead">🏆 Session Leaderboard · Top 5<span>'+esc(d.sess)+'</span></div>'+
     '<div class="podium">'+stepH(b5[1],'s2',1)+stepH(b5[0],'s1',0)+stepH(b5[2],'s3',2)+'</div>'+restH+
@@ -2866,7 +3248,7 @@ function spectatorMode(token){
   document.body.innerHTML='<main id="lv"><p class="dim" style="margin-top:60px" id="lvmsg">Opening the gate…</p></main>';
   const {p,id}=parseToken(token);
   if(!p||!BROKERS[p]){
-    document.getElementById("lvmsg").textContent="This link uses an old format — ask the queue master for a fresh live link.";
+    document.getElementById("lvmsg").textContent="This link uses an old format — ask the Party Leader for a fresh live link.";
     return;
   }
   let avg=15*60000, status="Connecting…";
@@ -3443,7 +3825,7 @@ async function enterApp(cachedProfile){
     loadHall();
     loadPlayerStats();
     loadPartnersAdmin();
-    fillFinanceSessions(); loadClubQR();
+    fillFinanceSessions(); loadClubQR(); showHofEpoch();
     fillQuestPlayers();
     loadQuestLog();
     loadBadgeStudio();
@@ -4061,7 +4443,7 @@ async function mountPlayerBoard(sessionId){
     if(!r||!r.ok) return;
     const rows=await r.json();
     if(rows[0]&&rows[0].state) paint(rows[0].state);
-    else wrap.innerHTML='<main><p class="dim" style="margin-top:30px">Gate open · waiting for the queue master to start the night…</p></main>';
+    else wrap.innerHTML='<main><p class="dim" style="margin-top:30px">Gate open · waiting for the Party Leader to start the night…</p></main>';
   };
   window.__pbPull=pull;               // expose for pull-to-refresh gesture
   await pull();
@@ -4172,9 +4554,7 @@ function renderDues(){
     html+='<p class="hint" style="margin-top:10px">Pay on the <b>⚡ Gate</b> tab, then send your receipt to the '+
       '<b>Reclub chat</b> — payments are only verified once the receipt is posted there.</p>';
   }
-  const paid=all.filter(x=>x.paid);
-  if(paid.length) html+='<p class="hint" style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px">'+
-    '✅ '+paid.length+' session'+(paid.length===1?"":"s")+' already settled.</p>';
+  // deliberately no lifetime "total spent" here — that stays admin-only
   box.innerHTML=html;
 }
 function renderMyPayment(){
@@ -4218,7 +4598,7 @@ function renderBench(){
     st.innerHTML="🏸 <b>You\u2019re in the rotation.</b><br>You can be called to a court at any time.";
     btn.textContent="🪑 Sit this one out";
     btn.classList.remove("back");
-    help.textContent="Grabbing food, resting, or heading home? Sit out so the Queue Master skips you \u2014 no need to shout across the gym.";
+    help.textContent="Grabbing food, resting, or heading home? Sit out so the Party Leader skips you \u2014 no need to shout across the gym.";
   }
 }
 async function loadBench(sessionId){
@@ -4411,7 +4791,7 @@ function renderQueueStatus(state){
   }else{
     box.className="idle";
     box.innerHTML='<div class="qlab">Your status</div><div class="qbig">Not in the queue yet</div>'+
-      '<div class="qsub">The Queue Master builds the next matches \u2014 you\u2019ll be summoned here.</div>';
+      '<div class="qsub">The Party Leader builds the next matches \u2014 you\u2019ll be summoned here.</div>';
   }
   if(window.__sessionDouble) box.innerHTML+='<div class="dxbanner">\u26A1 2\u00d7 XP TONIGHT</div>';
 }
@@ -4809,6 +5189,45 @@ async function adminDeleteSession(s){
   toast("Session deleted");
   adminLoadSessions(); loadOpenSessions(); adminLoadMatches(); loadHall();
 }
+async function showHofEpoch(){
+  const el=document.getElementById("hofEpochNote"); if(!el) return;
+  const r=await sFetch("/rest/v1/club_settings?id=eq.1&select=hof_epoch").catch(()=>null);
+  const ep=(r&&r.ok)? (((await r.json())[0])||{}).hof_epoch : null;
+  window.__hofEpoch=ep||null;
+  el.innerHTML = ep
+    ? "🧨 Counting XP from <b>"+esc(ep)+"</b> onward. Earlier matches are kept but excluded."
+    : "Counting every match ever played.";
+}
+async function masterResetHall(){
+  const today=new Date().toISOString().slice(0,10);
+  const cur=window.__hofEpoch;
+  const msg="Start the Hall of Fame and levels from a clean slate?\n\n"+
+    "\u2022 Everyone returns to Level 1 with 0 XP\n"+
+    "\u2022 Weekly, Monthly and All-Time boards reset\n"+
+    "\u2022 Matches, sessions, payments and expenses are NOT deleted\n"+
+    "\u2022 Reversible \u2014 you can restore the full history later\n\n"+
+    "New counting starts from "+today+".";
+  if(!await uiConfirm(msg,{title:"🧨 Master reset",ok:"Reset everything"})) return;
+  const r=await sFetch("/rest/v1/rpc/admin_reset_hall",{method:"POST",body:{p_from:today}}).catch(()=>null);
+  if(!r||!r.ok){
+    const j=r? await r.json().catch(()=>({})):{};
+    return toast((j.message||"").includes("function")? "Run xp-dating-and-reset.sql first":"Could not reset");
+  }
+  toast("🧨 Hall of Fame and levels reset — counting from "+today);
+  showHofEpoch(); loadHall(); loadMyHistory&&loadMyHistory();
+  if(cur===null){
+    setTimeout(()=>uiConfirm("Changed your mind? Use \u201cRestore full history\u201d below to undo this.",
+      {title:"Reset done",ok:"Got it"}),400);
+  }
+}
+async function restoreHallHistory(){
+  if(!await uiConfirm("Count every match ever played again?\nThis undoes the master reset.",
+    {title:"↩ Restore full history",ok:"Restore"})) return;
+  const r=await sFetch("/rest/v1/rpc/admin_reset_hall",{method:"POST",body:{p_from:null}}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not restore");
+  toast("↩ Full history restored");
+  showHofEpoch(); loadHall();
+}
 async function resetHall(){
   const scope=document.getElementById("rhScope").value;
   if(scope==="a"){
@@ -4855,7 +5274,8 @@ async function awardQuest(){
   const nm=document.getElementById("sqPlayer").selectedOptions[0].textContent;
   if(!await uiConfirm("Award "+xp+" XP to "+nm+' for "'+title+'"?',{title:"🎖 Award side quest",ok:"Award"})) return;
   const r=await sFetch("/rest/v1/quest_awards",{method:"POST",
-    body:[{profile_id:pid, title, xp, awarded_by:auth.uid}]});
+    body:[{profile_id:pid, title, xp, awarded_by:auth.uid,
+           session_id:(S.db&&S.db.sessionId)||null}]});
   if(!r.ok) return toast("Could not award XP");
   toast("🎖 +"+xp+" XP to "+nm);
   loadQuestLog(); loadHall();
