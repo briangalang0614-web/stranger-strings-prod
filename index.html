@@ -2426,9 +2426,21 @@ function buildSessionBoardCard(d, done){
         x.strokeStyle="rgba(202,166,78,.22)"; x.lineWidth=1.5; x.stroke();
         x.textAlign="left";
         x.fillStyle=MUTE; x.font="bold 27px Georgia"; x.fillText(String(k+4), 146, ry+48);
+        // avatar (or initial) for ranks 4-5
+        const rAv=28, rcx=214, rcy=ry+38;
+        const rim=(window.__avImgs||{})[p.pid];
+        if(rim){ x.save(); x.beginPath(); x.arc(rcx,rcy,rAv,0,7); x.clip();
+          x.drawImage(rim,rcx-rAv,rcy-rAv,rAv*2,rAv*2); x.restore(); }
+        else { x.save(); x.fillStyle="rgba(255,255,255,.07)";
+          x.beginPath(); x.arc(rcx,rcy,rAv,0,7); x.fill();
+          x.fillStyle=GOLD2; x.font="bold 26px Georgia"; x.textAlign="center";
+          x.fillText((p.n||"?").trim().slice(0,1).toUpperCase(), rcx, rcy+9); x.restore(); }
+        x.save(); x.strokeStyle="rgba(202,166,78,.55)"; x.lineWidth=2;
+        x.beginPath(); x.arc(rcx,rcy,rAv,0,7); x.stroke(); x.restore();
+        x.textAlign="left";
         x.fillStyle=INK; x.font="bold 27px Georgia";
-        let nm=p.n||"Player"; if(x.measureText(nm).width>360) nm=nm.slice(0,16)+"\u2026";
-        x.fillText(nm, 198, ry+48);
+        let nm=p.n||"Player"; if(x.measureText(nm).width>300) nm=nm.slice(0,14)+"\u2026";
+        x.fillText(nm, 262, ry+48);
         x.textAlign="right";
         x.fillStyle=INK; x.font="bold 28px Georgia"; x.fillText(p.wr+"%", W-146, ry+38);
         x.fillStyle=GOLD; x.font="600 17px Georgia";
@@ -2475,13 +2487,15 @@ function buildSessionBoardCard(d, done){
 /* fetch the podium avatars — the admin Queue view never loads them otherwise */
 async function shareSessionBoardPrefetch(d){
   window.__avImgs=window.__avImgs||{};
-  const podium=(d.board||[]).slice(0,3).map(p=>p.pid).filter(Boolean);
-  try{ await ensureAvatars(podium); }catch(e){}
-  const ids=podium.filter(id=>(window.__avCache||{})[id] && !window.__avImgs[id]);
+  const shown=(d.board||[]).slice(0,5).map(p=>p.pid).filter(Boolean);   // top 5, not just the podium
+  try{ await ensureAvatars(shown); }catch(e){}
+  const ids=shown.filter(id=>(window.__avCache||{})[id] && !window.__avImgs[id]);
   await Promise.all(ids.map(id=>new Promise(res=>{
     const im=new Image(); im.onload=()=>{ window.__avImgs[id]=im; res(); }; im.onerror=res;
     im.src=window.__avCache[id];
   })));
+  const withPhoto=shown.filter(id=>window.__avImgs[id]).length;
+  return {shown:shown.length, withPhoto};
 }
 async function shareSessionBoard(){
   const d=liveData();
@@ -2490,7 +2504,10 @@ async function shareSessionBoard(){
   d.sessTitle=(srow&&srow.title)||"Session";
   if(!d.board||!d.board.length) return toast("No qualified players yet — play a few matches first");
   toast("Building the leaderboard card…");
-  await shareSessionBoardPrefetch(d);
+  const av=await shareSessionBoardPrefetch(d);
+  if(av && av.withPhoto<av.shown){
+    toast("\uD83D\uDCF7 "+av.withPhoto+" of "+av.shown+" have photos \u2014 the rest show initials");
+  }
 
   buildSessionBoardCard(d, c=>{
     c.toBlob(async b=>{
