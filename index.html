@@ -3754,20 +3754,55 @@ function rtUpdate(t1,t2,win1,playDate,matchId,out){
   return rows;
 }
 async function rtLoad(){
-  const r=await sFetch("/rest/v1/player_rating?select=profile_id,mu,sigma,games,last_played").catch(()=>null);
-  if(!r||!r.ok){ window.__rtMissing=true; return false; }
+  const r=await sFetch("/rest/v1/player_rating?select=profile_id,mu,sigma,games,last_played&limit=2000").catch(()=>null);
+  if(!r||!r.ok){
+    window.__rtMissing=true;
+    if(r){ const j=await r.json().catch(()=>({})); window.__rtLastError=j.message||("HTTP "+r.status); }
+    return false; }
   window.__rtMissing=false; window.__RT={};
   (await r.json()).forEach(x=>{ window.__RT[x.profile_id]={mu:+x.mu,sigma:+x.sigma,games:x.games,last:x.last_played}; });
   return true;
 }
+/* ids that actually exist in profiles — a match array can hold orphan ids from
+   manually-typed players, and one bad id fails an entire batch insert */
+async function rtValidIds(ids){
+  ids=[...new Set((ids||[]).filter(id=>UUID_RE.test(id)))];
+  if(!ids.length) return [];
+  window.__validPids=window.__validPids||new Set();
+  const unknown=ids.filter(id=>!window.__validPids.has(id));
+  for(let i=0;i<unknown.length;i+=180){
+    const chunk=unknown.slice(i,i+180);
+    const r=await sFetch("/rest/v1/profiles?id=in.("+chunk.join(",")+")&select=id").catch(()=>null);
+    if(r&&r.ok) (await r.json()).forEach(x=>window.__validPids.add(x.id));
+  }
+  return ids.filter(id=>window.__validPids.has(id));
+}
 async function rtPersist(ids,rows){
-  if(window.__rtMissing) return;
-  const body=[...new Set(ids)].map(id=>{ const r=rtGet(id);
+  if(window.__rtMissing) return {saved:0,failed:0,skipped:0};
+  const valid=await rtValidIds(ids);
+  const skipped=[...new Set(ids||[])].length-valid.length;
+  const body=valid.map(id=>{ const r=rtGet(id);
     return {profile_id:id, mu:+r.mu.toFixed(4), sigma:+r.sigma.toFixed(4), games:r.games,
             last_played:r.last, updated_at:new Date().toISOString()}; });
-  await sFetch("/rest/v1/player_rating?on_conflict=profile_id",
-    {method:"POST",headers:{Prefer:"resolution=merge-duplicates"},body}).catch(()=>{});
-  if(rows&&rows.length) await sFetch("/rest/v1/rating_history",{method:"POST",body:rows}).catch(()=>{});
+  let saved=0, failed=0, lastErr="";
+  for(let i=0;i<body.length;i+=120){                     // chunk so one bad row can't sink it all
+    const part=body.slice(i,i+120);
+    const r=await sFetch("/rest/v1/player_rating?on_conflict=profile_id",
+      {method:"POST",headers:{Prefer:"resolution=merge-duplicates"},body:part}).catch(()=>null);
+    if(r&&r.ok){ saved+=part.length; }
+    else { failed+=part.length;
+      if(r){ const j=await r.json().catch(()=>({})); lastErr=j.message||j.hint||("HTTP "+r.status); } }
+  }
+  if(failed) console.warn("player_rating save failed:",lastErr);
+  window.__rtLastError=lastErr;
+  // history is best-effort and must never block the ratings themselves
+  if(rows&&rows.length){
+    const keep=rows.filter(x=>window.__validPids.has(x.profile_id));
+    for(let i=0;i<keep.length;i+=500){
+      await sFetch("/rest/v1/rating_history",{method:"POST",body:keep.slice(i,i+500)}).catch(()=>{});
+    }
+  }
+  return {saved,failed,skipped,error:lastErr};
 }
 /* called after a match is scored */
 async function rtOnMatch(m){
@@ -3776,7 +3811,9 @@ async function rtOnMatch(m){
   if(t1.length<2||t2.length<2) return;            // walk-ins don't move ratings
   const s=(window.__sessRows||[]).find(z=>z.id===(S.db&&S.db.sessionId));
   const rows=rtUpdate(t1,t2,m.s1>m.s2,(s&&s.session_date)||null,null,[]);
-  await rtPersist([...t1,...t2],rows);
+  const res=await rtPersist([...t1,...t2],rows);
+  if(res.failed && !window.__rtWarned){ window.__rtWarned=true;
+    toast("\u26A0\uFE0F Skill ratings aren\u2019t saving \u2014 check skill-model.sql"); }
   renderPlayers(); renderQueues(); renderCourts();
 }
 /* replay every recorded match in order — gives ratings from day one */
@@ -3796,8 +3833,17 @@ async function rtBackfill(){
     rtUpdate(t1,t2,m.s1>m.s2,sd[m.session_id]||null,m.id,rows); used++;
   });
   await sFetch("/rest/v1/rpc/admin_reset_ratings",{method:"POST",body:{}}).catch(()=>{});
-  await rtPersist(Object.keys(window.__RT),rows.slice(-4000));
-  toast("\uD83E\uDDE0 Rebuilt from "+used+" matches \u00b7 "+Object.keys(window.__RT).length+" players rated");
+  toast("Saving ratings\u2026");
+  const res=await rtPersist(Object.keys(window.__RT),rows.slice(-4000));
+  if(res.failed){
+    await uiConfirm("Ratings could not be saved and will vanish on refresh.\n\n"+
+      res.saved+" saved, "+res.failed+" failed.\n\nReason: "+(res.error||"unknown")+
+      "\n\nMost often this means skill-model.sql has not been run on this database.",
+      {title:"\u26A0\uFE0F Save failed", ok:"OK"});
+  } else {
+    toast("\uD83E\uDDE0 Rebuilt from "+used+" matches \u00b7 "+res.saved+" players saved"+
+      (res.skipped?" \u00b7 "+res.skipped+" unregistered skipped":""));
+  }
   renderPlayers(); renderQueues();
   if(typeof renderSkillModel==="function") renderSkillModel();
 }
@@ -4368,7 +4414,7 @@ function renderSessionList(){
     const div=document.createElement("div"); div.className="sessrow";
     div.innerHTML='<div class="st"><b>'+esc(s.title)+'</b><span>'+esc(s.session_date)+'</span></div>'+
       '<span class="sesscode">'+esc(s.code)+'</span>'+
-      '<span class="badge '+s.status+'">'+s.status.toUpperCase()+'</span>'+
+      '<span class="badge '+(s.status||"open")+'">'+String(s.status||"open").toUpperCase()+'</span>'+
       (isDoubleXp(s)?'<span class="dxchip">⚡ 2× XP</span>':'')+
       (feeOf(s)?'<span class="feechip">₱'+feeOf(s)+'</span>':'');
     const copy=document.createElement("button"); copy.className="small ghost"; copy.textContent="Copy code";
