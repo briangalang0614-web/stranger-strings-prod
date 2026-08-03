@@ -334,6 +334,7 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .crow .cval{font-family:"Courier New",monospace;font-weight:800;font-size:14px;color:var(--green)}
 .crow .cval.bad{color:var(--red)}
 .spark{width:100%;height:46px;display:block}
+.clab2{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:12px 0 4px}
 .clab{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:12px 0 4px}
 .feechip{background:rgba(124,176,138,.2);border:1px solid rgba(124,176,138,.6);color:var(--green);
   font-weight:900;font-size:10.5px;border-radius:999px;padding:3px 9px;margin-left:6px}
@@ -387,6 +388,68 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .balrow .bval{text-align:right;min-width:92px}
 .balrow .bval b{display:block;font-family:"Courier New",monospace;font-size:15px}
 .balrow .bval span{font-size:10.5px;color:var(--muted)}
+/* skill model — admin-only visuals */
+.skb{position:relative;display:block;height:6px;background:#222a25;border-radius:99px;margin-top:5px}
+.skb i{position:absolute;top:0;height:100%;border-radius:99px;background:linear-gradient(90deg,rgba(124,209,143,.28),#7cd18f)}
+.skb s{position:absolute;top:-2px;width:2px;height:10px;background:var(--ink);text-decoration:none}
+.pcard.mini .skb{height:5px;margin-top:4px}
+.balrow2{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.balpill{font-family:"Courier New",monospace;font-weight:800;font-size:12px;border-radius:99px;padding:2px 8px;white-space:nowrap}
+.balpill.ok{background:rgba(78,154,99,.18);color:var(--ok);border:1px solid rgba(78,154,99,.5)}
+.balpill.warn{background:rgba(224,166,60,.18);color:var(--warn);border:1px solid rgba(224,166,60,.55)}
+.balpill.bad{background:rgba(207,107,88,.18);color:var(--red);border:1px solid rgba(207,107,88,.5)}
+.balbar{flex:1;height:5px;border-radius:99px;background:#222a25;overflow:hidden}
+.balbar i{display:block;height:100%;border-radius:99px}
+.swapbtn{width:100%;background:transparent;border:1px dashed rgba(224,166,60,.6);color:var(--warn);
+  border-radius:9px;padding:6px;font-size:11.5px;font-weight:800;margin-top:4px;cursor:pointer}
+.qbar{display:flex;align-items:flex-end;gap:3px;height:96px;margin:10px 0 4px}
+.qbar i{flex:1;border-radius:3px 3px 0 0;min-height:4px}
+.skrow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.skrow:last-child{border-bottom:none}
+.skrow .sm2{flex:1;min-width:0}
+.skrow .sm2 b{display:block;font-size:14px}
+.skrow .sm2 span{font-size:11px;color:var(--muted)}
+.skband{position:relative;height:9px;background:var(--panel2);border-radius:99px;min-width:120px;flex:0 0 130px}
+.skband i{position:absolute;top:0;height:100%;border-radius:99px;background:linear-gradient(90deg,rgba(124,209,143,.3),#7cd18f)}
+.skband s{position:absolute;top:-3px;width:2px;height:15px;background:var(--ink);text-decoration:none}
+.skstate{font-size:9.5px;font-weight:800;border-radius:99px;padding:2px 8px;letter-spacing:.05em;white-space:nowrap}
+.skstate.settled{background:rgba(78,154,99,.18);color:var(--ok);border:1px solid rgba(78,154,99,.5)}
+.skstate.learning{background:rgba(224,166,60,.16);color:var(--warn);border:1px solid rgba(224,166,60,.5)}
+.skstate.new{background:rgba(93,143,194,.16);color:var(--blue);border:1px solid rgba(93,143,194,.5)}
+/* Analysis Center — side pane layout */
+.anwrap{display:grid;grid-template-columns:210px minmax(0,1fr);gap:16px;max-width:1180px;margin:0 auto;align-items:start}
+.annav{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;
+  position:sticky;top:14px;display:flex;flex-direction:column;align-items:stretch;gap:0}
+.annav .anitem{flex:0 0 auto}
+.antitle{font-family:Georgia,serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--green);margin:2px 4px 10px}
+.anitem{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:transparent;
+  border:1px solid transparent;border-radius:11px;padding:10px 11px;margin-bottom:5px;
+  font-size:13.5px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit}
+.anitem:hover{background:var(--panel2);color:var(--ink)}
+.anitem.on{background:rgba(124,176,138,.16);border-color:rgba(124,176,138,.55);color:var(--ink)}
+.anfoot{border-top:1px solid var(--line);margin-top:10px;padding-top:10px}
+.anfoot select{width:100%}
+.anbody{min-width:0}
+.anpane{display:none}
+.anpane.on{display:block}
+.anpane .card{margin-bottom:14px}
+.anpane .card:last-child{margin-bottom:0}
+@media(max-width:860px){
+  .anwrap{grid-template-columns:1fr}
+  .annav{position:static;display:flex;flex-direction:row;align-items:center;gap:7px;overflow-x:auto;padding:10px}
+  .antitle{display:none}
+  .anitem{width:auto;white-space:nowrap;margin-bottom:0;flex:none}
+  .anitem span{display:none}
+  .anfoot{border-top:none;border-left:1px solid var(--line);margin:0 0 0 6px;padding:0 0 0 10px;
+    display:flex;gap:6px;align-items:center;flex:none}
+  .anfoot select,.anfoot button{width:auto!important;margin-top:0!important}
+}
+.satable{width:100%;border-collapse:collapse;font-size:13px}
+.satable th{text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  border-bottom:1px solid var(--line);padding:7px 5px;font-weight:800}
+.satable td{padding:8px 5px;border-bottom:1px solid var(--line)}
+.satable tr:last-child td{border-bottom:none}
 #playerHome{padding-bottom:96px}
 #qStatus{padding:16px 18px;text-align:center}
 #qStatus .qlab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
@@ -649,56 +712,105 @@ window.SS_CONFIG = {
 
 <!-- ================= STATS ================= -->
 <section id="tab-stats" class="tab">
-  <div class="card" style="max-width:900px;margin:0 auto 14px">
-    <h3>📊 Analysis Center</h3>
-    <div class="controls" style="flex-wrap:wrap">
-      <select id="anRange" onchange="loadAnalytics()">
+ <div class="anwrap">
+  <div class="annav" id="annav">
+    <div class="antitle">📊 Analysis Center</div>
+    <button class="anitem on" data-an="queue"  onclick="anShow('queue')">🎯 <span>Queue Analytics</span></button>
+    <button class="anitem"    data-an="club"   onclick="anShow('club')">👥 <span>Club &amp; Demand</span></button>
+    <button class="anitem"    data-an="session" onclick="anShow('session')">📋 Session Analytics</button>
+    <div class="anfoot">
+      <select id="anRange" onchange="anRefresh()">
         <option value="30">Last 30 days</option>
         <option value="90">Last 90 days</option>
         <option value="0">All time</option>
       </select>
-      <button class="small ghost" onclick="loadAnalytics()">⟳ Refresh</button>
-      <span class="spacer"></span>
-      <button class="small" onclick="exportAnalytics()">⬇ Export Excel</button>
-    </div>
-    <p class="hint" id="anHint" style="margin-top:8px">Club-wide numbers across every session — for planning, not for the board.</p>
-  </div>
-
-  <div class="card" style="max-width:900px;margin:0 auto 14px">
-    <h3>📈 At a glance</h3>
-    <div id="anKpis"></div>
-  </div>
-
-  <div class="card" style="max-width:900px;margin:0 auto 14px">
-    <h3>🗓 Attendance by session</h3>
-    <div id="anAttend"></div>
-    <p class="hint">How many players turned up each night — your demand signal for booking courts.</p>
-  </div>
-
-  <div class="card" style="max-width:900px;margin:0 auto 14px">
-    <h3>👥 Player activity</h3>
-    <div class="controls">
-      <input id="anSearch" placeholder="🔍 Search player…" style="flex:1;min-width:160px" oninput="renderAnPlayers()">
-      <select id="anSort" onchange="renderAnPlayers()">
-        <option value="sessions">Most sessions</option>
-        <option value="games">Most games</option>
-        <option value="lapsed">Longest absent</option>
-        <option value="name">A–Z</option>
-      </select>
-    </div>
-    <div id="anPlayers"></div>
-    <div class="controls" id="anPager" style="justify-content:space-between;display:none">
-      <button class="small ghost" id="anPrev" onclick="anPage(-1)">◀ Prev</button>
-      <span class="hint" id="anPageLbl"></span>
-      <button class="small ghost" id="anNext" onclick="anPage(1)">Next ▶</button>
+      <button class="small ghost" style="width:100%;margin-top:7px" onclick="anRefresh()">⟳ Refresh</button>
+      <button class="small" style="width:100%;margin-top:7px" onclick="exportAnalytics()">⬇ Export Excel</button>
     </div>
   </div>
 
-  <div class="card" style="max-width:900px;margin:0 auto 0">
-    <h3>⏱ Court utilisation</h3>
-    <div id="anCourts"></div>
-    <p class="hint">Average match length and matches per session — how hard your courts are working.</p>
+  <div class="anbody">
+   <!-- ============ 1 · QUEUE ANALYTICS ============ -->
+   <div class="anpane on" id="an-queue">
+     <div class="card">
+       <h3>🎯 Match Quality <button class="small ghost" style="float:right" onclick="loadQuality()">⟳</button></h3>
+       <p class="hint">How good the matches actually were — derived from data you already record.</p>
+       <div id="qlKpis"></div>
+       <div id="qlBars"></div>
+       <div id="qlLists"></div>
+     </div>
+     <div class="card">
+       <h3>🧠 Skill Model <span class="hint" style="font-weight:400">admin only</span></h3>
+       <p class="hint" style="color:var(--warn)">🔒 Never shown to players. Used only to arrange teams inside the existing fairness tier.</p>
+       <div class="controls" style="margin-top:8px;flex-wrap:wrap">
+         <input id="skSearch" placeholder="🔍 Search player…" style="flex:1;min-width:150px" oninput="renderSkillModel()">
+         <button class="small ghost" onclick="rtBackfill()">🧠 Rebuild from history</button>
+       </div>
+       <div id="skKpis"></div>
+       <div id="skList"></div>
+     </div>
+   </div>
+
+   <!-- ============ 2 · CLUB & DEMAND ============ -->
+   <div class="anpane" id="an-club">
+     <div class="card">
+       <h3>📈 At a glance</h3>
+       <p class="hint" id="anHint">Club-wide numbers — for planning, not for the board.</p>
+       <div id="anKpis"></div>
+     </div>
+     <div class="card">
+       <h3>🗓 Attendance by session</h3>
+       <div id="anAttend"></div>
+       <p class="hint">Your demand signal for booking courts.</p>
+     </div>
+     <div class="card">
+       <h3>👥 Player activity</h3>
+       <div class="controls">
+         <input id="anSearch" placeholder="🔍 Search player…" style="flex:1;min-width:150px" oninput="renderAnPlayers()">
+         <select id="anSort" onchange="renderAnPlayers()">
+           <option value="sessions">Most sessions</option>
+           <option value="games">Most games</option>
+           <option value="lapsed">Longest absent</option>
+           <option value="name">A–Z</option>
+         </select>
+       </div>
+       <div id="anPlayers"></div>
+       <div class="controls" id="anPager" style="justify-content:space-between;display:none">
+         <button class="small ghost" id="anPrev" onclick="anPage(-1)">◀ Prev</button>
+         <span class="hint" id="anPageLbl"></span>
+         <button class="small ghost" id="anNext" onclick="anPage(1)">Next ▶</button>
+       </div>
+     </div>
+     <div class="card">
+       <h3>⏱ Court utilisation</h3>
+       <div id="anCourts"></div>
+       <p class="hint">How hard your courts are working.</p>
+     </div>
+   </div>
+
+   <!-- ============ 3 · SESSION ANALYTICS ============ -->
+   <div class="anpane" id="an-session">
+     <div class="card">
+       <h3>📋 Session Analytics</h3>
+       <div class="controls">
+         <select id="saSession" style="flex:1;min-width:220px" onchange="loadSessionAnalytics()">
+           <option value="">— choose a session —</option>
+         </select>
+         <button class="small ghost" onclick="loadSessionAnalytics()">⟳</button>
+       </div>
+       <div id="saKpis" style="margin-top:10px"></div>
+     </div>
+     <div class="card" id="saBoardCard" style="display:none">
+       <h3>🏆 Session leaderboard</h3>
+       <div id="saBoard"></div>
+     </div>
+     <div class="card" id="saMatchCard" style="display:none">
+       <h3>🏸 Matches</h3>
+       <div id="saMatches"></div>
+     </div>
+   </div>
   </div>
+ </div>
 </section>
 
 <!-- ================= MONEY ================= -->
@@ -1535,6 +1647,7 @@ function cardEl(p, mini, noMeta){
   d.className="pcard"+(mini?" mini":"")+(p.active?"":" inactive")+(p.benchedBySelf?" benched":"")+
     (!noMeta&&wm>=20?" whot":!noMeta&&wm>=10?" wmid":"");
   d.draggable=true; d.dataset.pid=p.id;
+  d._skill=true;
   d.title=p.name+(noMeta?" · in a live match":" · drag to move");
   const top=document.createElement("div"); top.className="top";
   const lv=document.createElement("span"); lv.className="lvl";
@@ -1576,6 +1689,18 @@ function cardEl(p, mini, noMeta){
       chips.appendChild(c); any=true;
     }
     if(any) d.append(chips);
+  }
+  if(!window.__rtMissing && myProfile && myProfile.is_admin){
+    const r=rtGet(p.id);
+    if(r.games>0){
+      const lo=Math.max(0,Math.min(100,(r.mu-r.sigma+3)/6*100));
+      const hi=Math.max(0,Math.min(100,(r.mu+r.sigma+3)/6*100));
+      const c =Math.max(0,Math.min(100,(r.mu+3)/6*100));
+      const b=document.createElement("span"); b.className="skb";
+      b.title="Skill band (admin only) \u2014 wider means still learning";
+      b.innerHTML='<i style="left:'+lo+'%;width:'+Math.max(3,hi-lo)+'%"></i><s style="left:'+c+'%"></s>';
+      d.appendChild(b);
+    }
   }
   d.addEventListener("dragstart",e=>{ e.dataTransfer.setData("text/plain",p.id); d.classList.add("ghosting"); });
   d.addEventListener("dragend",()=>d.classList.remove("ghosting"));
@@ -1666,6 +1791,27 @@ function renderQueues(){
   document.getElementById("qHint").style.display=S.queues.length?"none":"";
   S.queues.forEach(q=>{
     const box=document.createElement("div"); box.className="qbox";
+    box._bal=()=>{
+      const old=box.querySelector(".balrow2"); if(old) old.remove();
+      const oldSw=box.querySelector(".swapbtn"); if(oldSw) oldSw.remove();
+      if(window.__rtMissing||!myProfile||!myProfile.is_admin) return;
+      const r=rtBalance(q.slots.slice(0,2),q.slots.slice(2));
+      if(!r) return;
+      const k=r.pct>=70?"ok":(r.pct>=45?"warn":"bad");
+      const col=k==="ok"?"var(--ok)":(k==="warn"?"var(--warn)":"var(--red)");
+      const row=document.createElement("div"); row.className="balrow2";
+      row.innerHTML='<span class="balpill '+k+'" title="Predicted closeness \u2014 a suggestion, not a gate">'+
+        r.pct+'%</span><span class="balbar"><i style="width:'+r.pct+'%;background:'+col+'"></i></span>';
+      const head=box.querySelector(".bhead");
+      head.parentNode.insertBefore(row, head.nextSibling);
+      const sw=rtBestSwap(q.slots);
+      if(sw && r.pct<70){
+        const btn=document.createElement("button"); btn.className="swapbtn";
+        btn.textContent="\u21C4 Swap "+sw.a+" & "+sw.b+" \u2192 "+sw.pct+"% balanced";
+        btn.onclick=()=>rtApplySwap(q);
+        box.appendChild(btn);
+      }
+    };
     const h=document.createElement("div"); h.className="bhead";
     const inp=document.createElement("input"); inp.value=q.name;
     inp.onchange=()=>{q.name=inp.value||"Queue";save();};
@@ -1680,6 +1826,7 @@ function renderQueues(){
     qb.title="Send this match to an open court";
     qb.onclick=()=>sendQueueToCourt(q);
     box.appendChild(qb);
+    box._bal();
     w.appendChild(box);
   });
 }
@@ -1825,6 +1972,7 @@ function startGame(c){
   c.start=now(); c.waits={}; c.s1=0; c.s2=0;
   c.slots.filter(Boolean).forEach(id=>{ const p=player(id);
     c.waits[id]=Math.round(waitMs(p)/600)/100; });
+  c.levels=c.slots.filter(Boolean).map(id=>(player(id)||{}).level||"");
   save(); renderCourts(); renderPlayers();
   toast("Match live on "+c.name+" — type the score, then press Finish");
 }
@@ -1835,7 +1983,7 @@ function finishInline(c){
   const _m={id:uid(),n:S.matchNo++,court:c.name,
     t1,t2,t1n:t1.map(pname),t2n:t2.map(pname),
     s1,s2,start:c.start,end:now(),waits:c.waits||{}};
-  S.matches.push(_m); dbRecordMatch(_m); clearFulfilledPrefs(_m);
+  S.matches.push(_m); dbRecordMatch(_m); clearFulfilledPrefs(_m); rtOnMatch(_m);
   endCourt(c);
   toast("Match #"+(S.matchNo-1)+" saved — players are back in the pool");
   renderStats(true);
@@ -1879,7 +2027,7 @@ function saveScore(){
     const _m2={id:uid(),n:S.matchNo++,court:c.name,
       t1,t2,t1n:t1.map(pname),t2n:t2.map(pname),
       s1,s2,start:c.start,end:now(),waits:c.waits||{}};
-  S.matches.push(_m2); dbRecordMatch(_m2); clearFulfilledPrefs(_m2);
+  S.matches.push(_m2); dbRecordMatch(_m2); clearFulfilledPrefs(_m2); rtOnMatch(_m2);
     endCourt(c);
     toast("Match #"+(S.matchNo-1)+" saved — players are back in the pool");
   }else{
@@ -1975,7 +2123,7 @@ function touchDragStart(e,pid,el){
 }
 
 /* ======================= STATS TAB ======================= */
-function renderStats(){ loadAnalytics(); }
+function renderStats(){ anShow(window.__anPane||"queue"); }
 let anPageNo=0;
 function anPage(d){ anPageNo=Math.max(0,anPageNo+d); renderAnPlayers(true); }
 async function loadAnalytics(){
@@ -3385,6 +3533,274 @@ function renderBalances(keepPage){
     d.append(dot,m,v); list.appendChild(d);
   });
 }
+/* ---------- Analysis Center: side-pane navigation ---------- */
+function anShow(which){
+  window.__anPane=which;
+  document.querySelectorAll(".anpane").forEach(p=>p.classList.toggle("on",p.id==="an-"+which));
+  document.querySelectorAll(".anitem").forEach(b=>b.classList.toggle("on",b.dataset.an===which));
+  if(which==="queue"){ loadQuality(); rtLoad().then(renderSkillModel); }
+  if(which==="club"){ loadAnalytics(); }
+  if(which==="session"){ fillSessionAnalytics(); }
+}
+function anRefresh(){ anShow(window.__anPane||"queue"); }
+/* ---------- Session Analytics ---------- */
+async function fillSessionAnalytics(){
+  const sel=document.getElementById("saSession"); if(!sel) return;
+  if(!window.__allSessions) await fillFinanceSessions();
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— choose a session —</option>';
+  (window.__allSessions||[]).forEach(s=>{
+    const o=document.createElement("option"); o.value=s.id;
+    o.textContent=s.title+" · "+s.session_date; o._s=s; sel.appendChild(o);
+  });
+  if(cur){ sel.value=cur; loadSessionAnalytics(); }
+}
+async function loadSessionAnalytics(){
+  const sel=document.getElementById("saSession"), kp=document.getElementById("saKpis");
+  const bc=document.getElementById("saBoardCard"), mc=document.getElementById("saMatchCard");
+  if(!sel||!kp) return;
+  const sid=sel.value;
+  if(!sid){ kp.innerHTML='<p class="hint">Pick a session to break it down.</p>';
+    bc.style.display="none"; mc.style.display="none"; return; }
+  kp.innerHTML='<p class="hint">Loading…</p>';
+  const s=(sel.selectedOptions[0]||{})._s||{};
+  const [mr,rr,qr]=await Promise.all([
+    sFetch("/rest/v1/matches?session_id=eq."+sid+"&select=id,match_no,t1,t2,t1n,t2n,s1,s2,started_at,ended_at&order=match_no.asc").catch(()=>null),
+    sFetch("/rest/v1/session_players?session_id=eq."+sid+"&select=profile_id").catch(()=>null),
+    sFetch("/rest/v1/match_quality?session_id=eq."+sid+"&select=match_id,quality,margin,court_minutes").catch(()=>null)]);
+  const ms=(mr&&mr.ok)? await mr.json():[];
+  const roster=(rr&&rr.ok)? await rr.json():[];
+  const qs=(qr&&qr.ok)? await qr.json():[];
+  const qBy={}; qs.forEach(q=>qBy[q.match_id]=q);
+  if(!ms.length){ kp.innerHTML='<p class="hint">No matches recorded for this session.</p>';
+    bc.style.display="none"; mc.style.display="none"; return; }
+  const durs=ms.filter(m=>m.started_at&&m.ended_at)
+    .map(m=>(new Date(m.ended_at)-new Date(m.started_at))/60000).filter(x=>x>0&&x<120);
+  const avgDur=durs.length? Math.round(durs.reduce((a,b)=>a+b,0)/durs.length):0;
+  const quals=qs.map(q=>q.quality).filter(x=>x!=null);
+  const avgQ=quals.length? Math.round(quals.reduce((a,b)=>a+b,0)/quals.length):null;
+  // per-player tally
+  const who={};
+  ms.forEach(m=>{
+    const w=m.s1>m.s2;
+    (m.t1||[]).forEach((id,i)=>{ const n=(m.t1n||[])[i]||"Player";
+      who[id]=who[id]||{n,g:0,w:0,d:0}; who[id].n=n; who[id].g++; if(w)who[id].w++; who[id].d+=m.s1-m.s2; });
+    (m.t2||[]).forEach((id,i)=>{ const n=(m.t2n||[])[i]||"Player";
+      who[id]=who[id]||{n,g:0,w:0,d:0}; who[id].n=n; who[id].g++; if(!w)who[id].w++; who[id].d+=m.s2-m.s1; });
+  });
+  const arr=Object.values(who);
+  const totalG=arr.reduce((a,b)=>a+b.g,0);
+  const minG=arr.length? Math.floor(totalG/arr.length):0;
+  kp.innerHTML='<div class="paysum">'+
+    '<div><b>'+(roster.length||arr.length)+'</b><span>players</span></div>'+
+    '<div><b>'+ms.length+'</b><span>games</span></div>'+
+    '<div><b>'+avgDur+'m</b><span>avg length</span></div>'+
+    (avgQ!=null?'<div><b class="'+(avgQ>=70?"pos":(avgQ<45?"neg":""))+'">'+avgQ+'</b><span>avg quality</span></div>':'')+
+    '</div><p class="hint" style="margin-top:6px">'+esc(s.title||"")+' · '+esc(s.session_date||"")+
+    (minG>1?' · qualified: '+minG+'+ games':'')+'</p>';
+  // leaderboard (same rule as the live board)
+  const q=arr.filter(x=>x.g>=minG);
+  const board=(q.length?q:arr).sort((a,b)=>(b.w/b.g)-(a.w/a.g)||b.w-a.w||b.d-a.d).slice(0,10);
+  bc.style.display="block";
+  document.getElementById("saBoard").innerHTML='<table class="satable">'+
+    '<tr><th>#</th><th>Player</th><th>Win %</th><th>W–L</th><th>+/−</th></tr>'+
+    board.map((x,i)=>'<tr><td class="mono">'+(["🥇","🥈","🥉"][i]||(i+1))+'</td><td><b>'+esc(x.n)+'</b></td>'+
+      '<td class="mono">'+Math.round(100*x.w/x.g)+'%</td><td class="mono">'+x.w+'–'+(x.g-x.w)+'</td>'+
+      '<td class="mono">'+(x.d>0?"+":"")+x.d+'</td></tr>').join("")+'</table>';
+  // match list
+  mc.style.display="block";
+  const colOf=v=>v>=70?"var(--ok)":(v>=45?"var(--warn)":"var(--red)");
+  document.getElementById("saMatches").innerHTML='<table class="satable">'+
+    '<tr><th>#</th><th>Match</th><th>Score</th><th>Time</th><th>Quality</th></tr>'+
+    ms.map(m=>{ const qq=qBy[m.id];
+      return '<tr><td class="mono">'+m.match_no+'</td>'+
+      '<td>'+esc((m.t1n||[]).join(" & "))+' <span class="hint">vs</span> '+esc((m.t2n||[]).join(" & "))+'</td>'+
+      '<td class="mono">'+m.s1+'–'+m.s2+'</td>'+
+      '<td class="mono">'+(qq?qq.court_minutes+"m":"—")+'</td>'+
+      '<td class="mono"'+(qq?' style="color:'+colOf(qq.quality)+'"':'')+'>'+(qq?qq.quality:"—")+'</td></tr>';
+    }).join("")+'</table>';
+}
+/* ---------- Analysis Center: match quality ---------- */
+async function loadQuality(){
+  const k=document.getElementById("qlKpis"); if(!k) return;
+  k.innerHTML='<p class="hint">Loading…</p>';
+  const days=+((document.getElementById("anRange")||{}).value)||0;
+  let from=null;
+  if(days){ const d=new Date(); d.setDate(d.getDate()-days); from=d.toISOString().slice(0,10); }
+  const r=await sFetch("/rest/v1/match_quality?select=*&order=play_date.desc,match_no.desc&limit=800"+
+    (from?"&play_date=gte."+from:"")).catch(()=>null);
+  if(!r||!r.ok){ k.innerHTML='<p class="hint">Run skill-model.sql to enable match quality.</p>';
+    document.getElementById("qlBars").innerHTML=""; document.getElementById("qlLists").innerHTML=""; return; }
+  const rows=await r.json();
+  if(!rows.length){ k.innerHTML='<p class="hint">No scored matches in this range yet.</p>'; return; }
+  const avg=Math.round(rows.reduce((a,b)=>a+b.quality,0)/rows.length);
+  const great=rows.filter(x=>x.quality>=70).length, poor=rows.filter(x=>x.quality<45).length;
+  k.innerHTML='<div class="paysum">'+
+    '<div><b class="'+(avg>=70?"pos":"")+'">'+avg+'</b><span>avg quality</span></div>'+
+    '<div><b>'+rows.length+'</b><span>matches</span></div>'+
+    '<div><b class="pos">'+great+'</b><span>great</span></div>'+
+    '<div><b class="neg">'+poor+'</b><span>lopsided</span></div></div>';
+  const recent=rows.slice(0,40).reverse();
+  const colOf=q=>q>=70?"var(--ok)":(q>=45?"var(--warn)":"var(--red)");
+  document.getElementById("qlBars").innerHTML='<div class="qbar">'+
+    recent.map(x=>'<i style="height:'+Math.max(5,x.quality)+'%;background:'+colOf(x.quality)+
+      '" title="'+esc((x.t1n||[]).join(" & "))+' vs '+esc((x.t2n||[]).join(" & "))+
+      ' · '+x.s1+'-'+x.s2+' · Q'+x.quality+'"></i>').join("")+'</div>'+
+    '<p class="hint">Last '+recent.length+' matches, oldest left. Hover for detail.</p>';
+  const line=x=>'<div class="pdrow"><div class="pn2"><b>'+esc((x.t1n||[]).join(" & ")||"Team 1")+
+    '</b><span>vs '+esc((x.t2n||[]).join(" & ")||"Team 2")+' · '+x.s1+'–'+x.s2+' · '+x.court_minutes+'m</span></div>'+
+    '<b style="color:'+colOf(x.quality)+'">'+x.quality+'</b></div>';
+  const best=[...rows].sort((a,b)=>b.quality-a.quality).slice(0,3);
+  const worst=[...rows].sort((a,b)=>a.quality-b.quality).slice(0,3);
+  document.getElementById("qlLists").innerHTML=
+    '<p class="clab2">Best matches</p>'+best.map(line).join("")+
+    '<p class="clab2" style="margin-top:10px">Worth reviewing</p>'+worst.map(line).join("");
+}
+/* ---------- Analysis Center: skill model ---------- */
+function skState(r){ return r.sigma<=0.35?"settled":(r.sigma<=0.55?"learning":"new"); }
+async function renderSkillModel(){
+  const list=document.getElementById("skList"), kp=document.getElementById("skKpis");
+  if(!list) return;
+  if(window.__rtMissing){ kp.innerHTML=""; list.innerHTML='<p class="hint">Run skill-model.sql to enable the skill model.</p>'; return; }
+  const names={}; (S.players||[]).forEach(p=>names[p.id]=p.name);
+  if(!window.__skNames){
+    const pr=await sFetch("/rest/v1/profiles?select=id,reclub_name,full_name").catch(()=>null);
+    window.__skNames={};
+    if(pr&&pr.ok) (await pr.json()).forEach(p=>window.__skNames[p.id]=p.reclub_name||p.full_name||"Player");
+  }
+  let all=Object.keys(window.__RT).map(id=>({id,name:window.__skNames[id]||names[id]||"Player",...rtGet(id)}))
+    .filter(x=>x.games>0);
+  const q=((document.getElementById("skSearch")||{}).value||"").toLowerCase().trim();
+  if(q) all=all.filter(x=>x.name.toLowerCase().includes(q));
+  all.sort((a,b)=>b.mu-a.mu);
+  const st={settled:0,learning:0,new:0}; all.forEach(x=>st[skState(x)]++);
+  kp.innerHTML='<div class="paysum">'+
+    '<div><b class="pos">'+st.settled+'</b><span>settled</span></div>'+
+    '<div><b style="color:var(--warn)">'+st.learning+'</b><span>learning</span></div>'+
+    '<div><b style="color:var(--blue)">'+st.new+'</b><span>new / returning</span></div>'+
+    '<div><b>'+all.length+'</b><span>rated players</span></div></div>';
+  if(!all.length){ list.innerHTML='<p class="hint">No ratings yet — play some matches, or rebuild from history.</p>'; return; }
+  list.innerHTML=all.map(x=>{
+    const lo=Math.max(0,Math.min(100,(x.mu-x.sigma+3)/6*100));
+    const hi=Math.max(0,Math.min(100,(x.mu+x.sigma+3)/6*100));
+    const c =Math.max(0,Math.min(100,(x.mu+3)/6*100));
+    const s=skState(x);
+    return '<div class="skrow"><div class="sm2"><b>'+esc(x.name)+'</b>'+
+      '<span>'+x.games+' games'+(x.last?' · last '+x.last:'')+'</span></div>'+
+      '<span class="skband" title="range the model believes this player sits in">'+
+      '<i style="left:'+lo+'%;width:'+Math.max(3,hi-lo)+'%"></i><s style="left:'+c+'%"></s></span>'+
+      '<span class="mono" style="min-width:56px;text-align:right">'+(x.mu>=0?"+":"")+x.mu.toFixed(2)+'</span>'+
+      '<span class="skstate '+s+'">'+s+'</span></div>';
+  }).join("");
+}
+/* ================= HIDDEN SKILL MODEL =================
+   mu = skill estimate (club mean 0), sigma = uncertainty (0.28 = settled).
+   Step size scales with each player's own sigma, so newcomers move fast and
+   settled regulars barely move from the same match. Never shown to players. */
+const RT_K=0.45, RT_FLOOR=0.28, RT_DECAY=0.97, RT_SLOPE=1.1;
+window.__RT=window.__RT||{};          // profile_id -> {mu,sigma,games,last}
+function rtGet(id){ return window.__RT[id] || {mu:0,sigma:1.0,games:0,last:null}; }
+function rtTeamMu(ids){ return ids.reduce((a,id)=>a+rtGet(id).mu,0); }
+function rtExpected(t1,t2){ return 1/(1+Math.exp(-(rtTeamMu(t1)-rtTeamMu(t2))*RT_SLOPE)); }
+/* predicted closeness 0..100 — what the Queue view shows */
+function rtBalance(t1,t2){
+  t1=(t1||[]).filter(Boolean); t2=(t2||[]).filter(Boolean);
+  if(t1.length<2||t2.length<2) return null;
+  const known=[...t1,...t2].filter(id=>rtGet(id).games>0).length;
+  if(known<3) return null;                       // not enough signal to say anything
+  const gap=Math.abs(rtTeamMu(t1)-rtTeamMu(t2));
+  return {pct:Math.max(0,Math.round(100*(1-gap/1.6))), gap:Math.round(gap*100)/100};
+}
+/* best re-pairing of the SAME four players — never changes who plays */
+function rtBestSwap(slots){
+  const ids=slots.filter(Boolean);
+  if(ids.length<4) return null;
+  const cur=rtBalance(slots.slice(0,2),slots.slice(2));
+  if(!cur) return null;
+  const splits=[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]];
+  let best=null;
+  splits.forEach(([a,b])=>{
+    const t1=[ids[a[0]],ids[a[1]]], t2=[ids[b[0]],ids[b[1]]];
+    const r=rtBalance(t1,t2);
+    if(r && (!best || r.pct>best.pct)) best={pct:r.pct,t1,t2};
+  });
+  if(!best || best.pct<=cur.pct+8) return null;   // only suggest a real improvement
+  const movedOut=slots.slice(0,2).find(id=>!best.t1.includes(id));
+  const movedIn =best.t1.find(id=>!slots.slice(0,2).includes(id));
+  return {pct:best.pct, t1:best.t1, t2:best.t2,
+          a:(player(movedOut)||{}).name||"", b:(player(movedIn)||{}).name||""};
+}
+function rtApplySwap(q){
+  const s=rtBestSwap(q.slots); if(!s) return;
+  q.slots=[s.t1[0],s.t1[1],s.t2[0],s.t2[1]];
+  save(); renderQueues();
+  toast("\u21C4 Re-paired \u2014 now "+s.pct+"% balanced");
+}
+/* one match -> rating update for its four players */
+function rtUpdate(t1,t2,win1,playDate,matchId,out){
+  const exp=rtExpected(t1,t2), err=(win1?1:0)-exp;
+  const rows=[];
+  const bump=(ids,sign)=>ids.forEach(id=>{
+    const r=rtGet(id), before=r.mu;
+    const step=RT_K*r.sigma;
+    const nr={mu:before+sign*step*err, sigma:Math.max(RT_FLOOR,r.sigma*RT_DECAY),
+              games:r.games+1, last:playDate||r.last};
+    window.__RT[id]=nr;
+    rows.push({match_id:matchId||null, profile_id:id, play_date:playDate||null,
+               mu_before:+before.toFixed(4), mu_after:+nr.mu.toFixed(4), sigma_after:+nr.sigma.toFixed(4)});
+  });
+  bump(t1,1); bump(t2,-1);
+  if(out) out.push(...rows);
+  return rows;
+}
+async function rtLoad(){
+  const r=await sFetch("/rest/v1/player_rating?select=profile_id,mu,sigma,games,last_played").catch(()=>null);
+  if(!r||!r.ok){ window.__rtMissing=true; return false; }
+  window.__rtMissing=false; window.__RT={};
+  (await r.json()).forEach(x=>{ window.__RT[x.profile_id]={mu:+x.mu,sigma:+x.sigma,games:x.games,last:x.last_played}; });
+  return true;
+}
+async function rtPersist(ids,rows){
+  if(window.__rtMissing) return;
+  const body=[...new Set(ids)].map(id=>{ const r=rtGet(id);
+    return {profile_id:id, mu:+r.mu.toFixed(4), sigma:+r.sigma.toFixed(4), games:r.games,
+            last_played:r.last, updated_at:new Date().toISOString()}; });
+  await sFetch("/rest/v1/player_rating?on_conflict=profile_id",
+    {method:"POST",headers:{Prefer:"resolution=merge-duplicates"},body}).catch(()=>{});
+  if(rows&&rows.length) await sFetch("/rest/v1/rating_history",{method:"POST",body:rows}).catch(()=>{});
+}
+/* called after a match is scored */
+async function rtOnMatch(m){
+  if(window.__rtMissing) return;
+  const t1=(m.t1||[]).filter(x=>UUID_RE.test(x)), t2=(m.t2||[]).filter(x=>UUID_RE.test(x));
+  if(t1.length<2||t2.length<2) return;            // walk-ins don't move ratings
+  const s=(window.__sessRows||[]).find(z=>z.id===(S.db&&S.db.sessionId));
+  const rows=rtUpdate(t1,t2,m.s1>m.s2,(s&&s.session_date)||null,null,[]);
+  await rtPersist([...t1,...t2],rows);
+  renderPlayers(); renderQueues(); renderCourts();
+}
+/* replay every recorded match in order — gives ratings from day one */
+async function rtBackfill(){
+  if(!await uiConfirm("Rebuild every player's rating from match history?\nThis replays all recorded matches in order. Nothing is deleted.",
+    {title:"\uD83E\uDDE0 Rebuild skill model",ok:"Rebuild"})) return;
+  toast("Reading match history\u2026");
+  const r=await sFetch("/rest/v1/matches?select=id,session_id,t1,t2,s1,s2,ended_at&order=ended_at.asc&limit=5000").catch(()=>null);
+  if(!r||!r.ok) return toast("Could not read matches");
+  const ms=await r.json();
+  const sr=await sFetch("/rest/v1/sessions?select=id,session_date").catch(()=>null);
+  const sd={}; if(sr&&sr.ok) (await sr.json()).forEach(s=>sd[s.id]=s.session_date);
+  window.__RT={}; const rows=[]; let used=0;
+  ms.forEach(m=>{
+    const t1=(m.t1||[]).filter(x=>UUID_RE.test(x)), t2=(m.t2||[]).filter(x=>UUID_RE.test(x));
+    if(t1.length<2||t2.length<2) return;
+    rtUpdate(t1,t2,m.s1>m.s2,sd[m.session_id]||null,m.id,rows); used++;
+  });
+  await sFetch("/rest/v1/rpc/admin_reset_ratings",{method:"POST",body:{}}).catch(()=>{});
+  await rtPersist(Object.keys(window.__RT),rows.slice(-4000));
+  toast("\uD83E\uDDE0 Rebuilt from "+used+" matches \u00b7 "+Object.keys(window.__RT).length+" players rated");
+  renderPlayers(); renderQueues();
+  if(typeof renderSkillModel==="function") renderSkillModel();
+}
 /* ---------- payment tracker (admin) ---------- */
 async function fillPaymentSessions(){ return fillFinanceSessions(); }
 async function _retiredFillPaymentSessions(){
@@ -3842,7 +4258,7 @@ async function enterApp(cachedProfile){
     loadHall();
     loadPlayerStats();
     loadPartnersAdmin();
-    fillFinanceSessions(); loadClubQR(); showHofEpoch();
+    fillFinanceSessions(); loadClubQR(); showHofEpoch(); rtLoad();
     fillQuestPlayers();
     loadQuestLog();
     loadBadgeStudio();
@@ -4286,13 +4702,33 @@ async function saveProfile(){
 }
 /* ---- Phase 3: cross-session match history ---- */
 let histMatchCount=-1;
+async function loadEpoch(){
+  if(window.__hofEpoch!==undefined) return window.__hofEpoch;
+  const r=await sFetch("/rest/v1/club_settings?id=eq.1&select=hof_epoch").catch(()=>null);
+  window.__hofEpoch=(r&&r.ok)? (((await r.json())[0])||{}).hof_epoch||null : null;
+  return window.__hofEpoch;
+}
 async function loadMyHistory(manual){
   const hist=document.getElementById("myHist"), stats=document.getElementById("myStats");
   const uid=auth.uid;
   const r=await sFetch("/rest/v1/matches?or=(t1.cs.{"+uid+"},t2.cs.{"+uid+"})"+
     "&select=*&order=ended_at.desc&limit=200").catch(()=>null);
   if(!r||!r.ok){ if(manual) toast("Could not load history"); return; }
-  const rows=await r.json();
+  let rows=await r.json();
+  // a master reset sets an epoch — matches before it stay in the DB but stop counting
+  await loadEpoch();
+  if(window.__hofEpoch){
+    const ep=window.__hofEpoch;
+    const sids=[...new Set(rows.map(m=>m.session_id).filter(Boolean))];
+    if(sids.length){
+      const sr=await sFetch("/rest/v1/sessions?id=in.("+sids.join(",")+")&select=id,session_date").catch(()=>null);
+      const sd={}; if(sr&&sr.ok) (await sr.json()).forEach(s=>sd[s.id]=s.session_date);
+      rows=rows.filter(m=>{
+        const d=sd[m.session_id]||(m.ended_at||"").slice(0,10);
+        return !d || d>=ep;
+      });
+    }
+  }
   myMatches=rows;
   if(!rows.length){
     stats.innerHTML="";
@@ -4548,8 +4984,9 @@ async function loadMyPayments(){
   window.__payTarget=target.sessions;
   window.__payMine=mine[target.session_id]||null;
   if(!window.__clubQR){
-    const cs=await sFetch("/rest/v1/club_settings?id=eq.1&select=payment_qr,payment_note").catch(()=>null);
-    if(cs&&cs.ok){ const r0=(await cs.json())[0]||{}; window.__clubQR=r0.payment_qr||""; window.__clubNote=r0.payment_note||""; }
+    const cs=await sFetch("/rest/v1/club_settings?id=eq.1&select=payment_qr,payment_note,hof_epoch").catch(()=>null);
+    if(cs&&cs.ok){ const r0=(await cs.json())[0]||{}; window.__clubQR=r0.payment_qr||""; window.__clubNote=r0.payment_note||"";
+      window.__hofEpoch=r0.hof_epoch||null; }
   }
   card.style.display="block";
   renderMyPayment();
@@ -5212,14 +5649,15 @@ async function showHofEpoch(){
   const ep=(r&&r.ok)? (((await r.json())[0])||{}).hof_epoch : null;
   window.__hofEpoch=ep||null;
   el.innerHTML = ep
-    ? "🧨 Counting XP from <b>"+esc(ep)+"</b> onward. Earlier matches are kept but excluded."
+    ? "🧨 Counting XP and badges from <b>"+esc(ep)+"</b> onward. Earlier matches are kept but excluded."
     : "Counting every match ever played.";
 }
 async function masterResetHall(){
   const today=new Date().toISOString().slice(0,10);
   const cur=window.__hofEpoch;
-  const msg="Start the Hall of Fame and levels from a clean slate?\n\n"+
+  const msg="Start the Hall of Fame, levels and badges from a clean slate?\n\n"+
     "\u2022 Everyone returns to Level 1 with 0 XP\n"+
+    "\u2022 All badges are re-earned from scratch\n"+
     "\u2022 Weekly, Monthly and All-Time boards reset\n"+
     "\u2022 Matches, sessions, payments and expenses are NOT deleted\n"+
     "\u2022 Reversible \u2014 you can restore the full history later\n\n"+
@@ -5242,6 +5680,7 @@ async function restoreHallHistory(){
     {title:"↩ Restore full history",ok:"Restore"})) return;
   const r=await sFetch("/rest/v1/rpc/admin_reset_hall",{method:"POST",body:{p_from:null}}).catch(()=>null);
   if(!r||!r.ok) return toast("Could not restore");
+  window.__hofEpoch=null;
   toast("↩ Full history restored");
   showHofEpoch(); loadHall();
 }
@@ -5333,7 +5772,10 @@ async function loadCustomBadges(){
   if(!auth) return;
   const r=await sFetch("/rest/v1/custom_badges?active=is.true&select=*&order=created_at.asc").catch(()=>null);
   if(r&&r.ok) window.__customBadges=await r.json();
-  const a=await sFetch("/rest/v1/custom_badge_awards?profile_id=eq."+auth.uid+"&select=badge_id").catch(()=>null);
+  await loadEpoch();
+  const ep=window.__hofEpoch;
+  const a=await sFetch("/rest/v1/custom_badge_awards?profile_id=eq."+auth.uid+
+    "&select=badge_id,created_at"+(ep?"&created_at=gte."+ep:"")).catch(()=>null);
   if(a&&a.ok) (await a.json()).forEach(x=>window.__myBadgeAwards.add(x.badge_id));
 }
 function customBadgeUnlocked(b,st,ex,ns){
