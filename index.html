@@ -450,6 +450,22 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
   border-bottom:1px solid var(--line);padding:7px 5px;font-weight:800}
 .satable td{padding:8px 5px;border-bottom:1px solid var(--line)}
 .satable tr:last-child td{border-bottom:none}
+.pirow{display:flex;align-items:center;gap:10px;padding:9px 3px;border-bottom:1px solid var(--line);cursor:pointer}
+.pirow:last-child{border-bottom:none}
+.pirow:hover{background:var(--panel2)}
+.pirow .pm3{flex:1;min-width:0}
+.pirow .pm3 b{display:block;font-size:14px}
+.pirow .pm3 span{font-size:11px;color:var(--muted)}
+.qdot{width:9px;height:9px;border-radius:50%;flex:none}
+.piback{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:9px;
+  padding:4px 10px;font-size:11.5px;font-weight:800;cursor:pointer}
+.piflag{background:rgba(207,107,88,.13);border:1px solid rgba(207,107,88,.5);border-radius:10px;
+  padding:9px 12px;font-size:12.5px;margin:8px 0}
+.piflag b{color:var(--red)}
+.pform2{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0 2px}
+.pform{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:900;color:#0a1a0f}
+.pform.w{background:var(--ok)} .pform.l{background:var(--red);color:#fff}
 #playerHome{padding-bottom:96px}
 #qStatus{padding:16px 18px;text-align:center}
 #qStatus .qlab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
@@ -717,6 +733,7 @@ window.SS_CONFIG = {
     <div class="antitle">📊 Analysis Center</div>
     <button class="anitem on" data-an="queue"  onclick="anShow('queue')">🎯 <span>Queue Analytics</span></button>
     <button class="anitem"    data-an="club"   onclick="anShow('club')">👥 <span>Club &amp; Demand</span></button>
+    <button class="anitem"    data-an="player"  onclick="anShow('player')">👤 <span>Player Insights</span></button>
     <button class="anitem"    data-an="session" onclick="anShow('session')">📋 Session Analytics</button>
     <div class="anfoot">
       <select id="anRange" onchange="anRefresh()">
@@ -788,7 +805,36 @@ window.SS_CONFIG = {
      </div>
    </div>
 
-   <!-- ============ 3 · SESSION ANALYTICS ============ -->
+   <!-- ============ 3 · PLAYER INSIGHTS ============ -->
+   <div class="anpane" id="an-player">
+     <div class="card" id="piAttentionCard">
+       <h3>⚠️ Getting a raw deal</h3>
+       <p class="hint">Players whose matches keep ending lopsided, or who wait longest. These are the quiet churn risks.</p>
+       <div id="piAttention"></div>
+     </div>
+     <div class="card">
+       <h3>👤 Player Insights</h3>
+       <div class="controls">
+         <input id="piSearch" placeholder="🔍 Search a player…" style="flex:1;min-width:170px" oninput="renderPiList()">
+         <select id="piSort" onchange="renderPiList()">
+           <option value="games">Most games</option>
+           <option value="quality">Best match quality</option>
+           <option value="worst">Worst match quality</option>
+           <option value="wait">Longest waits</option>
+           <option value="name">A–Z</option>
+         </select>
+       </div>
+       <div id="piList"></div>
+       <div class="controls" id="piPager" style="justify-content:space-between;display:none">
+         <button class="small ghost" id="piPrev" onclick="piPage(-1)">◀ Prev</button>
+         <span class="hint" id="piPageLbl"></span>
+         <button class="small ghost" id="piNext" onclick="piPage(1)">Next ▶</button>
+       </div>
+     </div>
+     <div class="card" id="piDetail" style="display:none"></div>
+   </div>
+
+   <!-- ============ 4 · SESSION ANALYTICS ============ -->
    <div class="anpane" id="an-session">
      <div class="card">
        <h3>📋 Session Analytics</h3>
@@ -3540,9 +3586,147 @@ function anShow(which){
   document.querySelectorAll(".anitem").forEach(b=>b.classList.toggle("on",b.dataset.an===which));
   if(which==="queue"){ loadQuality(); rtLoad().then(renderSkillModel); }
   if(which==="club"){ loadAnalytics(); }
+  if(which==="player"){ loadPlayerInsights(); }
   if(which==="session"){ fillSessionAnalytics(); }
 }
 function anRefresh(){ anShow(window.__anPane||"queue"); }
+/* ---------- Player Insights ---------- */
+let piPageNo=0;
+function piPage(d){ piPageNo=Math.max(0,piPageNo+d); renderPiList(true); }
+function qColor(q){ return q>=70?"var(--ok)":(q>=45?"var(--warn)":"var(--red)"); }
+async function loadPlayerInsights(){
+  const list=document.getElementById("piList"); if(!list) return;
+  list.innerHTML='<p class="hint">Loading…</p>';
+  const days=+((document.getElementById("anRange")||{}).value)||0;
+  let from=null;
+  if(days){ const d=new Date(); d.setDate(d.getDate()-days); from=d.toISOString().slice(0,10); }
+  const r=await sFetch("/rest/v1/match_quality?select=*&order=play_date.desc,match_no.desc&limit=1500"+
+    (from?"&play_date=gte."+from:"")).catch(()=>null);
+  if(!r||!r.ok){ list.innerHTML='<p class="hint">Run skill-model.sql to enable player insights.</p>';
+    document.getElementById("piAttention").innerHTML=""; return; }
+  const ms=await r.json();
+  if(!ms.length){ list.innerHTML='<p class="hint">No scored matches in this range.</p>';
+    document.getElementById("piAttention").innerHTML=""; return; }
+  // aggregate per player
+  const who={};
+  const touch=(id,nm)=>{ who[id]=who[id]||{id,name:nm||"Player",g:0,w:0,q:0,lop:0,great:0,
+    margin:0,wait:0,sessions:new Set(),matches:[],partners:{},rivals:{}}; if(nm) who[id].name=nm; return who[id]; };
+  ms.forEach(m=>{
+    const t1=m.t1||[], t2=m.t2||[], n1=m.t1n||[], n2=m.t2n||[];
+    const proc=(ids,names,mine,theirs,mineN,theirN,won)=>ids.forEach((id,i)=>{
+      if(!id) return;
+      const p=touch(id,names[i]);
+      p.g++; if(won) p.w++;
+      p.q+=m.quality; p.margin+=m.margin; p.wait+=(+m.longest_wait||0);
+      if(m.quality<45) p.lop++; if(m.quality>=70) p.great++;
+      if(m.session_id) p.sessions.add(m.session_id);
+      mine.forEach((pid,k)=>{ if(pid&&pid!==id){ p.partners[pid]=p.partners[pid]||{n:mineN[k]||"?",g:0,w:0};
+        p.partners[pid].g++; if(won) p.partners[pid].w++; } });
+      theirs.forEach((pid,k)=>{ if(pid){ p.rivals[pid]=p.rivals[pid]||{n:theirN[k]||"?",g:0,w:0};
+        p.rivals[pid].g++; if(won) p.rivals[pid].w++; } });
+      if(p.matches.length<60) p.matches.push({d:m.play_date,q:m.quality,s1:m.s1,s2:m.s2,margin:m.margin,
+        mins:m.court_minutes,wait:m.longest_wait,won,
+        with:mine.map((x,k)=>(x&&x!==id)? mineN[k]:null).filter(Boolean).join(" & "),
+        vs:theirN.filter(Boolean).join(" & ")});
+    });
+    const t1won=m.s1>m.s2;
+    proc(t1,n1,t1,t2,n1,n2,t1won);
+    proc(t2,n2,t2,t1,n2,n1,!t1won);
+  });
+  Object.values(who).forEach(p=>{
+    p.avgQ=Math.round(p.q/p.g); p.avgMargin=Math.round(p.margin/p.g*10)/10;
+    p.avgWait=Math.round(p.wait/p.g); p.lopPct=Math.round(100*p.lop/p.g);
+    p.greatPct=Math.round(100*p.great/p.g); p.winPct=Math.round(100*p.w/p.g);
+    p.nSess=p.sessions.size;
+  });
+  window.__pi=who;
+  // "raw deal" — enough games to be meaningful, and either lopsided-heavy or waiting a lot
+  const flagged=Object.values(who).filter(p=>p.g>=4)
+    .map(p=>({...p,score:p.lopPct*0.7+Math.min(60,p.avgWait)*0.5}))
+    .filter(p=>p.lopPct>=40||p.avgWait>=25)
+    .sort((a,b)=>b.score-a.score).slice(0,6);
+  document.getElementById("piAttention").innerHTML = flagged.length
+    ? flagged.map(p=>'<div class="pirow" onclick="openPlayerCard(\''+p.id+'\')">'+
+        '<span class="qdot" style="background:'+qColor(p.avgQ)+'"></span>'+
+        '<div class="pm3"><b>'+esc(p.name)+'</b><span>'+p.g+' games · '+p.lopPct+'% lopsided · '+
+        p.avgWait+'m avg wait</span></div>'+
+        '<b style="color:'+qColor(p.avgQ)+'">'+p.avgQ+'</b></div>').join("")
+    : '<p class="hint">Nobody is consistently getting bad matches right now. 👍</p>';
+  piPageNo=0; renderPiList();
+}
+function renderPiList(keep){
+  const box=document.getElementById("piList"); if(!box||!window.__pi) return;
+  if(!keep) piPageNo=0;
+  let all=Object.values(window.__pi);
+  const q=((document.getElementById("piSearch")||{}).value||"").toLowerCase().trim();
+  if(q) all=all.filter(p=>p.name.toLowerCase().includes(q));
+  const mode=(document.getElementById("piSort")||{}).value||"games";
+  all.sort((a,b)=> mode==="quality"? b.avgQ-a.avgQ
+    : mode==="worst"? a.avgQ-b.avgQ
+    : mode==="wait"? b.avgWait-a.avgWait
+    : mode==="name"? a.name.localeCompare(b.name)
+    : b.g-a.g);
+  const PAGE=15, pages=Math.max(1,Math.ceil(all.length/PAGE));
+  if(piPageNo>=pages) piPageNo=pages-1;
+  const pg=document.getElementById("piPager");
+  if(pg){ pg.style.display= all.length>PAGE?"flex":"none";
+    document.getElementById("piPageLbl").textContent="Page "+(piPageNo+1)+" of "+pages+" · "+all.length+" players";
+    document.getElementById("piPrev").disabled=piPageNo<=0;
+    document.getElementById("piNext").disabled=piPageNo>=pages-1; }
+  if(!all.length){ box.innerHTML='<p class="hint">No matching players.</p>'; return; }
+  box.innerHTML=all.slice(piPageNo*PAGE,(piPageNo+1)*PAGE).map(p=>
+    '<div class="pirow" onclick="openPlayerCard(\''+p.id+'\')">'+
+    '<span class="qdot" style="background:'+qColor(p.avgQ)+'"></span>'+
+    '<div class="pm3"><b>'+esc(p.name)+'</b><span>'+p.g+' games · '+p.nSess+' session'+(p.nSess===1?"":"s")+
+    ' · '+p.winPct+'% wins · '+p.avgWait+'m wait</span></div>'+
+    '<div style="text-align:right"><b style="color:'+qColor(p.avgQ)+'">'+p.avgQ+'</b>'+
+    '<div class="hint" style="font-size:10px">match quality</div></div></div>').join("");
+}
+function openPlayerCard(id){
+  const p=(window.__pi||{})[id]; const box=document.getElementById("piDetail");
+  if(!p||!box) return;
+  const best=Object.values(p.partners).filter(x=>x.g>=3).sort((a,b)=>(b.w/b.g)-(a.w/a.g))[0];
+  const most=Object.values(p.partners).sort((a,b)=>b.g-a.g)[0];
+  const nem=Object.values(p.rivals).filter(x=>x.g>=3).sort((a,b)=>(a.w/a.g)-(b.w/b.g))[0];
+  const r=(!window.__rtMissing)? rtGet(id) : null;
+  const form=p.matches.slice(0,12).reverse();
+  const line=(ico,t,s,v,col)=>'<div class="crow"><div class="cico">'+ico+'</div><div class="cmain"><b>'+
+    esc(t)+'</b><span>'+esc(s)+'</span></div><div class="cval"'+(col?' style="color:'+col+'"':'')+'>'+esc(v)+'</div></div>';
+  let html='<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">'+
+    '<h3 style="margin:0;flex:1">'+esc(p.name)+'</h3>'+
+    '<button class="piback" onclick="document.getElementById(\'piDetail\').style.display=\'none\'">✕ Close</button></div>'+
+    '<p class="hint">'+p.g+' games across '+p.nSess+' session'+(p.nSess===1?"":"s")+
+    (r&&r.games?' · skill '+(r.mu>=0?"+":"")+r.mu.toFixed(2)+' ('+(r.sigma<=0.35?"settled":r.sigma<=0.55?"learning":"new")+')':'')+'</p>';
+  if(p.lopPct>=40) html+='<div class="piflag">⚠️ <b>'+p.lopPct+'% of their matches ended lopsided.</b> '+
+    'Worth pairing them differently — this is the pattern that quietly drives people away.</div>';
+  else if(p.avgWait>=25) html+='<div class="piflag">⏳ <b>Averaging '+p.avgWait+' minutes waiting.</b> '+
+    'They are getting cold before they play.</div>';
+  html+='<div class="paysum">'+
+    '<div><b style="color:'+qColor(p.avgQ)+'">'+p.avgQ+'</b><span>match quality</span></div>'+
+    '<div><b>'+p.winPct+'%</b><span>win rate</span></div>'+
+    '<div><b class="pos">'+p.greatPct+'%</b><span>great games</span></div>'+
+    '<div><b class="neg">'+p.lopPct+'%</b><span>lopsided</span></div>'+
+    '<div><b>'+p.avgMargin+'</b><span>avg margin</span></div>'+
+    '<div><b>'+p.avgWait+'m</b><span>avg wait</span></div></div>';
+  html+='<p class="clab2">Recent form</p><div class="pform2 pform-wrap">'+
+    '<div class="pform2" style="display:flex;gap:4px;flex-wrap:wrap">'+
+    form.map(m=>'<span class="pform '+(m.won?"w":"l")+'" title="'+m.s1+'-'+m.s2+' · Q'+m.q+'">'+
+      (m.won?"W":"L")+'</span>').join("")+'</div></div>';
+  html+='<p class="clab2">The people</p>';
+  if(best) html+=line("🤝","Best partner: "+best.n,best.w+"W–"+(best.g-best.w)+"L together",
+    Math.round(100*best.w/best.g)+"%");
+  if(most) html+=line("👥","Most played with: "+most.n,most.g+" matches together",most.g+"g");
+  if(nem && nem.w/nem.g<0.5) html+=line("😤","Nemesis: "+nem.n,"they win "+
+    Math.round(100*(1-nem.w/nem.g))+"% of these",Math.round(100*nem.w/nem.g)+"%","var(--red)");
+  html+='<p class="clab2">Recent matches</p><table class="satable">'+
+    '<tr><th>Date</th><th>With</th><th>vs</th><th>Score</th><th>Wait</th><th>Q</th></tr>'+
+    p.matches.slice(0,15).map(m=>'<tr><td class="mono">'+esc(m.d||"")+'</td><td>'+esc(m.with||"—")+'</td>'+
+      '<td class="hint">'+esc(m.vs||"—")+'</td>'+
+      '<td class="mono">'+m.s1+'–'+m.s2+'</td><td class="mono">'+(m.wait||0)+'m</td>'+
+      '<td class="mono" style="color:'+qColor(m.q)+'">'+m.q+'</td></tr>').join("")+'</table>';
+  box.innerHTML=html; box.style.display="block";
+  box.scrollIntoView({behavior:"smooth",block:"start"});
+}
 /* ---------- Session Analytics ---------- */
 async function fillSessionAnalytics(){
   const sel=document.getElementById("saSession"); if(!sel) return;
