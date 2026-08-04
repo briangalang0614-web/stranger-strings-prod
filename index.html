@@ -466,6 +466,25 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .pform{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;
   font-size:10px;font-weight:900;color:#0a1a0f}
 .pform.w{background:var(--ok)} .pform.l{background:var(--red);color:#fff}
+.abars{display:flex;align-items:flex-end;gap:4px;height:104px;margin:8px 0 2px}
+.abars i{flex:1;border-radius:4px 4px 0 0;min-height:3px}
+.aaxis{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:6px}
+.frow{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.frow:last-child{border-bottom:none}
+.frow .fn{flex:1;min-width:0}
+.frow .fn b{display:block;font-size:13.5px}
+.frow .fn span{font-size:11px;color:var(--muted)}
+.fmeter{flex:0 0 150px;height:9px;border-radius:99px;background:var(--panel2);overflow:hidden}
+.fmeter i{display:block;height:100%;border-radius:99px}
+.funnel2{display:flex;gap:6px;align-items:flex-end;height:118px;margin:8px 0 2px}
+.funnel2 div{flex:1;border-radius:6px 6px 0 0;display:flex;align-items:flex-start;justify-content:center;
+  padding-top:6px;font-weight:800;font-size:13px;color:#08120c;background:linear-gradient(180deg,var(--green),#2f5c3d)}
+.locked{text-align:center;padding:26px 18px}
+.locked .lk{font-size:42px}
+.locked h4{font-family:Georgia,serif;font-size:19px;margin:10px 0 6px;color:var(--ink)}
+.locked p{font-size:13px;color:var(--muted);max-width:460px;margin:0 auto 14px;line-height:1.6}
+.lkbar{max-width:340px;margin:0 auto;height:10px;border-radius:99px;background:var(--panel2);overflow:hidden}
+.lkbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--gold))}
 #playerHome{padding-bottom:96px}
 #qStatus{padding:16px 18px;text-align:center}
 #qStatus .qlab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
@@ -734,6 +753,9 @@ window.SS_CONFIG = {
     <button class="anitem on" data-an="queue"  onclick="anShow('queue')">🎯 <span>Queue Analytics</span></button>
     <button class="anitem"    data-an="club"   onclick="anShow('club')">👥 <span>Club &amp; Demand</span></button>
     <button class="anitem"    data-an="player"  onclick="anShow('player')">👤 <span>Player Insights</span></button>
+    <button class="anitem"    data-an="ops"     onclick="anShow('ops')">⚙️ <span>Operations</span></button>
+    <button class="anitem"    data-an="fair"    onclick="anShow('fair')">⚖️ <span>Fairness</span></button>
+    <button class="anitem"    data-an="retain"  onclick="anShow('retain')">📉 <span>Retention</span></button>
     <button class="anitem"    data-an="session" onclick="anShow('session')">📋 Session Analytics</button>
     <div class="anfoot">
       <select id="anRange" onchange="anRefresh()">
@@ -834,7 +856,73 @@ window.SS_CONFIG = {
      <div class="card" id="piDetail" style="display:none"></div>
    </div>
 
-   <!-- ============ 4 · SESSION ANALYTICS ============ -->
+   <!-- ============ 4 · OPERATIONS ============ -->
+   <div class="anpane" id="an-ops">
+     <div class="card">
+       <h3>🕐 Arrival curve</h3>
+       <p class="hint">When players actually turn up, relative to the first arrival that night.</p>
+       <div id="opArrive"></div>
+     </div>
+     <div class="card">
+       <h3>⏱ Court idle time</h3>
+       <p class="hint">Gap between one match finishing and the next starting on the same court.</p>
+       <div id="opIdle"></div>
+     </div>
+     <div class="card">
+       <h3>💸 Cost per match</h3>
+       <p class="hint">Session expenses divided by games actually played.</p>
+       <div id="opCost"></div>
+     </div>
+   </div>
+
+   <!-- ============ 5 · FAIRNESS ============ -->
+   <div class="anpane" id="an-fair">
+     <div class="card">
+       <h3>⚖️ Games played</h3>
+       <p class="hint">Autofill promises everyone a fair share. This checks whether it held.</p>
+       <div class="controls"><select id="fairSession" style="flex:1;min-width:200px" onchange="loadFairness()"></select></div>
+       <div id="fairGames"></div>
+     </div>
+     <div class="card">
+       <h3>⏳ Wait times</h3>
+       <p class="hint">Not the average — the tail. Who keeps landing in the worst bucket?</p>
+       <div id="fairWait"></div>
+     </div>
+     <div class="card">
+       <h3>🤝 Partner diversity</h3>
+       <p class="hint">Unique partners as a share of games played. Low means a fixed circle.</p>
+       <div id="fairDiv"></div>
+     </div>
+   </div>
+
+   <!-- ============ 6 · RETENTION ============ -->
+   <div class="anpane" id="an-retain">
+     <div id="retLocked" class="card" style="display:none"></div>
+     <div id="retBody">
+       <div class="card">
+         <h3>📉 New member survival</h3>
+         <p class="hint">Of everyone who played a first session, what share came back for a 2nd, 3rd…</p>
+         <div id="retFunnel"></div>
+       </div>
+       <div class="card">
+         <h3>🎯 Does match quality predict who comes back?</h3>
+         <p class="hint">Players grouped by the quality of their early sessions, then measured on whether they returned.</p>
+         <div id="retQuality"></div>
+       </div>
+       <div class="card">
+         <h3>🚩 At risk — personalised</h3>
+         <p class="hint">Measured against each player's own rhythm, not a flat rule.</p>
+         <div id="retRisk"></div>
+       </div>
+       <div class="card">
+         <h3>🧪 Is the skill model any good?</h3>
+         <p class="hint">Predicted balance at Start Match, against the margin that actually happened.</p>
+         <div id="retCalib"></div>
+       </div>
+     </div>
+   </div>
+
+   <!-- ============ 7 · SESSION ANALYTICS ============ -->
    <div class="anpane" id="an-session">
      <div class="card">
        <h3>📋 Session Analytics</h3>
@@ -3587,9 +3675,267 @@ function anShow(which){
   if(which==="queue"){ loadQuality(); rtLoad().then(renderSkillModel); }
   if(which==="club"){ loadAnalytics(); }
   if(which==="player"){ loadPlayerInsights(); }
+  if(which==="ops"){ loadOps(); }
+  if(which==="fair"){ loadFairness(); }
+  if(which==="retain"){ rtLoad().then(loadRetention); }
   if(which==="session"){ fillSessionAnalytics(); }
 }
 function anRefresh(){ anShow(window.__anPane||"queue"); }
+/* ---------- shared helpers for the analytics panes ---------- */
+function anBars(vals,labels,colFn){
+  const mx=Math.max(1,...vals);
+  return '<div class="abars">'+vals.map((v,i)=>'<i style="height:'+Math.max(3,Math.round(100*v/mx))+
+    '%;background:'+(colFn?colFn(v,i):"linear-gradient(180deg,var(--green),#2f5c3d)")+'" title="'+v+'"></i>').join("")+
+    '</div>'+(labels?'<div class="aaxis">'+labels.map(l=>'<span>'+l+'</span>').join("")+'</div>':"");
+}
+function anRange(){
+  const days=+((document.getElementById("anRange")||{}).value)||0;
+  if(!days) return null;
+  const d=new Date(); d.setDate(d.getDate()-days); return d.toISOString().slice(0,10);
+}
+async function anCore(){                       // sessions + matches + roster, cached per refresh
+  const from=anRange();
+  const sq="/rest/v1/sessions?select=id,title,session_date,status,settings&order=session_date.desc"+
+    (from?"&session_date=gte."+from:"");
+  const sr=await sFetch(sq).catch(()=>null);
+  if(!sr||!sr.ok) return null;
+  const sess=await sr.json();
+  if(!sess.length) return {sess:[],ms:[],roster:[]};
+  const ids=sess.map(s=>s.id);
+  const [mr,rr]=await Promise.all([
+    sFetch("/rest/v1/matches?session_id=in.("+ids.join(",")+
+      ")&select=id,session_id,match_no,court_name,t1,t2,t1n,t2n,s1,s2,started_at,ended_at,waits&limit=4000").catch(()=>null),
+    sFetch("/rest/v1/session_players?session_id=in.("+ids.join(",")+
+      ")&select=session_id,profile_id,time_in,profiles!session_players_profile_id_fkey(reclub_name,full_name)").catch(()=>null)]);
+  return {sess, ms:(mr&&mr.ok)?await mr.json():[], roster:(rr&&rr.ok)?await rr.json():[]};
+}
+/* ---------- OPERATIONS ---------- */
+async function loadOps(){
+  const A=document.getElementById("opArrive"); if(!A) return;
+  A.innerHTML='<p class="hint">Loading…</p>';
+  const c=await anCore();
+  if(!c){ A.innerHTML='<p class="hint">Could not load sessions.</p>'; return; }
+  if(!c.sess.length){ A.innerHTML='<p class="hint">No sessions in this range.</p>';
+    document.getElementById("opIdle").innerHTML=""; document.getElementById("opCost").innerHTML=""; return; }
+  // ---- arrival curve, relative to each session's first arrival ----
+  const first={};
+  c.roster.forEach(r=>{ if(!r.time_in) return; const t=new Date(r.time_in).getTime();
+    if(!first[r.session_id]||t<first[r.session_id]) first[r.session_id]=t; });
+  const buckets=new Array(13).fill(0); let counted=0;
+  c.roster.forEach(r=>{ if(!r.time_in||!first[r.session_id]) return;
+    const mins=(new Date(r.time_in).getTime()-first[r.session_id])/60000;
+    if(mins<0||mins>195) return;
+    buckets[Math.min(12,Math.floor(mins/15))]++; counted++; });
+  const early=counted? Math.round(100*(buckets[0]+buckets[1]+buckets[2])/counted):0;
+  const late =counted? Math.round(100*buckets.slice(6).reduce((a,b)=>a+b,0)/counted):0;
+  A.innerHTML = counted
+    ? anBars(buckets,["0m","","30m","","60m","","90m","","2h","","","","3h"])+
+      '<div class="paysum"><div><b class="pos">'+early+'%</b><span>arrive in first 45m</span></div>'+
+      '<div><b class="'+(late>25?"neg":"")+'">'+late+'%</b><span>after 90m</span></div>'+
+      '<div><b>'+counted+'</b><span>arrivals measured</span></div></div>'+
+      '<p class="hint" style="margin-top:6px">If most are in early, courts booked for the back half carry fewer players.</p>'
+    : '<p class="hint">No arrival times recorded yet.</p>';
+  // ---- court idle ----
+  const byCourt={};
+  c.ms.forEach(m=>{ if(!m.started_at||!m.ended_at) return;
+    const k=m.session_id+"|"+(m.court_name||"?");
+    (byCourt[k]=byCourt[k]||[]).push({s:new Date(m.started_at).getTime(),e:new Date(m.ended_at).getTime()}); });
+  const gaps=[];
+  Object.values(byCourt).forEach(list=>{ list.sort((a,b)=>a.s-b.s);
+    for(let i=1;i<list.length;i++){ const g=(list[i].s-list[i-1].e)/60000;
+      if(g>=0&&g<=45) gaps.push(g); } });
+  const I=document.getElementById("opIdle");
+  if(gaps.length){
+    const avg=Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length*10)/10;
+    const big=gaps.filter(g=>g>=8).length;
+    const play=c.ms.filter(m=>m.started_at&&m.ended_at)
+      .reduce((a,m)=>a+(new Date(m.ended_at)-new Date(m.started_at))/60000,0);
+    const idleTot=gaps.reduce((a,b)=>a+b,0);
+    const pct=Math.round(100*idleTot/(idleTot+play));
+    I.innerHTML='<div class="paysum">'+
+      '<div><b class="'+(avg<=4?"pos":(avg<=7?"":"neg"))+'">'+avg+'m</b><span>avg turnaround</span></div>'+
+      '<div><b class="'+(big?"neg":"pos")+'">'+big+'</b><span>gaps over 8 min</span></div>'+
+      '<div><b>'+pct+'%</b><span>of court time idle</span></div>'+
+      '<div><b>'+gaps.length+'</b><span>changeovers</span></div></div>'+
+      '<p class="hint" style="margin-top:6px">This answers "do I need another court, or a faster changeover?"</p>';
+  } else I.innerHTML='<p class="hint">Not enough consecutive matches on a court yet.</p>';
+  // ---- cost per match ----
+  const mps={}; c.ms.forEach(m=>mps[m.session_id]=(mps[m.session_id]||0)+1);
+  const att={}; c.roster.forEach(r=>att[r.session_id]=(att[r.session_id]||0)+1);
+  const rows=c.sess.map(s=>{ const e=expensesOf(s), exp=expenseTotal(e);
+    const g=mps[s.id]||0, a=att[s.id]||0, fee=feeOf(s);
+    return {s,exp,g,a,fee,cpm:g?Math.round(exp/g):0,cpp:a?Math.round(exp/a):0}; })
+    .filter(r=>r.exp>0);
+  document.getElementById("opCost").innerHTML = rows.length
+    ? '<table class="satable"><tr><th>Session</th><th>Players</th><th>Games</th><th>Expenses</th>'+
+      '<th>Per match</th><th>Per player</th></tr>'+
+      rows.slice(0,12).map(r=>'<tr><td class="mono">'+esc(r.s.session_date)+'</td><td class="mono">'+r.a+'</td>'+
+        '<td class="mono">'+r.g+'</td><td class="mono">'+pesos(r.exp)+'</td><td class="mono">'+pesos(r.cpm)+'</td>'+
+        '<td class="mono" style="color:'+(r.fee&&r.cpp>r.fee?"var(--red)":"var(--ok)")+'">'+pesos(r.cpp)+'</td></tr>').join("")+
+      '</table><p class="hint" style="margin-top:6px">Per-player above the fee means that night ran at a loss.</p>'
+    : '<p class="hint">Add expenses to a session in the Money tab to see cost per match.</p>';
+}
+/* ---------- FAIRNESS ---------- */
+async function loadFairness(keepSel){
+  const G=document.getElementById("fairGames"); if(!G) return;
+  const sel=document.getElementById("fairSession");
+  G.innerHTML='<p class="hint">Loading…</p>';
+  const c=await anCore();
+  if(!c||!c.sess.length){ G.innerHTML='<p class="hint">No sessions in this range.</p>';
+    document.getElementById("fairWait").innerHTML=""; document.getElementById("fairDiv").innerHTML=""; return; }
+  if(!keepSel){
+    const cur=sel.value;
+    sel.innerHTML=c.sess.map(s=>'<option value="'+s.id+'">'+esc(s.title)+' · '+s.session_date+'</option>').join("");
+    if(cur) sel.value=cur;
+  }
+  const sid=sel.value||c.sess[0].id;
+  // games played in the chosen session
+  const cnt={}, nm={};
+  c.ms.filter(m=>m.session_id===sid).forEach(m=>{
+    [...(m.t1||[]),...(m.t2||[])].forEach((id,i)=>{ if(!id) return;
+      cnt[id]=(cnt[id]||0)+1;
+      const names=[...(m.t1n||[]),...(m.t2n||[])]; if(names[i]) nm[id]=names[i]; });
+  });
+  const vals=Object.values(cnt).sort((a,b)=>a-b);
+  G.innerHTML = vals.length
+    ? '<div class="paysum"><div><b class="pos">'+vals[0]+'</b><span>fewest games</span></div>'+
+      '<div><b>'+vals[vals.length-1]+'</b><span>most games</span></div>'+
+      '<div><b class="'+((vals[vals.length-1]-vals[0])<=3?"pos":"neg")+'">'+(vals[vals.length-1]-vals[0])+'</b><span>spread</span></div>'+
+      '<div><b>'+vals.length+'</b><span>players</span></div></div>'+
+      anBars(vals)+'<p class="hint">A spread of 3 or less is healthy. Wider usually means late arrivals or silent sit-outs.</p>'
+    : '<p class="hint">No matches recorded for that session.</p>';
+  // wait distribution across the range
+  const w=[];
+  c.ms.forEach(m=>{ const o=m.waits||{};
+    Object.values(o).forEach(v=>{ const n=+v; if(!isNaN(n)&&n>=0&&n<120) w.push(n); }); });
+  const W=document.getElementById("fairWait");
+  if(w.length){
+    const bk=new Array(9).fill(0);
+    w.forEach(x=>bk[Math.min(8,Math.floor(x/5))]++);
+    const sorted=[...w].sort((a,b)=>a-b);
+    const med=Math.round(sorted[Math.floor(sorted.length*0.5)]);
+    const p90=Math.round(sorted[Math.floor(sorted.length*0.9)]);
+    W.innerHTML=anBars(bk,["0m","5","10","15","20","25","30","35","40m+"],
+        ()=>"linear-gradient(180deg,var(--warn),#7a5a20)")+
+      '<div class="paysum"><div><b>'+med+'m</b><span>median wait</span></div>'+
+      '<div><b class="'+(p90>=30?"neg":"")+'">'+p90+'m</b><span>90th percentile</span></div>'+
+      '<div><b>'+w.length+'</b><span>waits measured</span></div></div>';
+  } else W.innerHTML='<p class="hint">No wait times recorded yet.</p>';
+  // partner diversity across the range
+  const pd={};
+  c.ms.forEach(m=>{
+    const pair=(ids,names)=>ids.forEach((id,i)=>{ if(!id) return;
+      pd[id]=pd[id]||{n:names[i]||"Player",g:0,set:new Set()};
+      if(names[i]) pd[id].n=names[i];
+      pd[id].g++;
+      ids.forEach((o,k)=>{ if(o&&o!==id) pd[id].set.add(o); });
+    });
+    pair(m.t1||[],m.t1n||[]); pair(m.t2||[],m.t2n||[]);
+  });
+  const list=Object.values(pd).filter(p=>p.g>=6)
+    .map(p=>({...p,uniq:p.set.size,pct:Math.round(100*p.set.size/p.g)}))
+    .sort((a,b)=>a.pct-b.pct).slice(0,10);
+  document.getElementById("fairDiv").innerHTML = list.length
+    ? list.map(p=>'<div class="frow"><div class="fn"><b>'+esc(p.n)+'</b><span>'+p.uniq+
+      ' partners across '+p.g+' games</span></div><span class="fmeter"><i style="width:'+Math.min(100,p.pct)+
+      '%;background:'+(p.pct<35?"var(--red)":(p.pct<50?"var(--warn)":"var(--ok)"))+'"></i></span>'+
+      '<b class="mono">'+p.pct+'%</b></div>').join("")+
+      '<p class="hint" style="margin-top:8px">Stratification shows up socially before it shows up in ratings.</p>'
+    : '<p class="hint">Not enough games yet to judge partner variety.</p>';
+}
+/* ---------- RETENTION (gated) ---------- */
+const RETAIN_MIN=10;
+async function loadRetention(){
+  const lock=document.getElementById("retLocked"), body=document.getElementById("retBody");
+  if(!lock) return;
+  const sr=await sFetch("/rest/v1/sessions?select=id,session_date&order=session_date.asc").catch(()=>null);
+  const all=(sr&&sr.ok)? await sr.json():[];
+  const n=all.length;
+  if(n<RETAIN_MIN){
+    body.style.display="none"; lock.style.display="block";
+    const pct=Math.round(100*n/RETAIN_MIN);
+    lock.innerHTML='<div class="locked"><div class="lk">📉</div>'+
+      '<h4>Not enough sessions yet</h4>'+
+      '<p>Retention patterns need at least <b>'+RETAIN_MIN+' sessions</b> before they mean anything. '+
+      'With fewer, the numbers move so much from week to week that they would mislead more than help.</p>'+
+      '<div class="lkbar"><i style="width:'+pct+'%"></i></div>'+
+      '<p style="margin-top:10px"><b>'+n+' of '+RETAIN_MIN+'</b> sessions recorded'+
+      (n?' · '+(RETAIN_MIN-n)+' to go':'')+'</p></div>';
+    return;
+  }
+  lock.style.display="none"; body.style.display="block";
+  const dateOf={}; all.forEach(s=>dateOf[s.id]=s.session_date);
+  const rr=await sFetch("/rest/v1/session_players?select=session_id,profile_id&limit=8000").catch(()=>null);
+  const roster=(rr&&rr.ok)? await rr.json():[];
+  const byP={};
+  roster.forEach(r=>{ if(!r.profile_id) return;
+    (byP[r.profile_id]=byP[r.profile_id]||[]).push(dateOf[r.session_id]); });
+  Object.values(byP).forEach(v=>v.sort());
+  const players=Object.values(byP);
+  // survival funnel
+  const funnel=[1,2,3,4,5,6].map(k=>players.filter(v=>v.length>=k).length);
+  const base=funnel[0]||1;
+  document.getElementById("retFunnel").innerHTML=
+    '<div class="funnel2">'+funnel.map(v=>'<div style="height:'+Math.max(8,Math.round(100*v/base))+'%">'+
+      Math.round(100*v/base)+'%</div>').join("")+'</div>'+
+    '<div class="aaxis"><span>1st</span><span>2nd</span><span>3rd</span><span>4th</span><span>5th</span><span>6th</span></div>'+
+    '<p class="hint">'+base+' players played a first session. The steepest drop is where a bad first night costs you a member.</p>';
+  // quality vs retention
+  const qr=await sFetch("/rest/v1/match_quality?select=session_id,t1,t2,quality&limit=4000").catch(()=>null);
+  const mq=(qr&&qr.ok)? await qr.json():[];
+  const early={};
+  mq.forEach(m=>{ [...(m.t1||[]),...(m.t2||[])].forEach(id=>{ if(!id) return;
+    const dates=byP[id]; if(!dates) return;
+    const d=dateOf[m.session_id]; if(!d) return;
+    const idx=dates.indexOf(d);
+    if(idx>=0&&idx<3){ early[id]=early[id]||{q:0,n:0}; early[id].q+=m.quality; early[id].n++; } }); });
+  const bands=[{lab:"Great (70+)",lo:70,hi:1000,n:0,ret:0},
+               {lab:"Mixed (45–69)",lo:45,hi:70,n:0,ret:0},
+               {lab:"Lopsided (<45)",lo:-1,hi:45,n:0,ret:0}];
+  Object.keys(early).forEach(id=>{ const e=early[id]; if(e.n<2) return;
+    const avg=e.q/e.n; const b=bands.find(b=>avg>=b.lo&&avg<b.hi); if(!b) return;
+    b.n++; if((byP[id]||[]).length>3) b.ret++; });
+  document.getElementById("retQuality").innerHTML = bands.some(b=>b.n)
+    ? bands.map(b=>{ const pct=b.n?Math.round(100*b.ret/b.n):0;
+        return '<div class="frow"><div class="fn"><b>'+b.lab+'</b><span>'+b.n+' players</span></div>'+
+        '<span class="fmeter"><i style="width:'+pct+'%;background:'+
+        (pct>=70?"var(--ok)":(pct>=50?"var(--warn)":"var(--red)"))+'"></i></span>'+
+        '<b class="mono">'+pct+'%</b></div>'; }).join("")+
+      '<p class="hint" style="margin-top:8px">If the gap holds, matchmaking quality is a retention lever, not a nicety.</p>'
+    : '<p class="hint">Not enough early-session quality data yet.</p>';
+  // at risk, personalised
+  const today=new Date();
+  const risk=Object.keys(byP).map(id=>{
+    const d=byP[id]; if(d.length<3) return null;
+    const gaps=[]; for(let i=1;i<d.length;i++) gaps.push((new Date(d[i])-new Date(d[i-1]))/86400000);
+    const typ=Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length);
+    const gone=Math.round((today-new Date(d[d.length-1]))/86400000);
+    return (typ>0&&gone>typ*1.8)? {id,typ,gone,x:Math.round(gone/typ*10)/10}:null;
+  }).filter(Boolean).sort((a,b)=>b.x-a.x).slice(0,8);
+  const nmMap=window.__skNames||{};
+  document.getElementById("retRisk").innerHTML = risk.length
+    ? risk.map(r=>'<div class="frow"><div class="fn"><b>'+esc(nmMap[r.id]||"Player")+'</b>'+
+      '<span>usually every '+r.typ+' days · '+r.gone+' days since last seen</span></div>'+
+      '<b class="mono neg">'+r.x+'×</b></div>').join("")
+    : '<p class="hint">Nobody is overdue against their own rhythm right now. 👍</p>';
+  // model calibration
+  const cal=[{lab:"90–100%",lo:90,hi:101,n:0,m:0},{lab:"70–89%",lo:70,hi:90,n:0,m:0},
+             {lab:"50–69%",lo:50,hi:70,n:0,m:0},{lab:"<50%",lo:-1,hi:50,n:0,m:0}];
+  mq.forEach(m=>{
+    const t1=(m.t1||[]).filter(Boolean), t2=(m.t2||[]).filter(Boolean);
+    if(t1.length<2||t2.length<2) return;
+    const b=rtBalance(t1,t2); if(!b) return;
+    const band=cal.find(c=>b.pct>=c.lo&&b.pct<c.hi); if(!band) return;
+    band.n++; band.m+=(17-Math.round(17*(m.quality/100)));
+  });
+  document.getElementById("retCalib").innerHTML = cal.some(c=>c.n)
+    ? '<table class="satable"><tr><th>Predicted balance</th><th>Matches</th><th>Actual avg margin</th></tr>'+
+      cal.map(c=>'<tr><td><b>'+c.lab+'</b></td><td class="mono">'+c.n+'</td>'+
+        '<td class="mono">'+(c.n?(c.m/c.n).toFixed(1):"—")+' pts</td></tr>').join("")+'</table>'+
+      '<p class="hint" style="margin-top:6px">If predicted-close matches really end closer, the model earns its place. '+
+      'A flat column means it is decorative.</p>'
+    : '<p class="hint">Rebuild the skill model to compare predictions against results.</p>';
+}
 /* ---------- Player Insights ---------- */
 let piPageNo=0;
 function piPage(d){ piPageNo=Math.max(0,piPageNo+d); renderPiList(true); }
