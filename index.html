@@ -485,6 +485,26 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .locked p{font-size:13px;color:var(--muted);max-width:460px;margin:0 auto 14px;line-height:1.6}
 .lkbar{max-width:340px;margin:0 auto;height:10px;border-radius:99px;background:var(--panel2);overflow:hidden}
 .lkbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--gold))}
+.shrow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.shrow:last-child{border-bottom:none}
+.shrow .sn2{flex:1;min-width:0}
+.shrow .sn2 b{display:block;font-size:14px}
+.shrow .sn2 span{font-size:11px;color:var(--muted)}
+.shbar{flex:0 0 92px;height:8px;border-radius:99px;background:var(--panel2);overflow:hidden}
+.shbar i{display:block;height:100%;border-radius:99px}
+.shpill{display:inline-block;border-radius:999px;padding:2px 8px;font-size:9.5px;font-weight:800;white-space:nowrap}
+.shpill.ok{background:rgba(78,154,99,.18);color:var(--ok);border:1px solid rgba(78,154,99,.5)}
+.shpill.low{background:rgba(224,166,60,.16);color:var(--warn);border:1px solid rgba(224,166,60,.55)}
+.shpill.crit{background:rgba(207,107,88,.18);color:var(--red);border:1px solid rgba(207,107,88,.55)}
+.shpill.int{background:rgba(93,143,194,.16);color:var(--blue);border:1px solid rgba(93,143,194,.5)}
+.shcalc{background:var(--panel2);border:1px solid rgba(124,176,138,.4);border-radius:12px;padding:11px 13px;margin:10px 0}
+.shcalc div{display:flex;justify-content:space-between;font-size:13px;padding:3px 0}
+.shcalc b{font-family:"Courier New",monospace}
+.wfrow{display:flex;align-items:flex-end;gap:6px;height:150px;margin:12px 0 2px}
+.wfcol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.wfcol .v{font-family:"Courier New",monospace;font-weight:800;font-size:10.5px;margin-bottom:3px}
+.wfcol .bx{width:100%;border-radius:4px 4px 0 0}
+.wfcol .lb{font-size:9.5px;color:var(--muted);text-align:center;margin-top:6px;line-height:1.25}
 #playerHome{padding-bottom:96px}
 #qStatus{padding:16px 18px;text-align:center}
 #qStatus .qlab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
@@ -979,7 +999,8 @@ window.SS_CONFIG = {
     <div class="mrow"><label>Hours</label><input id="exHours" type="number" min="0" step="0.5" oninput="calcFinance()"></div>
     <div class="mrow"><label>Courts used</label><input id="exCourts" type="number" min="0" step="1" oninput="calcFinance()"></div>
     <p class="mline"><span>Court fee</span><b id="exCourtTotal">₱0</b></p>
-    <div class="mrow" style="margin-top:10px"><label>Cost per tube</label><input id="exTube" type="number" min="0" step="10" oninput="calcFinance()"></div>
+    <div class="mrow" style="margin-top:10px"><label>Shuttle brand</label><select id="exBrand" onchange="calcFinance()" style="max-width:210px"><option value="">— none —</option></select></div>
+    <div class="mrow"><label>Cost per tube</label><input id="exTube" type="number" min="0" step="10" oninput="calcFinance()"></div>
     <div class="mrow"><label>Tubes used</label><input id="exTubes" type="number" min="0" step="1" oninput="calcFinance()"></div>
     <p class="mline"><span>Shuttlecock fee</span><b id="exShuttleTotal">₱0</b></p>
     <div class="mrow" style="margin-top:10px"><label id="exOtherLbl">Other</label><input id="exOtherName" placeholder="e.g. Queue master fee" oninput="calcFinance()" style="max-width:210px"></div>
@@ -1027,6 +1048,18 @@ window.SS_CONFIG = {
       <span class="hint" id="balPageLbl"></span>
       <button class="small ghost" id="balNext" onclick="balPage(1)">Next ▶</button>
     </div>
+  </div>
+
+  <div class="card" style="max-width:820px;margin:0 auto 14px">
+    <h3>🏸 Shuttlecocks <button class="small ghost" style="float:right" onclick="loadShuttles()">⟳</button></h3>
+    <div class="controls" style="flex-wrap:wrap">
+      <button class="small"       id="shTabStock" onclick="shTab('stock')">📦 Stock</button>
+      <button class="small ghost" id="shTabSale"  onclick="shTab('sale')">🧾 Record sale</button>
+      <button class="small ghost" id="shTabBuy"   onclick="shTab('buy')">➕ Add batch</button>
+      <button class="small ghost" id="shTabPrice" onclick="shTab('price')">🏷 Prices</button>
+      <button class="small ghost" id="shTabPnl"   onclick="shTab('pnl')">💰 P&amp;L</button>
+    </div>
+    <div id="shBody" style="margin-top:12px"></div>
   </div>
 
   <div class="card" style="max-width:820px;margin:0 auto 14px">
@@ -1118,6 +1151,8 @@ window.SS_CONFIG = {
   </div>
   <div class="card" style="max-width:760px;margin:14px auto 0">
     <h3>🎞 Match Manager <button class="small ghost" style="float:right" onclick="adminLoadMatches(true)">🔄</button></h3>
+    <button class="small ghost" id="mmAddBtn" style="margin-bottom:10px" onclick="mmToggleAdd()">＋ Add a match</button>
+    <div id="mmAdd" style="display:none"></div>
     <div id="mmList"><p class="hint">Select your active session in the Home tab to manage its matches.</p></div>
   </div>
   <div class="card" style="max-width:760px;margin:14px auto 0">
@@ -3586,6 +3621,291 @@ function exportDetailedCSV(){
 
 /* ======================= MONEY ======================= */
 function addShuttle(){ /* retired — expenses now live per session */ }
+/* ================= SHUTTLECOCKS ================= */
+let shView="stock";
+function shTab(v){
+  shView=v;
+  ["stock","sale","buy","price","pnl"].forEach(k=>{
+    const b=document.getElementById("shTab"+k[0].toUpperCase()+k.slice(1));
+    if(b) b.className="small"+(k===v?"":" ghost");
+  });
+  renderShuttles();
+}
+async function loadShuttles(){
+  const box=document.getElementById("shBody"); if(!box) return;
+  box.innerHTML='<p class="hint">Loading…</p>';
+  const [br,ch,pr,ba,sa]=await Promise.all([
+    sFetch("/rest/v1/shuttle_stock?select=*").catch(()=>null),
+    sFetch("/rest/v1/shuttle_channels?select=*&order=sort.asc").catch(()=>null),
+    sFetch("/rest/v1/shuttle_prices?select=*").catch(()=>null),
+    sFetch("/rest/v1/shuttle_batches?select=*&order=received_on.desc").catch(()=>null),
+    sFetch("/rest/v1/shuttle_sales?select=*&order=sold_on.desc&limit=500").catch(()=>null)]);
+  if(!br||!br.ok){ window.__shMissing=true;
+    box.innerHTML='<p class="hint">Run shuttles.sql to enable shuttlecock tracking.</p>'; return; }
+  window.__shMissing=false;
+  SH.brands=await br.json();
+  SH.channels=(ch&&ch.ok)? await ch.json():[];
+  SH.prices=(pr&&pr.ok)? await pr.json():[];
+  SH.batches=(ba&&ba.ok)? await ba.json():[];
+  SH.sales=(sa&&sa.ok)? await sa.json():[];
+  // queue usage comes from session expenses — one source of truth
+  if(!window.__allSessions) await fillFinanceSessions();
+  SH.queue=(window.__allSessions||[]).map(s=>{ const e=expensesOf(s);
+    return (e.tubes>0)? {session:s.title,date:s.session_date,brand:e.brand||"",
+      tubes:e.tubes,price:e.tube} : null; }).filter(Boolean);
+  // fill the expense brand dropdown
+  const eb=document.getElementById("exBrand");
+  if(eb){ const cur=eb.value;
+    eb.innerHTML='<option value="">— none —</option>'+
+      SH.brands.map(b=>'<option value="'+esc(b.name)+'">'+esc(b.name)+'</option>').join("");
+    eb.value=cur; }
+  renderShuttles();
+}
+const SH={brands:[],channels:[],prices:[],batches:[],sales:[],queue:[]};
+function shOnHand(b){
+  const q=SH.queue.filter(x=>x.brand===b.name).reduce((a,x)=>a+x.tubes,0);
+  return (b.tubes_in||0)-(b.tubes_sold||0)-q;
+}
+function shPrice(brandId,chanId){
+  const p=SH.prices.find(x=>x.brand_id===brandId&&x.channel_id===chanId);
+  return p? +p.price : 0;
+}
+function shStatus(b){
+  const on=shOnHand(b);
+  if(on<=b.reorder*0.5) return ["crit","reorder now"];
+  if(on<=b.reorder)     return ["low","low"];
+  return ["ok","ok"];
+}
+function renderShuttles(){
+  const box=document.getElementById("shBody"); if(!box||window.__shMissing) return;
+  if(shView==="stock")  return shStock(box);
+  if(shView==="sale")   return shSale(box);
+  if(shView==="buy")    return shBuy(box);
+  if(shView==="price")  return shPrices(box);
+  if(shView==="pnl")    return shPnl(box);
+}
+/* ---------- stock ---------- */
+function shStock(box){
+  if(!SH.brands.length){ box.innerHTML='<p class="hint">No brands yet.</p>'+shAddBrand(); return; }
+  const onhand=SH.brands.reduce((a,b)=>a+shOnHand(b),0);
+  const val=SH.brands.reduce((a,b)=>a+shOnHand(b)*(+b.wac||0),0);
+  const nSess=(window.__allSessions||[]).length||1;
+  const burn=Math.round(SH.queue.reduce((a,x)=>a+x.tubes,0)/nSess*10)/10;
+  const days=burn? Math.round(onhand/burn*3.5):0;
+  const alerts=SH.brands.filter(b=>shOnHand(b)<=b.reorder);
+  box.innerHTML=(alerts.length?'<div class="paynotice" style="margin-top:0"><b>⚠️ '+alerts.length+
+      ' brand'+(alerts.length>1?"s":"")+' at or below reorder point</b><span>'+
+      alerts.map(a=>esc(a.name)+" ("+shOnHand(a)+" left)").join(" · ")+'</span></div>':'')+
+    '<div class="paysum"><div><b>'+onhand+'</b><span>tubes on hand</span></div>'+
+    '<div><b>'+pesos(val)+'</b><span>stock value</span></div>'+
+    '<div><b class="'+(burn?"":"")+'">'+burn+'</b><span>tubes / session</span></div>'+
+    '<div><b class="'+(days<21?"neg":"pos")+'">~'+days+'d</b><span>stock left</span></div></div>'+
+    SH.brands.map(b=>{ const on=shOnHand(b), st=shStatus(b);
+      return '<div class="shrow"><div class="sn2"><b>'+esc(b.name)+'</b><span>avg cost '+
+        pesos(b.wac)+' · reorder at '+b.reorder+'</span></div>'+
+        '<span class="shbar"><i style="width:'+Math.min(100,Math.round(100*on/Math.max(1,b.reorder*3)))+
+        '%;background:'+(st[0]==="crit"?"var(--red)":(st[0]==="low"?"var(--warn)":"var(--ok)"))+'"></i></span>'+
+        '<b class="mono" style="min-width:34px;text-align:right">'+on+'</b>'+
+        '<span class="shpill '+st[0]+'">'+st[1]+'</span></div>'; }).join("")+
+    '<p class="hint" style="margin-top:8px">On hand = purchased − sold outside − burned by queue sessions.</p>'+
+    shAddBrand();
+}
+function shAddBrand(){
+  return '<div class="controls" style="margin-top:10px">'+
+    '<input id="shNewBrand" placeholder="New brand name" style="flex:1;min-width:140px">'+
+    '<input id="shNewReorder" type="number" value="10" style="width:86px" title="Reorder point">'+
+    '<button class="small ghost" onclick="shAddBrandGo()">＋ Brand</button></div>';
+}
+async function shAddBrandGo(){
+  const n=(document.getElementById("shNewBrand").value||"").trim();
+  if(!n) return toast("Name the brand first");
+  const r=await sFetch("/rest/v1/shuttle_brands",{method:"POST",
+    body:[{name:n,reorder:+document.getElementById("shNewReorder").value||10}]}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not add brand");
+  toast("🏸 "+n+" added"); loadShuttles();
+}
+/* ---------- record an outside sale ---------- */
+function shSale(box){
+  const outs=SH.channels.filter(c=>!c.is_internal);
+  if(!SH.brands.length||!outs.length){ box.innerHTML='<p class="hint">Add a brand and a channel first.</p>'; return; }
+  box.innerHTML=
+    '<div class="mrow"><label>Channel</label><select id="saChan" onchange="shSaleCalc()" style="max-width:230px">'+
+      outs.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join("")+'</select></div>'+
+    '<div class="mrow"><label>Brand</label><select id="saBrand" onchange="shSaleCalc()" style="max-width:230px">'+
+      SH.brands.map(b=>'<option value="'+b.brand_id+'">'+esc(b.name)+' — '+shOnHand(b)+' in stock</option>').join("")+'</select></div>'+
+    '<div class="mrow"><label>Tubes</label><input id="saTubes" type="number" min="1" value="1" oninput="shSaleCalc()" style="max-width:110px"></div>'+
+    '<div class="mrow"><label>Price / tube</label><input id="saPrice" type="number" min="0" step="10" oninput="shSaleCalc()" style="max-width:130px"></div>'+
+    '<div class="mrow"><label>Buyer / ref</label><input id="saBuyer" placeholder="e.g. Tubig BC · Aug pickup"></div>'+
+    '<div class="mrow"><label>Date</label><input id="saDate" type="date" value="'+new Date().toISOString().slice(0,10)+'" style="max-width:170px"></div>'+
+    '<div class="shcalc" id="saCalc"></div>'+
+    '<div class="controls" style="justify-content:flex-end"><button class="small" onclick="shSaleGo()">Record sale</button></div>';
+  shSaleCalc(true);
+}
+function shSaleCalc(setPrice){
+  const bId=(document.getElementById("saBrand")||{}).value;
+  const cId=(document.getElementById("saChan")||{}).value;
+  const b=SH.brands.find(x=>x.brand_id===bId); if(!b) return;
+  if(setPrice){ const p=shPrice(bId,cId); if(p) document.getElementById("saPrice").value=p; }
+  const tubes=+((document.getElementById("saTubes")||{}).value)||0;
+  const price=+((document.getElementById("saPrice")||{}).value)||0;
+  const wac=+b.wac||0, on=shOnHand(b);
+  const rev=tubes*price, cost=tubes*wac, m=rev-cost;
+  document.getElementById("saCalc").innerHTML=
+    '<div><span>Revenue</span><b>'+pesos(rev)+'</b></div>'+
+    '<div><span>Cost at weighted average ('+pesos(wac)+')</span><b class="neg">−'+pesos(cost)+'</b></div>'+
+    '<div style="border-top:1px solid var(--line);margin-top:5px;padding-top:7px"><span><b>Margin on this sale</b></span>'+
+      '<b class="'+(m>=0?"pos":"neg")+'">'+pesos(m)+(rev?' · '+Math.round(1000*m/rev)/10+'%':'')+'</b></div>'+
+    '<div><span>Stock after this sale</span><b class="'+(on-tubes<0?"neg":"")+'">'+(on-tubes)+' tubes</b></div>'+
+    (on-tubes<0?'<div class="hint" style="color:var(--red)">That is more than you have on hand.</div>':'');
+}
+async function shSaleGo(){
+  const bId=document.getElementById("saBrand").value, cId=document.getElementById("saChan").value;
+  const b=SH.brands.find(x=>x.brand_id===bId);
+  const tubes=+document.getElementById("saTubes").value||0;
+  const price=+document.getElementById("saPrice").value||0;
+  if(!tubes) return toast("How many tubes?");
+  if(tubes>shOnHand(b) && !await uiConfirm("That is more than you have on hand ("+shOnHand(b)+
+      ").\nRecord it anyway?",{title:"⚠️ Stock would go negative",ok:"Record"})) return;
+  const r=await sFetch("/rest/v1/shuttle_sales",{method:"POST",body:[{
+    brand_id:bId, channel_id:cId, tubes, price_per_tube:price, cost_per_tube:+b.wac||0,
+    buyer:document.getElementById("saBuyer").value||"",
+    sold_on:document.getElementById("saDate").value, created_by:auth.uid}]}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not record the sale");
+  toast("🧾 "+tubes+" tube"+(tubes>1?"s":"")+" recorded");
+  loadShuttles();
+}
+/* ---------- add a batch ---------- */
+function shBuy(box){
+  if(!SH.brands.length){ box.innerHTML='<p class="hint">Add a brand first.</p>'+shAddBrand(); return; }
+  box.innerHTML=
+    '<div class="mrow"><label>Brand</label><select id="buBrand" style="max-width:230px">'+
+      SH.brands.map(b=>'<option value="'+b.brand_id+'">'+esc(b.name)+'</option>').join("")+'</select></div>'+
+    '<div class="mrow"><label>Supplier</label><input id="buSup" placeholder="e.g. OGKILS"></div>'+
+    '<div class="mrow"><label>DR / invoice</label><input id="buDr" placeholder="e.g. DR-4417" style="max-width:200px"></div>'+
+    '<div class="mrow"><label>Tubes</label><input id="buTubes" type="number" min="1" value="12" style="max-width:110px" oninput="shBuyCalc()"></div>'+
+    '<div class="mrow"><label>Cost / tube</label><input id="buCost" type="number" min="0" step="10" style="max-width:130px" oninput="shBuyCalc()"></div>'+
+    '<div class="mrow"><label>Received</label><input id="buDate" type="date" value="'+new Date().toISOString().slice(0,10)+'" style="max-width:170px"></div>'+
+    '<div class="shcalc" id="buCalc"></div>'+
+    '<div class="controls" style="justify-content:flex-end"><button class="small" onclick="shBuyGo()">Add batch</button></div>'+
+    '<p class="clab2" style="margin-top:14px">Recent batches</p>'+
+    (SH.batches.length? SH.batches.slice(0,10).map(x=>{
+      const b=SH.brands.find(y=>y.brand_id===x.brand_id)||{name:"?"};
+      return '<div class="shrow"><div class="sn2"><b>'+esc(b.name)+'</b><span>'+esc(x.received_on)+' · '+
+        esc(x.supplier||"—")+(x.dr_ref?' · '+esc(x.dr_ref):'')+'</span></div>'+
+        '<b class="mono pos">+'+x.tubes_in+'</b><span class="mono" style="color:var(--muted)">'+
+        pesos(x.cost_per_tube)+'</span></div>'; }).join("")
+      : '<p class="hint">No batches recorded yet.</p>');
+  shBuyCalc();
+}
+function shBuyCalc(){
+  const t=+((document.getElementById("buTubes")||{}).value)||0;
+  const c=+((document.getElementById("buCost")||{}).value)||0;
+  const bId=(document.getElementById("buBrand")||{}).value;
+  const b=SH.brands.find(x=>x.brand_id===bId);
+  const el=document.getElementById("buCalc"); if(!el||!b) return;
+  const oldN=b.tubes_in||0, oldW=+b.wac||0;
+  const newW=(oldN+t)? (oldN*oldW+t*c)/(oldN+t) : c;
+  el.innerHTML='<div><span>Batch cost</span><b>'+pesos(t*c)+'</b></div>'+
+    '<div><span>Weighted average before</span><b>'+pesos(oldW)+'</b></div>'+
+    '<div><span>Weighted average after</span><b class="'+(newW>oldW?"neg":"pos")+'">'+pesos(newW)+'</b></div>';
+}
+async function shBuyGo(){
+  const t=+document.getElementById("buTubes").value||0;
+  if(!t) return toast("How many tubes?");
+  const r=await sFetch("/rest/v1/shuttle_batches",{method:"POST",body:[{
+    brand_id:document.getElementById("buBrand").value,
+    supplier:document.getElementById("buSup").value||"",
+    dr_ref:document.getElementById("buDr").value||"",
+    tubes_in:t, cost_per_tube:+document.getElementById("buCost").value||0,
+    received_on:document.getElementById("buDate").value}]}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not add the batch");
+  toast("📦 "+t+" tubes added"); loadShuttles();
+}
+/* ---------- prices ---------- */
+function shPrices(box){
+  if(!SH.brands.length||!SH.channels.length){ box.innerHTML='<p class="hint">Add a brand and a channel first.</p>'; return; }
+  box.innerHTML='<div style="overflow-x:auto"><table class="satable"><tr><th>Brand</th><th class="mono">cost</th>'+
+    SH.channels.map(c=>'<th>'+esc(c.name)+(c.is_internal?' <span class="shpill int">queue</span>':'')+'</th>').join("")+'</tr>'+
+    SH.brands.map(b=>'<tr><td><b>'+esc(b.name)+'</b></td><td class="mono">'+pesos(b.wac)+'</td>'+
+      SH.channels.map(c=>'<td><input type="number" step="10" style="width:92px" value="'+
+        (shPrice(b.brand_id,c.id)||"")+'" onchange="shSetPrice(\''+b.brand_id+'\',\''+c.id+'\',this.value)"></td>').join("")+
+      '</tr>').join("")+'</table></div>'+
+    '<div class="controls" style="margin-top:10px">'+
+      '<input id="shNewChan" placeholder="New channel name" style="flex:1;min-width:150px">'+
+      '<button class="small ghost" onclick="shAddChan()">＋ Channel</button></div>'+
+    '<p class="hint" style="margin-top:8px">The <b>queue</b> channel is what a session pays itself — that is how the margin lands in the shuttle business rather than vanishing.</p>';
+}
+async function shSetPrice(bId,cId,v){
+  const r=await sFetch("/rest/v1/shuttle_prices?on_conflict=brand_id,channel_id",
+    {method:"POST",headers:{Prefer:"resolution=merge-duplicates"},
+     body:[{brand_id:bId,channel_id:cId,price:+v||0,updated_at:new Date().toISOString()}]}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not save price");
+  const p=SH.prices.find(x=>x.brand_id===bId&&x.channel_id===cId);
+  if(p) p.price=+v||0; else SH.prices.push({brand_id:bId,channel_id:cId,price:+v||0});
+  toast("Saved");
+}
+async function shAddChan(){
+  const n=(document.getElementById("shNewChan").value||"").trim();
+  if(!n) return toast("Name the channel first");
+  const r=await sFetch("/rest/v1/shuttle_channels",{method:"POST",
+    body:[{name:n,is_internal:false,sort:SH.channels.length}]}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not add channel");
+  toast("Channel added"); loadShuttles();
+}
+/* ---------- P&L + waterfall ---------- */
+function shPnl(box){
+  const wacOf=id=>{ const b=SH.brands.find(x=>x.brand_id===id); return b? +b.wac||0 : 0; };
+  const rows=[];
+  SH.channels.filter(c=>c.is_internal).forEach(c=>{
+    const t=SH.queue.reduce((a,x)=>a+x.tubes,0);
+    const rev=SH.queue.reduce((a,x)=>a+x.tubes*x.price,0);
+    const cost=SH.queue.reduce((a,x)=>{ const b=SH.brands.find(y=>y.name===x.brand);
+      return a+x.tubes*(b? +b.wac||0 : 0); },0);
+    if(t) rows.push({n:c.name,internal:true,t,rev,margin:rev-cost});
+  });
+  SH.channels.filter(c=>!c.is_internal).forEach(c=>{
+    const s=SH.sales.filter(x=>x.channel_id===c.id);
+    if(!s.length) return;
+    const t=s.reduce((a,x)=>a+x.tubes,0);
+    const rev=s.reduce((a,x)=>a+x.tubes*(+x.price_per_tube),0);
+    const cost=s.reduce((a,x)=>a+x.tubes*(+x.cost_per_tube||wacOf(x.brand_id)),0);
+    rows.push({n:c.name,internal:false,t,rev,margin:rev-cost});
+  });
+  if(!rows.length){ box.innerHTML='<p class="hint">No shuttle movement yet.</p>'; return; }
+  const rev=rows.reduce((a,b)=>a+b.rev,0), marg=rows.reduce((a,b)=>a+b.margin,0);
+  const intM=rows.filter(r=>r.internal).reduce((a,b)=>a+b.margin,0), extM=marg-intM;
+  // club waterfall from real session figures
+  const sess=(window.__allSessions||[]);
+  let fees=0,court=0,shut=0,other=0;
+  sess.forEach(s=>{ const e=expensesOf(s);
+    court+=e.rate*e.hours*e.courts; shut+=e.tube*e.tubes; other+=e.other; });
+  fees=window.__fnFeesAll||0;
+  const steps=[["Fees",fees,"var(--ok)"],["Court",-court,"var(--red)"],["Shuttles",-shut,"var(--red)"],
+               ["Other",-other,"var(--red)"],["Shuttle margin (queue)",intM,"var(--ok)"],
+               ["Shuttle margin (outside)",extM,"var(--ok)"]];
+  let run=0; const bars=[];
+  steps.forEach(([l,v,c])=>{ bars.push([l,v,c,Math.min(run,run+v),Math.max(run,run+v)]); run+=v; });
+  const lo=Math.min(0,...bars.map(b=>b[3])), hi=Math.max(run,...bars.map(b=>b[4]));
+  const span=(hi-lo)||1, px=v=>Math.round(120*v/span);
+  box.innerHTML='<div class="paysum">'+
+    '<div><b>'+pesos(rev)+'</b><span>revenue</span></div>'+
+    '<div><b class="pos">'+pesos(marg)+'</b><span>gross margin</span></div>'+
+    '<div><b class="'+(rev&&marg/rev>=0.1?"pos":"")+'">'+(rev?Math.round(1000*marg/rev)/10:0)+'%</b><span>margin</span></div>'+
+    '<div><b>'+rows.reduce((a,b)=>a+b.t,0)+'</b><span>tubes moved</span></div></div>'+
+    rows.map(r=>'<div class="shrow"><div class="sn2"><b>'+esc(r.n)+'</b><span>'+r.t+' tubes · '+
+      pesos(r.rev)+'</span></div><b class="mono pos">'+pesos(r.margin)+'</b>'+
+      '<span class="shpill '+(r.internal?"int":"ok")+'">'+(r.internal?"queue":"outside")+'</span></div>').join("")+
+    '<p class="clab2" style="margin-top:14px">Where the money goes</p>'+
+    '<div class="wfrow">'+bars.map(([l,v,c,a,b2])=>
+      '<div class="wfcol"><div class="v" style="color:'+c+'">'+(v>=0?"+":"−")+pesos(Math.abs(v))+'</div>'+
+      '<div class="bx" style="height:'+Math.max(3,px(b2-a))+'px;margin-bottom:'+px(a-lo)+'px;background:'+c+'"></div>'+
+      '<div class="lb">'+l+'</div></div>').join("")+
+      '<div class="wfcol"><div class="v" style="color:var(--gold)">'+pesos(run)+'</div>'+
+      '<div class="bx" style="height:'+Math.max(3,px(Math.abs(run)))+'px;margin-bottom:'+px(0-lo)+
+      'px;background:var(--gold)"></div><div class="lb"><b>Club net</b></div></div></div>'+
+    '<p class="hint" style="margin-top:8px">Sessions carry shuttles as a cost; the club earns the margin back. '+
+    'Netting it out here is what stops the same money being counted twice.</p>';
+}
 /* ---------- per-player balances ---------- */
 async function loadBalances(keepPage){
   const list=document.getElementById("balList"); if(!list) return;
@@ -4529,9 +4849,10 @@ async function saveClubNote(){
     body:{payment_note:note, updated_by:auth.uid, updated_at:new Date().toISOString()}}).catch(()=>null);
   toast(r&&r.ok? "Saved":"Could not save");
 }
-function renderMoney(){ fillFinanceSessions(); loadClubQR(); loadPeriod(window.__pdRange||"week"); loadBalances(); }
+function renderMoney(){ fillFinanceSessions(); loadClubQR(); loadPeriod(window.__pdRange||"week");
+  loadBalances(); loadShuttles(); }
 function expensesOf(s){ const e=(s&&s.settings&&s.settings.expenses)||{}; return {
-  rate:+e.rate||0, hours:+e.hours||0, courts:+e.courts||0,
+  brand:e.brand||"", rate:+e.rate||0, hours:+e.hours||0, courts:+e.courts||0,
   tube:+e.tube||0, tubes:+e.tubes||0, otherName:e.otherName||"", other:+e.other||0 }; }
 function expenseTotal(e){ return (e.rate*e.hours*e.courts)+(e.tube*e.tubes)+e.other; }
 async function fillFinanceSessions(){
@@ -4558,6 +4879,7 @@ async function loadSessionFinance(){
   document.getElementById("exHours").value=e.hours||"";
   document.getElementById("exCourts").value=e.courts||"";
   document.getElementById("exTube").value=e.tube||"";
+  const eb=document.getElementById("exBrand"); if(eb) eb.value=e.brand||"";
   document.getElementById("exTubes").value=e.tubes||"";
   document.getElementById("exOtherName").value=e.otherName||"";
   document.getElementById("exOther").value=e.other||"";
@@ -4566,7 +4888,8 @@ async function loadSessionFinance(){
   calcFinance();
 }
 function readExpenseInputs(){
-  return {rate:+document.getElementById("exRate").value||0,
+  return {brand:(document.getElementById("exBrand")||{}).value||"",
+    rate:+document.getElementById("exRate").value||0,
     hours:+document.getElementById("exHours").value||0,
     courts:+document.getElementById("exCourts").value||0,
     tube:+document.getElementById("exTube").value||0,
@@ -4639,6 +4962,7 @@ async function loadPeriod(range){
     rows.push({s,got,exp,due,net:got-exp});
   });
   const net=inTot-outTot, potential=dueTot-outTot;
+  window.__fnFeesAll=inTot;
   sum.innerHTML='<div class="paysum">'+
     '<div><b class="pos">'+pesos(inTot)+'</b><span>collected</span></div>'+
     '<div><b class="neg">'+pesos(outTot)+'</b><span>expenses</span></div>'+
@@ -6730,6 +7054,62 @@ async function loadPartnersAdmin(){
 }
 
 /* ---- admin: match manager ---- */
+/* ---------- add a match by hand (played off-app, or missed at the time) ---------- */
+function mmToggleAdd(){
+  const box=document.getElementById("mmAdd");
+  if(box.style.display!=="none"){ box.style.display="none"; return; }
+  if(!S.db||!S.db.sessionId) return toast("Select your active session first");
+  const opts=(S.players||[]).slice().sort((a,b)=>a.name.localeCompare(b.name))
+    .map(p=>'<option value="'+p.id+'">'+esc(p.name)+'</option>').join("");
+  if(!opts) return toast("Import the roster first — no players to pick from");
+  const sel=(id,lab)=>'<div class="mrow"><label>'+lab+'</label>'+
+    '<select id="'+id+'" style="max-width:220px"><option value="">— pick —</option>'+opts+'</select></div>';
+  box.innerHTML=
+    '<div style="border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--panel2)">'+
+    '<p class="hint" style="margin-top:0">For a match played but never recorded. It counts toward XP, '+
+    'ratings and stats exactly like a live one.</p>'+
+    sel("mmA1","Team 1 · player 1")+sel("mmA2","Team 1 · player 2")+
+    sel("mmB1","Team 2 · player 1")+sel("mmB2","Team 2 · player 2")+
+    '<div class="mrow"><label>Score</label>'+
+      '<input id="mmS1" type="number" min="0" style="width:80px" placeholder="21"> – '+
+      '<input id="mmS2" type="number" min="0" style="width:80px" placeholder="15"></div>'+
+    '<div class="mrow"><label>Court</label><input id="mmCourt" placeholder="Court 1" style="max-width:150px"></div>'+
+    '<div class="mrow"><label>Duration (min)</label><input id="mmMins" type="number" min="1" value="11" style="max-width:110px"></div>'+
+    '<div class="controls" style="justify-content:flex-end;margin-top:8px">'+
+      '<button class="small ghost" onclick="mmToggleAdd()">Cancel</button>'+
+      '<button class="small" onclick="mmAddGo()">Add match</button></div></div>';
+  box.style.display="block";
+}
+async function mmAddGo(){
+  const g=id=>(document.getElementById(id)||{}).value||"";
+  const t1=[g("mmA1"),g("mmA2")].filter(Boolean), t2=[g("mmB1"),g("mmB2")].filter(Boolean);
+  if(t1.length<2||t2.length<2) return toast("Pick two players on each side");
+  const all=[...t1,...t2];
+  if(new Set(all).size!==all.length) return toast("The same player is on both sides");
+  const s1=+g("mmS1"), s2=+g("mmS2");
+  if(!(s1>=0&&s2>=0) || (!s1&&!s2)) return toast("Enter the score");
+  if(s1===s2) return toast("A match can't be a draw");
+  const nm=id=>((S.players||[]).find(p=>p.id===id)||{}).name||"Player";
+  const mins=Math.max(1,+g("mmMins")||11);
+  const end=new Date(), start=new Date(end.getTime()-mins*60000);
+  const nextNo=(S.matches||[]).reduce((a,m)=>Math.max(a,m.n||0),0)+1;
+  const body={session_id:S.db.sessionId, match_no:nextNo, court_name:g("mmCourt")||"Manual",
+    t1, t2, t1n:t1.map(nm), t2n:t2.map(nm), s1, s2,
+    started_at:start.toISOString(), ended_at:end.toISOString(), waits:{}};
+  if(!await uiConfirm(t1.map(nm).join(" & ")+"  "+s1+"–"+s2+"  "+t2.map(nm).join(" & ")+
+      "\n\nThis counts toward XP, ratings and stats.",{title:"➕ Add this match?",ok:"Add"})) return;
+  const r=await sFetch("/rest/v1/matches",{method:"POST",body:[body]}).catch(()=>null);
+  if(!r||!r.ok){ const j=r?await r.json().catch(()=>({})):{};
+    return toast("Could not add — "+(j.message||"try again")); }
+  // mirror locally so stats and ratings update straight away
+  const local={n:nextNo,court:body.court_name,t1,t2,t1n:body.t1n,t2n:body.t2n,s1,s2,
+    start:start.getTime(),end:end.getTime(),waits:{}};
+  S.matches.push(local); save();
+  rtOnMatch(local);
+  toast("➕ Match added");
+  document.getElementById("mmAdd").style.display="none";
+  renderPlayers(); renderHome(); adminLoadMatches(true);
+}
 async function adminLoadMatches(manual){
   const box=document.getElementById("mmList"); if(!box) return;
   if(!S.db||!S.db.sessionId){ box.innerHTML='<p class="hint">Select your active session in the Home tab first.</p>'; return; }
