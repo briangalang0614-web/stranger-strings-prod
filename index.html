@@ -969,6 +969,19 @@ window.SS_CONFIG = {
 
 <!-- ================= MONEY ================= -->
 <section id="tab-money" class="tab">
+ <div class="anwrap">
+  <div class="annav" id="mnnav">
+    <div class="antitle">💰 Money</div>
+    <button class="anitem on" data-mn="sess" onclick="mnShow('sess')">💵 <span>Session Finances</span></button>
+    <button class="anitem"    data-mn="club" onclick="mnShow('club')">📈 <span>Club P&amp;L</span></button>
+    <button class="anitem"    data-mn="bal"  onclick="mnShow('bal')">👥 <span>Balances</span></button>
+    <button class="anitem"    data-mn="shut" onclick="mnShow('shut')">🏸 <span>Shuttlecocks</span></button>
+    <button class="anitem"    data-mn="set"  onclick="mnShow('set')">⚙️ <span>Settings</span></button>
+    <div class="anfoot"><p class="hint" style="margin:0">🔒 The PIN is asked once when you open the
+      Money tab — not when you move between these.</p></div>
+  </div>
+  <div class="anbody">
+   <div class="anpane on" id="mn-sess">
   <div class="card" style="max-width:820px;margin:0 auto 14px">
     <h3>💰 Session Finances</h3>
     <div class="controls" style="flex-wrap:wrap">
@@ -1020,6 +1033,8 @@ window.SS_CONFIG = {
     <p class="hint" style="border:none">Actual net uses only verified payments. "If everyone pays" assumes every player in the session settles the fee.</p>
   </div>
 
+   </div>
+   <div class="anpane" id="mn-club">
   <div class="card" style="max-width:820px;margin:0 auto 14px">
     <h3>📈 Period Summary</h3>
     <div class="controls" style="flex-wrap:wrap">
@@ -1031,6 +1046,13 @@ window.SS_CONFIG = {
     <div id="pdList"></div>
   </div>
 
+    <div class="card">
+      <h3>🌊 Where the money goes</h3>
+      <p class="hint">Sessions carry shuttles as a cost; the club earns the margin back. Netted out so nothing is counted twice.</p>
+      <div id="clubWaterfall"></div>
+    </div>
+   </div>
+   <div class="anpane" id="mn-bal">
   <div class="card" style="max-width:820px;margin:0 auto 14px">
     <h3>👥 Player Balances <button class="small ghost" style="float:right" onclick="loadBalances()">⟳</button></h3>
     <div class="controls" style="flex-wrap:wrap">
@@ -1050,6 +1072,8 @@ window.SS_CONFIG = {
     </div>
   </div>
 
+   </div>
+   <div class="anpane" id="mn-shut">
   <div class="card" style="max-width:820px;margin:0 auto 14px">
     <h3>🏸 Shuttlecocks <button class="small ghost" style="float:right" onclick="loadShuttles()">⟳</button></h3>
     <div class="controls" style="flex-wrap:wrap">
@@ -1057,20 +1081,13 @@ window.SS_CONFIG = {
       <button class="small ghost" id="shTabSale"  onclick="shTab('sale')">🧾 Record sale</button>
       <button class="small ghost" id="shTabBuy"   onclick="shTab('buy')">➕ Add batch</button>
       <button class="small ghost" id="shTabPrice" onclick="shTab('price')">🏷 Prices</button>
-      <button class="small ghost" id="shTabPnl"   onclick="shTab('pnl')">💰 P&amp;L</button>
+      <button class="small ghost" id="shTabPnl"   onclick="shTab('pnl')">💰 Channels</button>
     </div>
     <div id="shBody" style="margin-top:12px"></div>
   </div>
 
-  <div class="card" style="max-width:820px;margin:0 auto 14px">
-    <h3>🔒 Money Lock</h3>
-    <p class="hint">The Money tab asks for a PIN each time it's opened, and re-locks as soon as you switch tabs.</p>
-    <div class="controls" style="margin-top:8px">
-      <button class="small ghost" onclick="changeMoneyPin()">🔑 Change PIN</button>
-      <button class="small ghost" onclick="lockMoney();showTab('home')">🔒 Lock now</button>
-    </div>
-  </div>
-
+   </div>
+   <div class="anpane" id="mn-set">
   <div class="card" style="max-width:820px;margin:0 auto 0">
     <h3>🏦 Payment QR <span class="hint" style="font-weight:400">shown to every player</span></h3>
     <div class="controls" style="flex-wrap:wrap">
@@ -1081,6 +1098,27 @@ window.SS_CONFIG = {
     </div>
     <div id="qrPreview" style="margin-top:10px"></div>
   </div>
+  <div class="card" style="max-width:820px;margin:0 auto 14px">
+    <h3>🔒 Money Lock</h3>
+    <p class="hint">The Money tab asks for a PIN each time it's opened, and re-locks as soon as you switch tabs.</p>
+    <div class="controls" style="margin-top:8px">
+      <button class="small ghost" onclick="changeMoneyPin()">🔑 Change PIN</button>
+      <button class="small ghost" onclick="lockMoney();showTab('home')">🔒 Lock now</button>
+    </div>
+  </div>
+
+    <div class="card">
+      <h3>₱ Session fee default</h3>
+      <p class="hint">Pre-fills the fee when you create a session. You can still change it per night.</p>
+      <div class="controls">
+        <input id="feeDefault" type="number" min="0" step="10" placeholder="e.g. 300" style="max-width:150px">
+        <button class="small" onclick="saveFeeDefault()">Save</button>
+      </div>
+      <p class="hint" id="feeBreakeven" style="margin-top:8px"></p>
+    </div>
+   </div>
+  </div>
+ </div>
 </section>
 
 <!-- ================= ADMIN (Phase 1: sessions) ================= -->
@@ -3621,6 +3659,89 @@ function exportDetailedCSV(){
 
 /* ======================= MONEY ======================= */
 function addShuttle(){ /* retired — expenses now live per session */ }
+/* ---------- Money tab: side-pane navigation (PIN gates the TAB, not these) ---------- */
+function mnShow(which){
+  window.__mnPane=which;
+  document.querySelectorAll("#tab-money .anpane").forEach(p=>p.classList.toggle("on",p.id==="mn-"+which));
+  document.querySelectorAll("#mnnav .anitem").forEach(b=>b.classList.toggle("on",b.dataset.mn===which));
+  if(which==="club"){ loadPeriod(window.__pdRange||"week"); }
+  if(which==="bal"){ loadBalances(); }
+  if(which==="shut"){ loadShuttles(); }
+  if(which==="set"){ loadClubQR(); showFeeDefault(); }
+}
+async function showFeeDefault(){
+  const el=document.getElementById("feeDefault"); if(!el) return;
+  const r=await sFetch("/rest/v1/club_settings?id=eq.1&select=fee_default").catch(()=>null);
+  if(r&&r.ok){ const v=((await r.json())[0]||{}).fee_default; if(v) el.value=v; window.__feeDefault=v||0; }
+  // break-even from real numbers
+  const sess=(window.__allSessions||[]);
+  let cost=0, heads=0;
+  sess.forEach(s=>{ const e=expensesOf(s);
+    cost+=(e.rate*e.hours*e.courts)+(e.tube*e.tubes)+e.other; });
+  heads=window.__fnHeadsAll||0;
+  const be=heads? Math.ceil(cost/heads):0;
+  const note=document.getElementById("feeBreakeven");
+  if(note) note.innerHTML = be
+    ? "Break-even on sessions alone is <b>"+pesos(be)+"</b> per player"+
+      (el.value? " — you charge "+pesos(el.value)+
+        (be>+el.value? ' <span class="shpill low">below break-even</span>':' <span class="shpill ok">covers cost</span>'):"")+
+      ". The shuttle margin covers any gap."
+    : "Add expenses to a few sessions to see your break-even fee.";
+}
+async function saveFeeDefault(){
+  const v=+document.getElementById("feeDefault").value||0;
+  const r=await sFetch("/rest/v1/club_settings?id=eq.1",{method:"PATCH",
+    body:{fee_default:v,updated_by:auth.uid,updated_at:new Date().toISOString()}}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not save — run shuttles.sql for the fee_default column");
+  window.__feeDefault=v; toast("Saved · new sessions will pre-fill "+pesos(v));
+  showFeeDefault();
+}
+/* ---------- consolidated waterfall, now on Club P&L ---------- */
+function renderClubWaterfall(){
+  const box=document.getElementById("clubWaterfall"); if(!box) return;
+  const sess=(window.__pdSess||window.__allSessions||[]);
+  const ids=new Set(sess.map(s=>s.id));
+  const from=sess.length? sess.map(s=>s.session_date).sort()[0] : null;
+  let court=0,shut=0,other=0;
+  sess.forEach(s=>{ const e=expensesOf(s);
+    court+=e.rate*e.hours*e.courts; shut+=e.tube*e.tubes; other+=e.other; });
+  const fees=window.__fnFeesAll||0;
+  let intM=0, extM=0;
+  if(!window.__shMissing && SH.brands.length){
+    // queue margin only for sessions inside the period
+    (window.__allSessions||[]).forEach(s=>{
+      if(!ids.has(s.id)) return;
+      const e=expensesOf(s); if(!e.tubes) return;
+      const b=SH.brands.find(y=>y.name===e.brand);
+      intM+=e.tubes*(e.tube-(b? +b.wac||0 : 0));
+    });
+    // outside sales inside the period
+    SH.sales.forEach(x=>{
+      if(from && x.sold_on && x.sold_on < from) return;
+      extM+=x.tubes*((+x.price_per_tube)-(+x.cost_per_tube||0));
+    });
+  }
+  if(!fees&&!court&&!shut){ box.innerHTML='<p class="hint">Add expenses and collections to see the waterfall.</p>'; return; }
+  const steps=[["Fees",fees,"var(--ok)"],["Court",-court,"var(--red)"],["Shuttles",-shut,"var(--red)"],
+    ["Other",-other,"var(--red)"],["Shuttle margin (queue)",intM,"var(--ok)"],
+    ["Shuttle margin (outside)",extM,"var(--ok)"]];
+  let run=0; const bars=[];
+  steps.forEach(([l,v,c])=>{ bars.push([l,v,c,Math.min(run,run+v),Math.max(run,run+v)]); run+=v; });
+  const lo=Math.min(0,...bars.map(b=>b[3])), hi=Math.max(run,...bars.map(b=>b[4]));
+  const span=(hi-lo)||1, px=v=>Math.round(130*v/span);
+  box.innerHTML='<div class="wfrow">'+bars.map(([l,v,c,a,b2])=>
+    '<div class="wfcol"><div class="v" style="color:'+c+'">'+(v>=0?"+":"−")+pesos(Math.abs(v))+'</div>'+
+    '<div class="bx" style="height:'+Math.max(3,px(b2-a))+'px;margin-bottom:'+px(a-lo)+'px;background:'+c+'"></div>'+
+    '<div class="lb">'+l+'</div></div>').join("")+
+    '<div class="wfcol"><div class="v" style="color:var(--gold)">'+pesos(run)+'</div>'+
+    '<div class="bx" style="height:'+Math.max(3,px(Math.abs(run)))+'px;margin-bottom:'+px(0-lo)+
+    'px;background:var(--gold)"></div><div class="lb"><b>Club net</b></div></div></div>'+
+    '<div class="paysum" style="margin-top:10px">'+
+    '<div><b class="'+(run>=0?"pos":"neg")+'">'+pesos(run)+'</b><span>club net</span></div>'+
+    '<div><b class="pos">'+pesos(intM+extM)+'</b><span>shuttle margin</span></div>'+
+    '<div><b class="'+((fees-court-shut-other)>=0?"pos":"neg")+'">'+pesos(fees-court-shut-other)+
+      '</b><span>sessions alone</span></div></div>';
+}
 /* ================= SHUTTLECOCKS ================= */
 let shView="stock";
 function shTab(v){
@@ -3895,14 +4016,6 @@ function shPnl(box){
     rows.map(r=>'<div class="shrow"><div class="sn2"><b>'+esc(r.n)+'</b><span>'+r.t+' tubes · '+
       pesos(r.rev)+'</span></div><b class="mono pos">'+pesos(r.margin)+'</b>'+
       '<span class="shpill '+(r.internal?"int":"ok")+'">'+(r.internal?"queue":"outside")+'</span></div>').join("")+
-    '<p class="clab2" style="margin-top:14px">Where the money goes</p>'+
-    '<div class="wfrow">'+bars.map(([l,v,c,a,b2])=>
-      '<div class="wfcol"><div class="v" style="color:'+c+'">'+(v>=0?"+":"−")+pesos(Math.abs(v))+'</div>'+
-      '<div class="bx" style="height:'+Math.max(3,px(b2-a))+'px;margin-bottom:'+px(a-lo)+'px;background:'+c+'"></div>'+
-      '<div class="lb">'+l+'</div></div>').join("")+
-      '<div class="wfcol"><div class="v" style="color:var(--gold)">'+pesos(run)+'</div>'+
-      '<div class="bx" style="height:'+Math.max(3,px(Math.abs(run)))+'px;margin-bottom:'+px(0-lo)+
-      'px;background:var(--gold)"></div><div class="lb"><b>Club net</b></div></div></div>'+
     '<p class="hint" style="margin-top:8px">Sessions carry shuttles as a cost; the club earns the margin back. '+
     'Netting it out here is what stops the same money being counted twice.</p>';
 }
@@ -4849,8 +4962,7 @@ async function saveClubNote(){
     body:{payment_note:note, updated_by:auth.uid, updated_at:new Date().toISOString()}}).catch(()=>null);
   toast(r&&r.ok? "Saved":"Could not save");
 }
-function renderMoney(){ fillFinanceSessions(); loadClubQR(); loadPeriod(window.__pdRange||"week");
-  loadBalances(); loadShuttles(); }
+function renderMoney(){ fillFinanceSessions(); loadShuttles(); mnShow(window.__mnPane||"sess"); }
 function expensesOf(s){ const e=(s&&s.settings&&s.settings.expenses)||{}; return {
   brand:e.brand||"", rate:+e.rate||0, hours:+e.hours||0, courts:+e.courts||0,
   tube:+e.tube||0, tubes:+e.tubes||0, otherName:e.otherName||"", other:+e.other||0 }; }
@@ -4962,7 +5074,7 @@ async function loadPeriod(range){
     rows.push({s,got,exp,due,net:got-exp});
   });
   const net=inTot-outTot, potential=dueTot-outTot;
-  window.__fnFeesAll=inTot;
+  window.__fnFeesAll=inTot; window.__fnHeadsAll=Object.values(heads).reduce((a,b)=>a+b,0);
   sum.innerHTML='<div class="paysum">'+
     '<div><b class="pos">'+pesos(inTot)+'</b><span>collected</span></div>'+
     '<div><b class="neg">'+pesos(outTot)+'</b><span>expenses</span></div>'+
@@ -4970,6 +5082,8 @@ async function loadPeriod(range){
     '<div><b class="'+(potential<0?"neg":"pos")+'">'+(potential<0?"−":"")+pesos(Math.abs(potential))+'</b><span>if all collected</span></div>'+
     '<div><b>'+sess.length+'</b><span>sessions</span></div></div>'+
     (dueTot-inTot>0? '<p class="hint" style="margin-top:2px">'+pesos(dueTot-inTot)+' still uncollected across this period.</p>':'');
+  window.__pdSess=sess;
+  try{ renderClubWaterfall(); }catch(e){}
   list.innerHTML="";
   rows.forEach(r=>{
     const d=document.createElement("div"); d.className="pdrow";
@@ -5159,6 +5273,11 @@ async function enterApp(cachedProfile){
     loadPlayerStats();
     loadPartnersAdmin();
     fillFinanceSessions(); loadClubQR(); showHofEpoch(); rtLoad();
+    sFetch("/rest/v1/club_settings?id=eq.1&select=fee_default").then(async r=>{
+      if(r&&r.ok){ const v=((await r.json())[0]||{}).fee_default;
+        window.__feeDefault=v||0;
+        const f=document.getElementById("asFee"); if(f&&!f.value&&v) f.value=v; }
+    }).catch(()=>{});
     fillQuestPlayers();
     loadQuestLog();
     loadBadgeStudio();
@@ -5234,7 +5353,7 @@ async function adminCreateSession(){
   document.getElementById("asTitle").value="";
   const wasDouble=document.getElementById("asDouble").checked;
   document.getElementById("asDouble").checked=false;
-  document.getElementById("asFee").value="";
+  document.getElementById("asFee").value=window.__feeDefault||"";
   toast((wasDouble?"⚡ 2× XP session created — code ":"Session created — code ")+row.code);
   adminLoadSessions();
 }
