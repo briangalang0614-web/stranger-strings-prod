@@ -505,6 +505,249 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .wfcol .v{font-family:"Courier New",monospace;font-weight:800;font-size:10.5px;margin-bottom:3px}
 .wfcol .bx{width:100%;border-radius:4px 4px 0 0}
 .wfcol .lb{font-size:9.5px;color:var(--muted);text-align:center;margin-top:6px;line-height:1.25}
+.rpgcls{display:inline-block;margin:2px 0 10px;background:linear-gradient(90deg,rgba(124,176,138,.2),rgba(202,166,78,.28));
+  border:1.5px solid rgba(202,166,78,.75);border-radius:999px;padding:6px 16px;
+  font-family:Georgia,serif;font-size:16px;color:var(--ink)}
+.rpgtop{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.rpgorb{position:relative;width:88px;height:88px;flex:none}
+.rpgorb .rg{position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--gold) 0turn var(--p), rgba(255,255,255,.09) var(--p) 1turn)}
+.rpgorb .rh{position:absolute;inset:8px;border-radius:50%;background:var(--panel);
+  display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rpgorb .rh b{font-family:Georgia,serif;font-size:30px;line-height:.9}
+.rpgorb .rh span{font-size:8.5px;letter-spacing:.16em;color:var(--gold);font-weight:800;margin-top:3px}
+.rpgxp{flex:1;min-width:0}
+.rpgxp .lab{display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:.12em;
+  color:var(--muted);font-weight:800;margin-bottom:5px}
+.rpgxp .bar{height:11px;border-radius:99px;background:var(--panel2);overflow:hidden;border:1px solid rgba(202,166,78,.35)}
+.rpgxp .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--gold))}
+.rpgxp .rec{font-family:Georgia,serif;font-size:24px;margin-top:7px}
+.rpgxp .recs{font-size:11.5px;color:var(--gold);font-weight:700}
+.rsec{display:flex;align-items:center;gap:9px;margin:14px 0 8px}
+.rsec b{font-size:10px;letter-spacing:.24em;color:var(--muted);font-weight:800;white-space:nowrap}
+.rsec i{flex:1;height:1px;background:linear-gradient(90deg,rgba(202,166,78,.5),transparent)}
+.rsec{padding:2px 0}
+/* grid so the bar always gets a full row on a phone */
+.ratt{display:grid;grid-template-columns:34px 1fr 26px;gap:2px 8px;align-items:center;margin-bottom:11px}
+.ratt .ak{font-family:Georgia,serif;font-size:13px;color:var(--gold);grid-row:1}
+.ratt .an{min-width:0;grid-row:1}
+.ratt .an b{font-size:13.5px}
+.ratt .an span{font-size:10.5px;color:var(--muted);margin-left:6px}
+.ratt .ag{text-align:center;font-family:Georgia,serif;font-size:19px;grid-row:1}
+.ratt .ab{grid-column:2/4;height:10px;border-radius:99px;background:var(--panel2);
+  overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.ratt .ab i{display:block;height:100%;border-radius:99px}
+@media(min-width:520px){
+  .ratt{grid-template-columns:38px 190px 1fr 26px}
+  .ratt .ab{grid-column:3/4}
+  .ratt .an span{display:block;margin-left:0}
+}
+.rtwo{display:flex;gap:9px}
+.rp{flex:1;background:var(--panel2);border:1.5px solid rgba(202,166,78,.35);border-radius:13px;padding:10px;text-align:center}
+.rp .k{font-size:9.5px;letter-spacing:.16em;color:var(--muted);font-weight:800}
+.rp .e{font-size:22px;margin-top:2px}
+.rp .v{font-family:Georgia,serif;font-size:17px}
+.rp .s{font-size:11px;color:var(--gold);font-weight:700}
+.rrel{display:flex;gap:6px;flex-wrap:wrap}
+.rrel span{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;background:rgba(202,166,78,.12);border:1.5px solid rgba(202,166,78,.5)}
+.rrel span.dim{background:rgba(255,255,255,.03);border-color:var(--line);opacity:.3}
+.rlog{display:flex;gap:5px;flex-wrap:wrap}
+.rlog b{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-family:Georgia,serif;font-size:14px}
+.rlog b.w{background:linear-gradient(180deg,#8ee3a2,#3f7a52);color:#06140b}
+.rlog b.l{background:linear-gradient(180deg,#d98a74,#8f3d2c);color:#fff}
+.rsig{background:rgba(202,166,78,.09);border:1.5px solid rgba(202,166,78,.45);border-radius:12px;
+  padding:9px 12px;display:flex;align-items:center;gap:10px;margin-top:8px}
+.rsig .em{font-size:22px}
+.rsig .tx b{display:block;font-family:Georgia,serif;font-size:15px}
+.rsig .tx span{font-size:11px;color:var(--muted)}
+.rsig .sc{margin-left:auto;font-family:Georgia,serif;font-size:20px;color:var(--gold)}
+.msover{position:fixed;inset:0;z-index:400;display:none;overflow:hidden;
+  background:radial-gradient(circle at 50% 42%,rgba(10,20,14,.62),rgba(4,10,7,.96));
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.msover.on{display:block;animation:msIn .28s ease-out}
+@keyframes msIn{from{opacity:0}to{opacity:1}}
+.msrays{position:absolute;left:50%;top:38%;width:1100px;height:1100px;transform:translate(-50%,-50%);
+  background:conic-gradient(from 0deg,rgba(234,194,95,.22) 0deg 8deg,transparent 8deg 30deg,
+    rgba(234,194,95,.22) 30deg 38deg,transparent 38deg 60deg,rgba(234,194,95,.22) 60deg 68deg,
+    transparent 68deg 90deg,rgba(234,194,95,.22) 90deg 98deg,transparent 98deg 120deg,
+    rgba(234,194,95,.22) 120deg 128deg,transparent 128deg 150deg,rgba(234,194,95,.22) 150deg 158deg,
+    transparent 158deg 180deg,rgba(234,194,95,.22) 180deg 188deg,transparent 188deg 210deg,
+    rgba(234,194,95,.22) 210deg 218deg,transparent 218deg 240deg,rgba(234,194,95,.22) 240deg 248deg,
+    transparent 248deg 270deg,rgba(234,194,95,.22) 270deg 278deg,transparent 278deg 300deg,
+    rgba(234,194,95,.22) 300deg 308deg,transparent 308deg 330deg,rgba(234,194,95,.22) 330deg 338deg,
+    transparent 338deg 360deg);
+  -webkit-mask-image:radial-gradient(circle,#000 12%,transparent 58%);
+  mask-image:radial-gradient(circle,#000 12%,transparent 58%);
+  animation:msSpin 26s linear infinite}
+@keyframes msSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.msconf{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.msconf i{position:absolute;border-radius:2px;animation:msFall linear forwards}
+@keyframes msFall{to{transform:translateY(110vh) rotate(540deg);opacity:0}}
+.mswrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:26px;text-align:center;pointer-events:none}
+.mskick{font-size:12px;letter-spacing:.34em;color:var(--muted);font-weight:800}
+.msmedal{position:relative;width:186px;height:186px;margin:14px 0 4px;display:flex;
+  align-items:center;justify-content:center;animation:msPop .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes msPop{0%{transform:scale(.2);opacity:0}100%{transform:scale(1);opacity:1}}
+.msglow{position:absolute;inset:-30px;border-radius:50%;
+  background:radial-gradient(circle,rgba(234,194,95,.55),transparent 62%)}
+.msdisc{position:relative;width:168px;height:168px;border-radius:50%;
+  background:linear-gradient(160deg,#f7dc8a,#caa64e 46%,#8a6b25);border:5px solid #fff4cf;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 44px rgba(234,194,95,.75),inset 0 -12px 26px rgba(0,0,0,.32)}
+.msdisc span{font-size:78px}
+.mshead{font-family:Georgia,serif;font-size:48px;line-height:1.04;color:#fff6d8;margin-top:8px;
+  text-shadow:0 0 34px rgba(234,194,95,.85)}
+.mssub{font-size:16px;color:var(--ink);margin-top:11px;line-height:1.5;max-width:300px}
+.mssub b{color:var(--gold)}
+.msxp{margin-top:15px}
+.msxp span{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(90deg,#2b5a35,#caa64e);
+  color:#07130b;font-weight:900;font-size:18px;border-radius:999px;padding:10px 24px;
+  box-shadow:0 0 26px rgba(202,166,78,.45)}
+.msprog{margin-top:18px;width:280px}
+.msprog .l{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);
+  font-weight:800;letter-spacing:.06em;margin-bottom:6px}
+.msprog .b{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.msprog .b i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ok),var(--gold))}
+.msbtns{position:absolute;left:26px;right:26px;bottom:38px;display:flex;gap:11px;z-index:2}
+.msbtns button{flex:1;border:none;border-radius:13px;padding:15px;font-size:15.5px;font-weight:800;
+  font-family:inherit;cursor:pointer}
+.msshare{background:linear-gradient(90deg,var(--ok),var(--gold));color:#07130b}
+.msok{background:transparent;border:1.5px solid rgba(255,255,255,.25)!important;color:var(--ink)}
+/* ===== phone-first sizing for the player view only ===== */
+@media(max-width:640px){
+  /* tap targets: nothing under 44px */
+  #playerHome button,#playerHome select,#playerHome input,#playerHome .wide{
+    min-height:44px;font-size:15px}
+  #playerHome .small,#playerHome .small.ghost{min-height:44px;padding:10px 14px;font-size:13.5px;border-radius:11px}
+  #playerHome .hfseg button{min-height:44px;font-size:14px}
+  #playerHome input,#playerHome select{padding:11px 12px;font-size:16px}   /* 16px stops iOS zooming on focus */
+  /* legible minimums */
+  #playerHome .hint,#playerHome .sub,#playerHome .ssub{font-size:12.5px;line-height:1.55}
+  #playerHome small,#playerHome .lbfoot,#playerHome .hfsub{font-size:12px}
+  #playerHome .hftitle{font-size:10px;letter-spacing:.04em}
+  #playerHome .mstat span,#playerHome .rp .k,#playerHome .rsec b{font-size:11.5px}
+  #playerHome .rp .s,#playerHome .rsig .tx span{font-size:12px}
+  #playerHome .ratt .an span{font-size:11.5px}
+  #playerHome .abadge span,#playerHome .abadge small{font-size:11.5px}
+  #playerHome .duerow .dm span,#playerHome .duehead span{font-size:12px}
+  /* character sheet breathes a little more */
+  .rpgorb{width:80px;height:80px}
+  .rpgorb .rh b{font-size:27px}
+  .rpgxp .rec{font-size:22px}
+  .rrel span{width:42px;height:42px;font-size:19px}
+  .rlog b{width:34px;height:34px;font-size:15px}
+  .rpgcls{font-size:15px;padding:7px 15px}
+  .rsig .sc{font-size:19px}
+  /* cards get a touch more padding so nothing feels pinched */
+  .phcard{padding:15px 14px}
+  /* milestone: keep the headline on screen for small phones */
+  .mshead{font-size:42px}
+  .msdisc{width:148px;height:148px}
+  .msdisc span{font-size:68px}
+  .msmedal{width:164px;height:164px}
+}
+@media(max-width:640px){
+  /* the embedded live board carries its own stylesheet — reach into it explicitly */
+  #pboardWrap header .sub,#pboardWrap .lbfoot{font-size:12px!important}
+  #pboardWrap .lbhead span{font-size:11.5px!important}
+  #pboardWrap .podium .ssub{font-size:11.5px!important}
+  /* badge names were the least readable thing on the page */
+  #csBadges .abadge b{font-size:12.5px!important;line-height:1.3}
+  #csBadges .abadge small{font-size:11.5px!important}
+  /* micro-labels */
+  .rpgorb .rh span{font-size:11px!important;letter-spacing:.1em}
+  .rpgxp .lab span{font-size:11.5px}
+  .hfstep .hftitle{font-size:11px!important;letter-spacing:.04em}
+}
+@media(max-width:360px){
+  .mshead{font-size:36px}
+  .rrel span{width:38px;height:38px}
+  #playerHome .small{padding:10px 11px;font-size:12.5px}
+}
+/* ===== phone ergonomics ===== */
+@media(max-width:430px){
+  /* nothing important should hide under the bottom nav */
+  #playerHome{padding-bottom:118px!important}
+  /* comfortable tap targets */
+  #playerHome button,#playerHome select,#playerHome input{min-height:44px}
+  #playerHome .wide{padding:14px;font-size:15.5px}
+  /* the character sheet reads better with a little more air */
+  .rpgtop{gap:12px}
+  .rpgorb{width:78px;height:78px}
+  .rpgorb .rh b{font-size:26px}
+  .rpgxp .rec{font-size:22px}
+  .ratt{margin-bottom:13px}
+  .ratt .an b{font-size:14px}
+  .ratt .an span{font-size:11px}
+  .ratt .ab{height:12px}
+  .rrel span{width:42px;height:42px;font-size:19px}
+  .rlog b{width:32px;height:32px;font-size:15px}
+  .rsec b{letter-spacing:.16em}
+  /* podium: give the tallest step room, stop titles clipping */
+  .hfpod{gap:6px}
+  .hfstep{padding:12px 5px 10px}
+  .hfstep .hfnm{font-size:13px}
+  .hfstep.p1 .hfnm{font-size:15px}
+  .hfstep .hfsub{font-size:9.5px}
+  .hfstep .hfxp{font-size:15px}
+  .hfstep.p1 .hfxp{font-size:17px}
+  /* milestone overlay on short screens */
+  .msdisc{width:140px;height:140px} .msdisc span{font-size:64px}
+  .msmedal{width:158px;height:158px;margin:8px 0 2px}
+  .mshead{font-size:40px}
+  .mssub{font-size:15px}
+}
+@media(max-width:360px){
+  .rpgxp .lab{font-size:9.5px;letter-spacing:.08em}
+  .ratt .ak{font-size:12px}
+  .rp .v{font-size:15px}
+  .mshead{font-size:34px}
+}
+/* let long names breathe rather than vanish */
+.rp .v{overflow-wrap:anywhere}
+.rsig .tx span{overflow-wrap:anywhere}
+/* --- collapsible player cards: less scrolling on a phone --- */
+/* headers were using float:right, which escaped the heading and squeezed the
+   content below into a narrow column on phones — flex keeps everything in the row */
+.phcard > h3{cursor:pointer;user-select:none;position:relative;padding-right:26px;
+  display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+.phcard > h3 > button{float:none!important;margin:0!important;flex:none}
+.phcard > h3 > button:first-of-type{margin-left:auto!important}
+.phcard > h3 > .htxt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:430px){
+  /* give the title the full width and let the buttons drop below it */
+  .phcard > h3{flex-wrap:wrap;row-gap:8px}
+  .phcard > h3 > .htxt{flex:1 1 100%;white-space:normal;overflow:visible}
+  .phcard > h3 > button{margin-left:0!important;font-size:12.5px;padding:7px 11px}
+  .phcard > h3 > button:first-of-type{margin-left:0!important}
+}
+.phcard > h3::after{content:"\25BE";position:absolute;right:2px;top:50%;transform:translateY(-50%);
+  font-size:13px;color:var(--muted);transition:transform .18s ease}
+.phcard.folded > h3::after{transform:translateY(-50%) rotate(-90deg)}
+.phcard.folded > *:not(h3){display:none!important}
+.phcard.nofold > h3{cursor:default}
+.phcard.nofold > h3::after{display:none}
+.foldnote{font-size:11px;color:var(--muted);margin-top:2px}
+/* --- character sheet: sub-sections fold too --- */
+.rsec{cursor:pointer;user-select:none}
+.rsec .chev{font-size:11px;color:var(--muted);transition:transform .18s ease}
+.rsec.shut .chev{transform:rotate(-90deg)}
+.rgrp{overflow:hidden}
+.rgrp.shut{display:none}
+@media(max-width:430px){
+  .rpgtop{gap:11px}
+  .rpgorb{width:76px;height:76px}
+  .rpgorb .rh b{font-size:26px}
+  .rpgxp .rec{font-size:21px}
+  .rpgcls{font-size:14.5px;padding:5px 13px}
+  .rrel span{width:34px;height:34px;font-size:16px;border-radius:9px}
+  .rlog b{width:27px;height:27px;font-size:12.5px;border-radius:7px}
+  .rp .v{font-size:15.5px}
+  .rsig .tx b{font-size:14px}
+  .ratt{margin-bottom:9px}
+}
 #playerHome{padding-bottom:96px}
 #qStatus{padding:16px 18px;text-align:center}
 #qStatus .qlab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
@@ -584,7 +827,8 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
   box-shadow:0 0 12px rgba(31,68,41,.35)}
 .cinfo{flex:1;min-width:0}
 .cinfo>b{font-size:18px;font-family:Georgia,serif}
-.cclass{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin:2px 0 4px}
+.cclass{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--red);
+  margin:2px 0 4px;line-height:1.35;white-space:normal;overflow-wrap:anywhere}
 .clvl{font-size:12px;color:var(--muted)}.clvl b{color:var(--ink);font-size:14px}
 .xpbar{height:8px;border-radius:5px;background:var(--panel2);border:1px solid var(--line);overflow:hidden;margin-top:4px}
 .xpbar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--green),#caa64e);transition:width .6s}
@@ -623,7 +867,8 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .hfstep .hfsub{font-size:10.5px;color:var(--muted);margin-top:1px}
 .hfstep .hfcrown{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:17px}
 .hfstep .hfmedal{font-size:19px;line-height:1;margin-bottom:2px}
-.hfstep .hftitle{font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;margin-top:5px}
+.hfstep .hftitle{font-size:9px;letter-spacing:.06em;text-transform:uppercase;font-weight:800;
+  margin-top:5px;line-height:1.3;white-space:normal;overflow-wrap:anywhere;hyphens:auto}
 
 /* 1st — gold, taller, crowned */
 .hfstep.p1{padding-top:26px;padding-bottom:18px;border-color:rgba(202,166,78,.9);
@@ -976,6 +1221,7 @@ window.SS_CONFIG = {
     <button class="anitem"    data-mn="club" onclick="mnShow('club')">📈 <span>Club P&amp;L</span></button>
     <button class="anitem"    data-mn="bal"  onclick="mnShow('bal')">👥 <span>Balances</span></button>
     <button class="anitem"    data-mn="shut" onclick="mnShow('shut')">🏸 <span>Shuttlecocks</span></button>
+    <button class="anitem"    data-mn="shpnl" onclick="mnShow('shpnl')">📊 <span>Shuttle P&amp;L</span></button>
     <button class="anitem"    data-mn="set"  onclick="mnShow('set')">⚙️ <span>Settings</span></button>
     <div class="anfoot"><p class="hint" style="margin:0">🔒 The PIN is asked once when you open the
       Money tab — not when you move between these.</p></div>
@@ -1082,11 +1328,38 @@ window.SS_CONFIG = {
       <button class="small ghost" id="shTabBuy"   onclick="shTab('buy')">➕ Add batch</button>
       <button class="small ghost" id="shTabPrice" onclick="shTab('price')">🏷 Prices</button>
       <button class="small ghost" id="shTabPnl"   onclick="shTab('pnl')">💰 Channels</button>
+      <button class="small ghost" id="shTabManage" onclick="shTab('manage')">⚙️ Manage</button>
     </div>
     <div id="shBody" style="margin-top:12px"></div>
   </div>
 
    </div>
+   <div class="anpane" id="mn-shpnl">
+     <div class="card">
+       <h3>📊 Shuttle P&amp;L <button class="small ghost" style="float:right" onclick="loadShuttlePnl()">⟳</button></h3>
+       <p class="hint">The shuttle business on its own — revenue, cost of tubes, and margin.</p>
+       <div class="controls" style="flex-wrap:wrap">
+         <button class="small" id="spW" onclick="loadShuttlePnl('week')">This week</button>
+         <button class="small ghost" id="spM" onclick="loadShuttlePnl('month')">This month</button>
+         <button class="small ghost" id="spA" onclick="loadShuttlePnl('all')">All time</button>
+       </div>
+       <div id="spKpis" style="margin-top:10px"></div>
+     </div>
+     <div class="card">
+       <h3>🏷 By brand</h3>
+       <div id="spBrand"></div>
+     </div>
+     <div class="card">
+       <h3>🛒 By channel</h3>
+       <div id="spChan"></div>
+     </div>
+     <div class="card">
+       <h3>📉 Cost drift</h3>
+       <p class="hint">What you actually paid per tube, batch by batch. A quiet supplier rise shows up here.</p>
+       <div id="spDrift"></div>
+     </div>
+   </div>
+
    <div class="anpane" id="mn-set">
   <div class="card" style="max-width:820px;margin:0 auto 0">
     <h3>🏦 Payment QR <span class="hint" style="font-weight:400">shown to every player</span></h3>
@@ -1257,7 +1530,7 @@ window.SS_CONFIG = {
 <section id="playerHome">
 <div class="ptab" id="pt-profile">
 <div class="phcard">
-    <h3>🎮 Character Sheet <button class="small ghost" style="float:right" onclick="toggleProfileEdit()">✏️ Edit</button><button class="small ghost" style="float:right;margin-right:6px" onclick="shareMyCard()">📸 Share</button></h3>
+    <h3><span class="htxt">🎮 Character Sheet</span><button class="small ghost" onclick="toggleProfileEdit()">✏️ Edit</button><button class="small ghost" onclick="shareMyCard()">📸 Share</button></h3>
     <div class="csheet">
       <div class="cav" id="csAv">?</div>
       <div class="cinfo">
@@ -1303,14 +1576,14 @@ window.SS_CONFIG = {
     <p class="soon" id="scHint">Your shareable stats card for each session you've battled in appears here.</p>
   </div>
   <div class="phcard">
-    <h3>📜 Quest Log <button class="small ghost" style="float:right" onclick="loadMyHistory(true)">🔄</button></h3>
+    <h3><span class="htxt">📜 Quest Log</span><button class="small ghost" style="float:right" onclick="loadMyHistory(true)">🔄</button></h3>
     <div class="mystats" id="myStats"></div>
     <div id="myHist"><p class="soon">Your battles across every session will be recorded here once you've played.</p></div>
   </div>
   </div>
 <div class="ptab" id="pt-hall">
 <div class="phcard">
-    <h3>🏆 Hall of Fame <button class="small ghost" style="float:right" onclick="loadHall(true)">🔄</button></h3>
+    <h3><span class="htxt">🏆 Hall of Fame</span><button class="small ghost" style="float:right" onclick="loadHall(true)">🔄</button></h3>
     <div class="hallbox">
     <div class="authtabs" style="margin-bottom:10px">
       <button class="hfW on" onclick="hallMode('w')">Weekly</button>
@@ -1418,6 +1691,22 @@ window.SS_CONFIG = {
     <div class="actions" style="justify-content:flex-end;margin-top:10px">
       <button class="ghost" onclick="closeGatePreview()">Close</button>
     </div>
+  </div>
+</div>
+<div class="msover" id="msOver" onclick="msClose(event)">
+  <div class="msrays"></div>
+  <div class="msconf" id="msConf"></div>
+  <div class="mswrap">
+    <div class="mskick" id="msKick"></div>
+    <div class="msmedal"><div class="msglow"></div><div class="msdisc"><span id="msEmoji">🔥</span></div></div>
+    <div class="mshead" id="msHead"></div>
+    <div class="mssub" id="msSub"></div>
+    <div class="msxp" id="msXp"></div>
+    <div class="msprog" id="msProg"></div>
+  </div>
+  <div class="msbtns">
+    <button class="msshare" onclick="msShare(event)">📸 Share</button>
+    <button class="msok" onclick="msClose(event,true)">Nice</button>
   </div>
 </div>
 <div class="overlay" id="qrModal" onclick="if(event.target===this)closeModal('qrModal')">
@@ -3114,114 +3403,180 @@ function buildShareCard(name, st, ex, done, opts){
 }
 /* ---------- shareable CAREER card ---------- */
 function buildCareerCard(name, rows, uid, done){
-  const W=720,H=1280,cx=W/2;
+  const W=1080,H=1350,cx=W/2;
   const c=document.createElement("canvas"); c.width=W; c.height=H;
   const x=c.getContext("2d");
-  const {st,ex}=careerStatsFrom(rows,uid);
-  const R=relationStats(rows,uid), form=formGuide(rows,uid,12), trend=sessionTrend(rows,uid);
-  const pts=pointsFor(rows,uid), xp=xpOf(st), lv=levelOf(xp);
-  const need=25*lv*lv, prev=25*(lv-1)*(lv-1), prog=Math.max(0,Math.min(1,(xp-prev)/Math.max(1,need-prev)));
+  const GOLD="#eac25f",GOLD2="#caa64e",INK="#fff6d8",MUTE="#8fae95";
+  const D=window.__rpg||{};
+  const A=D.A||rpgAttrs(rows,uid,1), st=D.st||careerStatsFrom(rows,uid).st;
+  const lv=D.lv||1, xp=D.xp||0, need=D.need||25, prog=D.prog||0;
+  const R=D.R||relationStats(rows,uid), nSess=D.nSess||1, pct=D.pct;
   // backdrop
-  const g=x.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,"#0d1a12"); g.addColorStop(.6,"#070d09"); g.addColorStop(1,"#04120b");
+  let g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,"#0f1e16"); g.addColorStop(.58,"#080f0b"); g.addColorStop(1,"#04100a");
   x.fillStyle=g; x.fillRect(0,0,W,H);
-  for(let i=0;i<110;i++){ x.fillStyle="rgba(202,166,78,"+(0.05+Math.random()*0.25)+")";
-    x.beginPath(); x.arc(Math.random()*W,Math.random()*H,Math.random()<0.85?1:1.9,0,7); x.fill(); }
-  x.save(); x.shadowColor="rgba(202,166,78,.75)"; x.shadowBlur=14;
-  x.strokeStyle="#caa64e"; x.lineWidth=3; x.strokeRect(18,18,W-36,H-36); x.restore();
+  let rg=x.createRadialGradient(cx,220,20,cx,220,560);
+  rg.addColorStop(0,"rgba(202,166,78,.20)"); rg.addColorStop(1,"rgba(202,166,78,0)");
+  x.fillStyle=rg; x.fillRect(0,0,W,H);
+  for(let i=0;i<140;i++){ x.fillStyle="rgba(234,194,95,"+(0.10+Math.random()*.42)+")";
+    x.beginPath(); x.arc(Math.random()*W,Math.random()*H,Math.random()<.85?1.2:2.1,0,7); x.fill(); }
+  x.save(); x.shadowColor="rgba(202,166,78,.7)"; x.shadowBlur=26;
+  x.strokeStyle=GOLD2; x.lineWidth=3; x.strokeRect(18,18,W-36,H-36); x.restore();
+  // corner brackets
+  x.strokeStyle=GOLD; x.lineWidth=3;
+  [[30,30,1,1],[W-30,30,-1,1],[30,H-30,1,-1],[W-30,H-30,-1,-1]].forEach(([px,py,sx,sy])=>{
+    x.beginPath(); x.moveTo(px,py+44*sy); x.lineTo(px,py); x.lineTo(px+44*sx,py); x.stroke(); });
   x.textAlign="center";
-  x.fillStyle="#8fae95"; x.font="600 17px Georgia";
-  x.fillText("S T R A N G E R   S T R I N G S   ·   C A R E E R", cx, 66);
-  // name
-  let size=58; x.font="bold "+size+"px Georgia";
-  while(x.measureText(name.toUpperCase()).width>W-120 && size>28){ size-=4; x.font="bold "+size+"px Georgia"; }
-  x.save(); x.shadowColor="rgba(202,166,78,.8)"; x.shadowBlur=18;
-  x.fillStyle="#f5edd8"; x.fillText(name.toUpperCase(), cx, 128); x.restore();
-  // level ring
-  const ry=250,RR=74;
-  x.lineWidth=16; x.strokeStyle="rgba(255,255,255,.13)";
-  x.beginPath(); x.arc(cx,ry,RR,0,7); x.stroke();
-  x.save(); x.shadowColor="rgba(124,209,143,.6)"; x.shadowBlur=14;
-  x.strokeStyle="#7cd18f";
-  x.beginPath(); x.arc(cx,ry,RR,-Math.PI/2,-Math.PI/2+Math.PI*2*prog); x.stroke(); x.restore();
-  x.fillStyle="#f0e6cc"; x.font="800 46px Georgia"; x.fillText("LV "+lv, cx, ry+8);
-  x.fillStyle="#caa64e"; x.font="600 15px Georgia"; x.fillText(tierName(lv).toUpperCase(), cx, ry+34);
-  x.fillStyle="#8fae95"; x.font="600 15px Georgia"; x.fillText(xp+" XP", cx, ry+RR+34);
-  // headline record
-  x.fillStyle="#f0e6cc"; x.font="800 40px Georgia";
-  x.fillText(st.w+"W – "+st.l+"L", cx, 402);
-  x.fillStyle="#caa64e"; x.font="600 20px Georgia";
-  const nSess=new Set(rows.map(m=>m.session_id)).size;
-  x.fillText(Math.round(st.winRate)+"% win rate · "+st.g+" matches · "+nSess+" session"+(nSess===1?"":"s"), cx, 432);
-  // form guide
-  x.fillStyle="#8fae95"; x.font="600 14px Georgia"; x.textAlign="left";
-  x.fillText("R E C E N T   F O R M", 60, 484);
-  const sq=Math.min(40,(W-120-((form.length-1)*6))/Math.max(1,form.length));
-  form.forEach((w,i)=>{
-    const bx=60+i*(sq+6);
-    x.fillStyle=w?"#7cd18f":"#cf6b58";
-    x.beginPath(); x.roundRect(bx,498,sq,sq,8); x.fill();
-    x.fillStyle=w?"#0a1a0f":"#fff"; x.font="800 "+Math.round(sq*0.5)+"px Georgia"; x.textAlign="center";
-    x.fillText(w?"W":"L", bx+sq/2, 498+sq*0.68);
+  x.fillStyle=MUTE; x.font="800 15px Georgia";
+  x.fillText("C H A R A C T E R   S H E E T", cx, 76);
+  x.save(); x.shadowColor="rgba(202,166,78,.8)"; x.shadowBlur=34;
+  x.fillStyle=INK; let ns=82; x.font="bold "+ns+"px Georgia";
+  let nm=(name||"Player").toUpperCase();
+  while(x.measureText(nm).width>W-200&&ns>34){ ns-=4; x.font="bold "+ns+"px Georgia"; }
+  x.fillText(nm, cx, 152); x.restore();
+  // class pill
+  const cls="\u2694\uFE0F "+(D.cls||rpgClass(A))+" \u00b7 "+tierName(lv);
+  x.font="26px Georgia"; const cw=x.measureText(cls).width+56;
+  x.save(); x.translate(cx,190);
+  const lg=x.createLinearGradient(-cw/2,0,cw/2,0);
+  lg.addColorStop(0,"rgba(124,209,143,.25)"); lg.addColorStop(1,"rgba(202,166,78,.38)");
+  x.fillStyle=lg; x.beginPath(); x.roundRect(-cw/2,-24,cw,48,999); x.fill();
+  x.strokeStyle=GOLD2; x.lineWidth=2.5; x.stroke();
+  x.fillStyle=INK; x.textAlign="center"; x.fillText(cls,0,9); x.restore();
+  // level orb + xp
+  const oy=310, orr=84;
+  x.lineWidth=17; x.strokeStyle="rgba(255,255,255,.08)";
+  x.beginPath(); x.arc(180,oy,orr,0,7); x.stroke();
+  x.save(); x.shadowColor="rgba(234,194,95,.65)"; x.shadowBlur=20; x.strokeStyle=GOLD;
+  x.beginPath(); x.arc(180,oy,orr,-Math.PI/2,-Math.PI/2+Math.PI*2*prog); x.stroke(); x.restore();
+  x.fillStyle=INK; x.font="bold 60px Georgia"; x.fillText(String(lv),180,oy+10);
+  x.fillStyle=GOLD; x.font="800 13px Georgia"; x.fillText(tierName(lv).toUpperCase(),180,oy+40);
+  x.textAlign="left";
+  x.fillStyle=MUTE; x.font="800 14px Georgia"; x.fillText("EXPERIENCE",296,oy-52);
+  x.textAlign="right"; x.fillStyle=MUTE;
+  x.fillText(xp.toLocaleString()+" / "+need.toLocaleString()+" XP",W-70,oy-52);
+  x.fillStyle="rgba(255,255,255,.09)"; x.beginPath(); x.roundRect(296,oy-40,W-366,16,99); x.fill();
+  const bg=x.createLinearGradient(296,0,W-70,0); bg.addColorStop(0,"#7cd18f"); bg.addColorStop(1,GOLD);
+  x.fillStyle=bg; x.beginPath(); x.roundRect(296,oy-40,Math.max(6,(W-366)*prog),16,99); x.fill();
+  x.textAlign="left"; x.fillStyle=INK; x.font="bold 46px Georgia";
+  x.fillText(st.w+"W \u2013 "+st.l+"L",296,oy+14);
+  x.fillStyle=GOLD2; x.font="bold 17px Georgia";
+  x.fillText(Math.round(st.winRate)+"% win rate \u00b7 "+st.g+" matches \u00b7 "+nSess+" night"+(nSess===1?"":"s")+
+    (pct?" \u00b7 TOP "+pct+"%":""),296,oy+44);
+  // section rule helper
+  const sect=(label,y)=>{ x.textAlign="left"; x.fillStyle=MUTE; x.font="800 13px Georgia";
+    x.fillText(label,52,y); const w=x.measureText(label).width;
+    const lg2=x.createLinearGradient(52+w+14,0,W-52,0);
+    lg2.addColorStop(0,"rgba(202,166,78,.6)"); lg2.addColorStop(1,"rgba(202,166,78,0)");
+    x.strokeStyle=lg2; x.lineWidth=1;
+    x.beginPath(); x.moveTo(52+w+14,y-5); x.lineTo(W-52,y-5); x.stroke(); };
+  // attributes
+  sect("A T T R I B U T E S",448);
+  let ay=474;
+  A.list.forEach(a=>{
+    x.textAlign="left"; x.fillStyle=GOLD; x.font="21px Georgia"; x.fillText(a.k,52,ay+22);
+    x.fillStyle=INK; x.font="bold 17px Georgia"; x.fillText(a.n,120,ay+14);
+    x.fillStyle="#7e8c81"; x.font="12px Georgia"; x.fillText(a.d,120,ay+31);
+    x.fillStyle="rgba(255,255,255,.07)"; x.beginPath(); x.roundRect(300,ay+8,660,15,99); x.fill();
+    const ag=x.createLinearGradient(300,0,960,0);
+    ag.addColorStop(0,a.c+"88"); ag.addColorStop(1,a.c);
+    x.fillStyle=ag; x.beginPath(); x.roundRect(300,ay+8,Math.max(6,660*a.v/100),15,99); x.fill();
+    x.strokeStyle="rgba(255,255,255,.14)"; x.lineWidth=1;
+    [.25,.5,.75].forEach(f=>{ x.beginPath(); x.moveTo(300+660*f,ay+8); x.lineTo(300+660*f,ay+23); x.stroke(); });
+    x.textAlign="center"; x.fillStyle=a.c; x.font="bold 27px Georgia";
+    x.fillText(rpgGrade(a.v),1002,ay+24);
+    ay+=48;
   });
-  // trend sparkline
-  x.textAlign="left"; x.fillStyle="#8fae95"; x.font="600 14px Georgia";
-  x.fillText("W I N   R A T E   B Y   S E S S I O N", 60, 592);
-  const gx=60,gy=606,gw=W-120,gh=96;
-  x.fillStyle="rgba(255,255,255,.04)"; x.beginPath(); x.roundRect(gx,gy,gw,gh,10); x.fill();
-  if(trend.length>1){
-    const P=trend.map((s,i)=>[gx+gw*(i/(trend.length-1)), gy+gh-(gh-10)*(s.pct/100)-5]);
-    x.beginPath(); P.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));
-    x.lineTo(P[P.length-1][0],gy+gh); x.lineTo(P[0][0],gy+gh); x.closePath();
-    x.fillStyle="rgba(124,209,143,.18)"; x.fill();
-    x.beginPath(); P.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));
-    x.strokeStyle="#7cd18f"; x.lineWidth=3; x.lineJoin="round"; x.stroke();
-    P.forEach(p=>{ x.fillStyle="#caa64e"; x.beginPath(); x.arc(p[0],p[1],3.4,0,7); x.fill(); });
-  }else{
-    x.fillStyle="#5f7a64"; x.font="italic 600 15px Georgia"; x.textAlign="center";
-    x.fillText("one night in — the story starts here", cx, gy+gh/2+5); x.textAlign="left";
+  // party
+  sect("P A R T Y",ay+22);
+  const py=ay+40, pw=(W-104-16)/2;
+  const pcard=(px,k,e,v,s)=>{
+    x.fillStyle="rgba(255,255,255,.045)"; x.beginPath(); x.roundRect(px,py,pw,104,16); x.fill();
+    x.strokeStyle="rgba(202,166,78,.4)"; x.lineWidth=2; x.stroke();
+    x.textAlign="center"; x.fillStyle=MUTE; x.font="800 11px Georgia"; x.fillText(k,px+pw/2,py+22);
+    x.font="30px Georgia"; x.fillText(e,px+pw/2,py+56);
+    x.fillStyle=INK; x.font="25px Georgia"; x.fillText(v,px+pw/2,py+82);
+    x.fillStyle=GOLD2; x.font="bold 14px Georgia"; x.fillText(s,px+pw/2,py+99);
+  };
+  pcard(52,"PARTNER","\uD83E\uDD1D",R.bestPartner?R.bestPartner.n:"\u2014",
+    R.bestPartner? R.bestPartner.w+"W\u2013"+(R.bestPartner.g-R.bestPartner.w)+"L \u00b7 "+
+      Math.round(100*R.bestPartner.w/R.bestPartner.g)+"%" : "play 3+ with someone");
+  pcard(52+pw+16,"NEMESIS","\uD83D\uDE24",R.nemesis?R.nemesis.n:"none yet",
+    R.nemesis? "you "+R.nemesis.w+"\u2013"+(R.nemesis.g-R.nemesis.w)+" \u00b7 "+
+      Math.round(100*R.nemesis.w/R.nemesis.g)+"%" : "nobody has your number");
+  // relics
+  const earned=(window.__myEarned||[]), all=(window.__myAllBadges||[]);
+  let ry=py+128;
+  if(all.length){
+    sect("R E L I C S   \u00b7   "+earned.length+" / "+all.length, ry);
+    ry+=18;
+    const per=13, sz=56, gap=9;
+    const total=Math.min(all.length,per);
+    let sx=cx-(total*sz+(total-1)*gap)/2;
+    all.slice(0,per).forEach(b=>{
+      const has=earned.includes(b.name);
+      x.fillStyle=has?"rgba(202,166,78,.12)":"rgba(255,255,255,.03)";
+      x.beginPath(); x.roundRect(sx,ry,sz,sz,13); x.fill();
+      x.strokeStyle=has?"rgba(202,166,78,.6)":"rgba(255,255,255,.09)"; x.lineWidth=2; x.stroke();
+      x.save(); if(!has) x.globalAlpha=.3;
+      x.textAlign="center"; x.font="26px Georgia"; x.fillText(b.emoji||"\uD83C\uDFC5",sx+sz/2,ry+38); x.restore();
+      sx+=sz+gap;
+    });
+    ry+=sz+18;
   }
-  // people
-  const rowY=[752,836,920];
-  const people=[];
-  if(R.bestPartner) people.push(["🤝","BEST PARTNER",R.bestPartner.n,
-    R.bestPartner.w+"W–"+(R.bestPartner.g-R.bestPartner.w)+"L · "+Math.round(100*R.bestPartner.w/R.bestPartner.g)+"%","#7cd18f"]);
-  if(R.nemesis) people.push(["😤","NEMESIS",R.nemesis.n,
-    "you "+R.nemesis.w+"–"+(R.nemesis.g-R.nemesis.w)+" · "+Math.round(100*R.nemesis.w/R.nemesis.g)+"%","#cf6b58"]);
-  if(R.partners[0]) people.push(["👥","MOST PLAYED WITH",R.partners[0].n, R.partners[0].g+" matches together","#caa64e"]);
-  people.slice(0,3).forEach((p,i)=>{
-    const y=rowY[i];
-    x.fillStyle="rgba(255,255,255,.045)"; x.beginPath(); x.roundRect(60,y-30,W-120,68,14); x.fill();
-    x.strokeStyle="rgba(202,166,78,.25)"; x.lineWidth=1.5; x.stroke();
-    x.textAlign="left"; x.font="26px Georgia"; x.fillStyle="#f0e6cc"; x.fillText(p[0], 80, y+8);
-    x.fillStyle="#8fae95"; x.font="600 12px Georgia"; x.fillText(p[1], 122, y-6);
-    x.fillStyle="#f5edd8"; x.font="800 22px Georgia"; x.fillText(p[2], 122, y+18);
-    x.textAlign="right"; x.fillStyle=p[4]; x.font="800 17px Georgia"; x.fillText(p[3], W-80, y+10);
+  // combat log
+  const form=formGuide(rows,uid,10);
+  sect("C O M B A T   L O G   \u00b7   L A S T   "+form.length, ry);
+  ry+=16;
+  const bsz=48, bgp=8;
+  let bx=cx-(form.length*bsz+(form.length-1)*bgp)/2;
+  form.forEach(w=>{
+    const gg=x.createLinearGradient(0,ry,0,ry+bsz);
+    if(w){ gg.addColorStop(0,"#8ee3a2"); gg.addColorStop(1,"#3f7a52"); }
+    else  { gg.addColorStop(0,"#d98a74"); gg.addColorStop(1,"#8f3d2c"); }
+    x.fillStyle=gg; x.beginPath(); x.roundRect(bx,ry,bsz,bsz,11); x.fill();
+    x.fillStyle=w?"#06140b":"#fff"; x.textAlign="center"; x.font="bold 22px Georgia";
+    x.fillText(w?"W":"L",bx+bsz/2,ry+32); bx+=bsz+bgp;
   });
-  // points strip
-  x.textAlign="center";
-  const chips=[["POINTS WON",String(pts.scored)],["BEST STREAK",String(ex.streak||0)],["CLUTCH",String(ex.clutch||0)]];
-  const cw=176,gap=18,x0=cx-(cw*3+gap*2)/2;
-  chips.forEach((ch,i)=>{
-    const bx=x0+i*(cw+gap), by=1004;
-    x.fillStyle="rgba(202,166,78,.08)"; x.strokeStyle="rgba(202,166,78,.55)"; x.lineWidth=2;
-    x.beginPath(); x.roundRect(bx,by,cw,84,14); x.fill(); x.stroke();
-    x.fillStyle="#f0e6cc"; x.font="800 30px Georgia"; x.fillText(ch[1],bx+cw/2,by+40);
-    x.fillStyle="#8fae95"; x.font="600 13px Georgia"; x.fillText(ch[0],bx+cw/2,by+66);
-  });
+  ry+=bsz+18;
+  // signature victory
+  let sig=null;
+  rows.forEach(m=>{ const onT1=(m.t1||[]).includes(uid);
+    const mine=onT1?m.s1:m.s2, th=onT1?m.s2:m.s1;
+    if(mine>th && (!sig||(mine-th)>sig.d)){
+      const mineN=onT1?(m.t1n||[]):(m.t2n||[]), thN=onT1?(m.t2n||[]):(m.t1n||[]);
+      const idx=(onT1?m.t1:m.t2).indexOf(uid);
+      sig={d:mine-th,s:mine+"\u2013"+th,with:mineN.filter((_,i)=>i!==idx).join(" & ")||"solo",
+        vs:thN.filter(Boolean).join(" & "),date:(m.ended_at||"").slice(0,10)};
+    }});
+  if(sig){
+    x.fillStyle="rgba(202,166,78,.09)"; x.beginPath(); x.roundRect(52,ry,W-104,72,14); x.fill();
+    x.strokeStyle="rgba(202,166,78,.5)"; x.lineWidth=2; x.stroke();
+    x.textAlign="left"; x.font="32px Georgia"; x.fillText("\u2694\uFE0F",76,ry+48);
+    x.fillStyle=INK; x.font="bold 22px Georgia"; x.fillText("Signature victory",128,ry+32);
+    x.fillStyle=MUTE; x.font="14px Georgia";
+    let sl="with "+sig.with+" vs "+sig.vs+" \u00b7 "+sig.date;
+    while(x.measureText(sl).width>W-330&&sl.length>20) sl=sl.slice(0,-4)+"\u2026";
+    x.fillText(sl,128,ry+54);
+    x.textAlign="right"; x.fillStyle=GOLD; x.font="bold 30px Georgia"; x.fillText(sig.s,W-76,ry+46);
+  }
+  // footer
   const img=new Image();
   img.onload=()=>{
-    x.save(); x.beginPath(); x.arc(cx,1150,42,0,7); x.clip(); x.drawImage(img,cx-42,1108,84,84); x.restore();
-    x.save(); x.shadowColor="rgba(124,209,143,.6)"; x.shadowBlur=10;
-    x.strokeStyle="#7cd18f"; x.lineWidth=3; x.beginPath(); x.arc(cx,1150,42,0,7); x.stroke(); x.restore();
-    x.fillStyle="#8fae95"; x.font="600 15px Georgia";
-    x.fillText("STRANGER STRINGS · GREENFIELD BADMINTON CLUB", cx, 1218);
-    x.fillStyle="#9dc2a6"; x.font="600 14px Georgia";
-    x.fillText("#StrangerStrings  #TheGrindIsReal", cx, 1244);
+    x.save(); x.beginPath(); x.arc(cx-150,H-96,33,0,7); x.clip();
+    x.drawImage(img,cx-183,H-129,66,66); x.restore();
+    x.save(); x.shadowColor="rgba(124,209,143,.55)"; x.shadowBlur=12;
+    x.strokeStyle="#7cd18f"; x.lineWidth=3; x.beginPath(); x.arc(cx-150,H-96,33,0,7); x.stroke(); x.restore();
+    x.textAlign="left"; x.fillStyle=GOLD; x.font="800 22px Georgia";
+    x.fillText("STRANGER STRINGS",cx-104,H-100);
+    x.fillStyle=MUTE; x.font="800 13px Georgia";
+    x.fillText("GREENFIELD BADMINTON CLUB \u00b7 #TheGrindIsReal",cx-104,H-78);
     done(c);
   };
+  img.onerror=()=>done(c);
   img.src=LOGO;
 }
+
 function tierName(lv){
   return lv>=13?"Mythic":lv>=10?"Legend":lv>=8?"Warden":lv>=5?"Knight":lv>=3?"Squire":"Rookie";
 }
@@ -3667,6 +4022,7 @@ function mnShow(which){
   if(which==="club"){ loadPeriod(window.__pdRange||"week"); }
   if(which==="bal"){ loadBalances(); }
   if(which==="shut"){ loadShuttles(); }
+  if(which==="shpnl"){ loadShuttlePnl(); }
   if(which==="set"){ loadClubQR(); showFeeDefault(); }
 }
 async function showFeeDefault(){
@@ -3746,7 +4102,7 @@ function renderClubWaterfall(){
 let shView="stock";
 function shTab(v){
   shView=v;
-  ["stock","sale","buy","price","pnl"].forEach(k=>{
+  ["stock","sale","buy","price","pnl","manage"].forEach(k=>{
     const b=document.getElementById("shTab"+k[0].toUpperCase()+k.slice(1));
     if(b) b.className="small"+(k===v?"":" ghost");
   });
@@ -3804,6 +4160,7 @@ function renderShuttles(){
   if(shView==="buy")    return shBuy(box);
   if(shView==="price")  return shPrices(box);
   if(shView==="pnl")    return shPnl(box);
+  if(shView==="manage") return shManage(box);
 }
 /* ---------- stock ---------- */
 function shStock(box){
@@ -3844,6 +4201,177 @@ async function shAddBrandGo(){
     body:[{name:n,reorder:+document.getElementById("shNewReorder").value||10}]}).catch(()=>null);
   if(!r||!r.ok) return toast("Could not add brand");
   toast("🏸 "+n+" added"); loadShuttles();
+}
+/* ---------- manage brands, channels, batches, sales ---------- */
+function shTabRoute(v){ if(v==="manage") return shManage(document.getElementById("shBody")); }
+function shManage(box){
+  const usedBrand=id=>SH.batches.some(b=>b.brand_id===id)||SH.sales.some(s=>s.brand_id===id)||
+    SH.queue.some(q=>{ const b=SH.brands.find(x=>x.brand_id===id); return b&&q.brand===b.name; });
+  const usedChan=id=>SH.sales.some(s=>s.channel_id===id);
+  box.innerHTML=
+    '<p class="clab2">Brands</p>'+
+    (SH.brands.length? SH.brands.map(b=>
+      '<div class="shrow"><div class="sn2" style="flex:1"><input value="'+esc(b.name)+
+        '" onchange="shBrandSet(\''+b.brand_id+'\',\'name\',this.value)" style="width:100%;font-weight:800"></div>'+
+      '<label class="hint" style="white-space:nowrap">reorder <input type="number" min="0" value="'+b.reorder+
+        '" onchange="shBrandSet(\''+b.brand_id+'\',\'reorder\',this.value)" style="width:62px"></label>'+
+      '<button class="small ghost" onclick="shBrandDel(\''+b.brand_id+'\',\''+esc(b.name).replace(/'/g,"")+
+        '\','+(usedBrand(b.brand_id)?'true':'false')+')">🗑</button></div>').join("")
+      : '<p class="hint">No brands yet.</p>')+
+    shAddBrand()+
+    '<p class="clab2" style="margin-top:16px">Channels</p>'+
+    (SH.channels.length? SH.channels.map(c=>
+      '<div class="shrow"><div class="sn2" style="flex:1"><input value="'+esc(c.name)+
+        '" onchange="shChanSet(\''+c.id+'\',\'name\',this.value)" style="width:100%;font-weight:800"></div>'+
+      (c.is_internal? '<span class="shpill int">queue</span>'
+        : '<button class="small ghost" onclick="shChanDel(\''+c.id+'\',\''+esc(c.name).replace(/'/g,"")+
+          '\','+(usedChan(c.id)?'true':'false')+')">🗑</button>')+
+      '</div>').join("") : '<p class="hint">No channels yet.</p>')+
+    '<div class="controls" style="margin-top:8px">'+
+      '<input id="shNewChan" placeholder="New channel name" style="flex:1;min-width:150px">'+
+      '<button class="small ghost" onclick="shAddChan()">＋ Channel</button></div>'+
+    '<p class="clab2" style="margin-top:16px">Batches</p>'+
+    (SH.batches.length? SH.batches.slice(0,15).map(x=>{
+      const b=SH.brands.find(y=>y.brand_id===x.brand_id)||{name:"?"};
+      return '<div class="shrow"><div class="sn2"><b>'+esc(b.name)+'</b><span>'+esc(x.received_on)+' · '+
+        esc(x.supplier||"—")+(x.dr_ref?' · '+esc(x.dr_ref):'')+'</span></div>'+
+        '<b class="mono pos">+'+x.tubes_in+'</b><span class="mono hint">'+pesos(x.cost_per_tube)+'</span>'+
+        '<button class="small ghost" onclick="shBatchDel(\''+x.id+'\')">🗑</button></div>';
+    }).join("") : '<p class="hint">No batches recorded.</p>')+
+    '<p class="clab2" style="margin-top:16px">Outside sales</p>'+
+    (SH.sales.length? SH.sales.slice(0,15).map(x=>{
+      const b=SH.brands.find(y=>y.brand_id===x.brand_id)||{name:"?"};
+      const c=SH.channels.find(y=>y.id===x.channel_id)||{name:"?"};
+      return '<div class="shrow"><div class="sn2"><b>'+esc(b.name)+'</b><span>'+esc(x.sold_on)+' · '+
+        esc(c.name)+(x.buyer?' · '+esc(x.buyer):'')+'</span></div>'+
+        '<b class="mono neg">−'+x.tubes+'</b><span class="mono hint">'+pesos(x.price_per_tube)+'</span>'+
+        '<button class="small ghost" onclick="shSaleDel(\''+x.id+'\')">🗑</button></div>';
+    }).join("") : '<p class="hint">No outside sales recorded.</p>')+
+    '<p class="hint" style="margin-top:10px">Editing a name updates it everywhere. Deleting is blocked once '+
+    'a brand or channel has movement — archive it by setting the reorder point to 0 instead.</p>';
+}
+async function shBrandSet(id,field,val){
+  const body={}; body[field]= field==="reorder" ? (+val||0) : String(val||"").trim();
+  if(field==="name"&&!body.name) return toast("Name cannot be empty");
+  const r=await sFetch("/rest/v1/shuttle_brands?id=eq."+id,{method:"PATCH",body}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not save");
+  toast("Saved"); loadShuttles();
+}
+async function shBrandDel(id,name,used){
+  if(used) return toast("“"+name+"” has stock movement — it cannot be deleted");
+  if(!await uiConfirm("Delete the brand “"+name+"”?\nIt has no batches or sales.",
+    {title:"🗑 Delete brand",ok:"Delete"})) return;
+  const r=await sFetch("/rest/v1/shuttle_brands?id=eq."+id,{method:"DELETE"}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not delete");
+  toast("Deleted"); loadShuttles();
+}
+async function shChanSet(id,field,val){
+  const body={}; body[field]=String(val||"").trim();
+  if(!body[field]) return toast("Name cannot be empty");
+  const r=await sFetch("/rest/v1/shuttle_channels?id=eq."+id,{method:"PATCH",body}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not save");
+  toast("Saved"); loadShuttles();
+}
+async function shChanDel(id,name,used){
+  if(used) return toast("“"+name+"” has sales against it — it cannot be deleted");
+  if(!await uiConfirm("Delete the channel “"+name+"”?\nNo sales are recorded against it.",
+    {title:"🗑 Delete channel",ok:"Delete"})) return;
+  const r=await sFetch("/rest/v1/shuttle_channels?id=eq."+id,{method:"DELETE"}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not delete");
+  toast("Deleted"); loadShuttles();
+}
+async function shBatchDel(id){
+  const x=SH.batches.find(y=>y.id===id)||{};
+  if(!await uiConfirm("Delete this batch of "+(x.tubes_in||0)+" tubes?\n"+
+    "Stock on hand and the weighted average cost will both change.",
+    {title:"🗑 Delete batch",ok:"Delete"})) return;
+  const r=await sFetch("/rest/v1/shuttle_batches?id=eq."+id,{method:"DELETE"}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not delete");
+  toast("Batch removed"); loadShuttles();
+}
+async function shSaleDel(id){
+  const x=SH.sales.find(y=>y.id===id)||{};
+  if(!await uiConfirm("Delete this sale of "+(x.tubes||0)+" tubes?\nThe tubes return to stock.",
+    {title:"🗑 Delete sale",ok:"Delete"})) return;
+  const r=await sFetch("/rest/v1/shuttle_sales?id=eq."+id,{method:"DELETE"}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not delete");
+  toast("Sale removed"); loadShuttles();
+}
+/* ---------- dedicated shuttle P&L ---------- */
+async function loadShuttlePnl(range){
+  if(range) window.__spRange=range;
+  const rg=window.__spRange||"month";
+  ["W","M","A"].forEach(k=>{ const b=document.getElementById("sp"+k);
+    if(b) b.className="small"+((k==="W"&&rg==="week")||(k==="M"&&rg==="month")||(k==="A"&&rg==="all")?"":" ghost"); });
+  const K=document.getElementById("spKpis"); if(!K) return;
+  if(window.__shMissing||!SH.brands.length){ await loadShuttles(); }
+  if(window.__shMissing){ K.innerHTML='<p class="hint">Run shuttles.sql to enable shuttle tracking.</p>'; return; }
+  let from=null;
+  if(rg!=="all"){ const d=new Date();
+    if(rg==="week"){ const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); } else d.setDate(1);
+    from=d.toISOString().slice(0,10); }
+  const wacOf=id=>{ const b=SH.brands.find(x=>x.brand_id===id); return b? +b.wac||0 : 0; };
+  const nameOf=id=>{ const b=SH.brands.find(x=>x.brand_id===id); return b? b.name : "?"; };
+  const per={};                       // brand -> {tubes,rev,cogs}
+  const chan={};                      // channel -> {tubes,rev,cogs}
+  const add=(map,key,t,rev,cogs)=>{ map[key]=map[key]||{tubes:0,rev:0,cogs:0};
+    map[key].tubes+=t; map[key].rev+=rev; map[key].cogs+=cogs; };
+  // queue burn, from session expenses
+  (window.__allSessions||[]).forEach(s=>{
+    if(from && s.session_date < from) return;
+    const e=expensesOf(s); if(!e.tubes) return;
+    const b=SH.brands.find(y=>y.name===e.brand);
+    const cogs=e.tubes*(b? +b.wac||0 : 0);
+    add(per, e.brand||"(unassigned)", e.tubes, e.tubes*e.tube, cogs);
+    add(chan,"Queue sessions", e.tubes, e.tubes*e.tube, cogs);
+  });
+  // outside sales
+  SH.sales.forEach(x=>{
+    if(from && x.sold_on && x.sold_on < from) return;
+    const cogs=x.tubes*(+x.cost_per_tube||wacOf(x.brand_id));
+    const cn=(SH.channels.find(c=>c.id===x.channel_id)||{}).name||"Other";
+    add(per, nameOf(x.brand_id), x.tubes, x.tubes*(+x.price_per_tube), cogs);
+    add(chan,cn, x.tubes, x.tubes*(+x.price_per_tube), cogs);
+  });
+  const tot=Object.values(per).reduce((a,b)=>({tubes:a.tubes+b.tubes,rev:a.rev+b.rev,cogs:a.cogs+b.cogs}),
+    {tubes:0,rev:0,cogs:0});
+  const marg=tot.rev-tot.cogs;
+  if(!tot.tubes){ K.innerHTML='<p class="hint">No shuttle movement in this period.</p>';
+    document.getElementById("spBrand").innerHTML="";
+    document.getElementById("spChan").innerHTML="";
+    document.getElementById("spDrift").innerHTML=""; return; }
+  K.innerHTML='<div class="paysum">'+
+    '<div><b>'+pesos(tot.rev)+'</b><span>revenue</span></div>'+
+    '<div><b class="neg">'+pesos(tot.cogs)+'</b><span>cost of tubes</span></div>'+
+    '<div><b class="pos">'+pesos(marg)+'</b><span>gross margin</span></div>'+
+    '<div><b class="'+(tot.rev&&marg/tot.rev>=.1?"pos":"")+'">'+
+      (tot.rev?Math.round(1000*marg/tot.rev)/10:0)+'%</b><span>margin</span></div>'+
+    '<div><b>'+tot.tubes+'</b><span>tubes moved</span></div></div>';
+  const row=(k,v)=>{ const m=v.rev-v.cogs, pctv=v.rev?Math.round(1000*m/v.rev)/10:0;
+    return '<div class="shrow"><div class="sn2"><b>'+esc(k)+'</b><span>'+v.tubes+' tubes · '+pesos(v.rev)+'</span></div>'+
+      '<span class="shbar"><i style="width:'+Math.min(100,Math.max(2,Math.round(100*v.rev/Math.max(1,tot.rev))))+
+      '%;background:'+(pctv>=10?"var(--ok)":"var(--warn)")+'"></i></span>'+
+      '<b class="mono '+(m>=0?"pos":"neg")+'" style="min-width:74px;text-align:right">'+pesos(m)+'</b>'+
+      '<span class="mono hint" style="min-width:44px;text-align:right">'+pctv+'%</span></div>'; };
+  document.getElementById("spBrand").innerHTML=
+    Object.keys(per).sort((a,b)=>per[b].rev-per[a].rev).map(k=>row(k,per[k])).join("");
+  document.getElementById("spChan").innerHTML=
+    Object.keys(chan).sort((a,b)=>chan[b].rev-chan[a].rev).map(k=>row(k,chan[k])).join("");
+  // cost drift per brand
+  const byBrand={};
+  SH.batches.slice().sort((a,b)=>String(a.received_on).localeCompare(String(b.received_on)))
+    .forEach(x=>{ (byBrand[nameOf(x.brand_id)]=byBrand[nameOf(x.brand_id)]||[]).push(x); });
+  const drift=Object.keys(byBrand).map(n=>{
+    const l=byBrand[n]; if(l.length<2) return null;
+    const first=+l[0].cost_per_tube, last=+l[l.length-1].cost_per_tube;
+    const d=last-first;
+    return '<div class="shrow"><div class="sn2"><b>'+esc(n)+'</b><span>'+l.length+' batches · '+
+      pesos(first)+' → '+pesos(last)+'</span></div>'+
+      '<b class="mono '+(d>0?"neg":(d<0?"pos":""))+'">'+(d>0?"+":"")+pesos(d)+'</b>'+
+      '<span class="mono hint">'+(first?((d>0?"+":"")+Math.round(1000*d/first)/10+"%"):"")+'</span></div>';
+  }).filter(Boolean);
+  document.getElementById("spDrift").innerHTML= drift.length? drift.join("")
+    : '<p class="hint">Two or more batches of a brand are needed before drift can be shown.</p>';
 }
 /* ---------- record an outside sale ---------- */
 function shSale(box){
@@ -6187,58 +6715,72 @@ function fmtEta(ms){
   const m=Math.round(ms/60000);
   return m<=1? "any minute now" : "\u2248 "+m+" min";
 }
-function renderCareer(){
+async function renderCareer(){
   const box=document.getElementById("careerBox"); if(!box) return;
   const uid=auth&&auth.uid; if(!uid) return;
   const rows=myMatches||[];
-  if(!rows.length){ box.innerHTML='<p class="soon">Play a few matches and your career stats appear here.</p>'; return; }
-  const R=relationStats(rows,uid), form=formGuide(rows,uid,10), trend=sessionTrend(rows,uid);
-  const pts=pointsFor(rows,uid);
+  if(!rows.length){ box.innerHTML='<p class="soon">Play a few matches and your character sheet appears here.</p>'; return; }
   const {st,ex}=careerStatsFrom(rows,uid);
-  let html="";
-  // form guide
-  html+='<div class="clab">Recent form · last '+form.length+'</div><div class="formrow">'+
-    form.map(w=>'<span class="formsq '+(w?"w":"l")+'">'+(w?"W":"L")+'</span>').join("")+'</div>';
-  // sparkline of win rate by session
-  if(trend.length>1){
-    const W=300,H=46,pad=3;
-    const pts2=trend.map((s,i)=>{
-      const x=pad+(W-pad*2)*(trend.length===1?0.5:i/(trend.length-1));
-      const y=H-pad-(H-pad*2)*(s.pct/100);
-      return [Math.round(x),Math.round(y)];
-    });
-    const d=pts2.map((p,i)=>(i?"L":"M")+p[0]+" "+p[1]).join(" ");
-    const area=d+" L"+pts2[pts2.length-1][0]+" "+(H-pad)+" L"+pts2[0][0]+" "+(H-pad)+" Z";
-    html+='<div class="clab">Win rate by session</div>'+
-      '<svg class="spark" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+
-      '<path d="'+area+'" fill="rgba(124,176,138,.18)"/>'+
-      '<path d="'+d+'" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+
-      pts2.map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.6" fill="var(--gold)"/>').join("")+
-      '</svg>';
-  }
-  html+='<div class="clab">The people</div>';
-  const line=(ico,title,sub,val,bad)=>'<div class="crow"><div class="cico">'+ico+'</div><div class="cmain"><b>'+
-    esc(title)+'</b><span>'+esc(sub)+'</span></div><div class="cval'+(bad?" bad":"")+'">'+esc(val)+'</div></div>';
-  if(R.bestPartner) html+=line("🤝","Best partner: "+R.bestPartner.n,
-    R.bestPartner.w+"W–"+(R.bestPartner.g-R.bestPartner.w)+"L together",
-    Math.round(100*R.bestPartner.w/R.bestPartner.g)+"%");
-  if(R.nemesis) html+=line("😤","Nemesis: "+R.nemesis.n,
-    "You "+R.nemesis.w+"–"+(R.nemesis.g-R.nemesis.w)+" against them",
-    Math.round(100*R.nemesis.w/R.nemesis.g)+"%",true);
-  if(R.favouriteFoe && (!R.nemesis||R.favouriteFoe.n!==R.nemesis.n)) html+=line("🎯","Favourite matchup: "+R.favouriteFoe.n,
-    "You "+R.favouriteFoe.w+"–"+(R.favouriteFoe.g-R.favouriteFoe.w)+" against them",
-    Math.round(100*R.favouriteFoe.w/R.favouriteFoe.g)+"%");
-  if(R.partners[0]) html+=line("👥","Most played with: "+R.partners[0].n, R.partners[0].g+" matches side by side", R.partners[0].g+"g");
-  html+='<div class="clab">The numbers</div>';
-  html+=line("🏸","Points won", "across "+st.g+" match"+(st.g===1?"":"es"), String(pts.scored));
-  html+=line("🛡","Points conceded", (pts.scored-pts.conceded>=0?"+":"")+(pts.scored-pts.conceded)+" difference", String(pts.conceded));
-  html+=line("🔥","Longest win streak", "best run so far", String(ex.streak||0));
-  html+=line("🧠","Clutch wins", "won by 2 points or less", String(ex.clutch||0));
+  const R=relationStats(rows,uid);
   const nSess=new Set(rows.map(m=>m.session_id)).size;
-  html+=line("🌙","Sessions played", "nights with the Party", String(nSess));
-  if(ex.nights) html+=line("🦉","Late-night battles", "finished after 10pm", String(ex.nights));
-  box.innerHTML=html;
+  const A=rpgAttrs(rows,uid,nSess);
+  const xp=xpOf(st), lv=levelOf(xp);
+  const need=25*lv*lv, prev=25*(lv-1)*(lv-1);
+  const prog=Math.max(0,Math.min(1,(xp-prev)/Math.max(1,need-prev)));
+  const cls=rpgClass(A);
+  const pct=await rpgPercentile(uid);
+  window.__rpg={A,cls,lv,xp,need,prog,st,ex,R,nSess,pct};
+  const form=formGuide(rows,uid,10);
+  // relics
+  const earned=(window.__myEarned||[]), all=(window.__myAllBadges||[]);
+  const relics=all.length
+    ? all.map(b=>'<span class="'+(earned.includes(b.name)?"":"dim")+'" title="'+esc(b.name)+'">'+(b.emoji||"🏅")+'</span>').join("")
+    : "";
+  // signature victory — biggest win
+  let sig=null;
+  rows.forEach(m=>{ const onT1=(m.t1||[]).includes(uid);
+    const mine=onT1?m.s1:m.s2, th=onT1?m.s2:m.s1;
+    if(mine>th && (!sig || (mine-th)>sig.d)){
+      const mineN=onT1?(m.t1n||[]):(m.t2n||[]), thN=onT1?(m.t2n||[]):(m.t1n||[]);
+      const idx=(onT1?m.t1:m.t2).indexOf(uid);
+      sig={d:mine-th,s:mine+"–"+th,
+        with:mineN.filter((_,i)=>i!==idx).join(" & ")||"solo",
+        vs:thN.filter(Boolean).join(" & "),
+        date:(m.ended_at||"").slice(0,10)};
+    }});
+  // the card header already carries avatar, name, level and the stat chips
+  const cp=document.getElementById("csClass");
+  if(cp) cp.textContent=cls+" · "+tierName(lv);
+  box.innerHTML=
+    (pct? '<p class="hint" style="text-align:center;margin:2px 0 8px">'+
+      st.g+' matches · '+nSess+' night'+(nSess===1?"":"s")+' · <b style="color:var(--gold)">TOP '+pct+'%</b></p>' : '')+
+    '<div class="rsec" data-k="attr"><b>ATTRIBUTES</b><i></i><span class="chev">\u25BE</span></div>'+
+    '<div class="rgrp">'+
+    A.list.map(a=>'<div class="ratt"><div class="ak">'+a.k+'</div>'+
+      '<div class="an"><b>'+a.n+'</b><span>'+esc(a.d)+'</span></div>'+
+      '<div class="ab"><i style="width:'+a.v+'%;background:linear-gradient(90deg,'+a.c+'88,'+a.c+')"></i></div>'+
+      '<div class="ag" style="color:'+a.c+'">'+rpgGrade(a.v)+'</div></div>').join("")+'</div>'+
+    '<div class="rsec" data-k="party"><b>PARTY</b><i></i><span class="chev">\u25BE</span></div>'+
+    '<div class="rgrp"><div class="rtwo">'+
+      (R.bestPartner?'<div class="rp"><div class="k">PARTNER</div><div class="e">🤝</div><div class="v">'+
+        esc(R.bestPartner.n)+'</div><div class="s">'+R.bestPartner.w+'W–'+(R.bestPartner.g-R.bestPartner.w)+
+        'L · '+Math.round(100*R.bestPartner.w/R.bestPartner.g)+'%</div></div>'
+       :'<div class="rp"><div class="k">PARTNER</div><div class="e">🤝</div><div class="v">—</div><div class="s">play 3+ with someone</div></div>')+
+      (R.nemesis?'<div class="rp"><div class="k">NEMESIS</div><div class="e">😤</div><div class="v">'+
+        esc(R.nemesis.n)+'</div><div class="s">you '+R.nemesis.w+'–'+(R.nemesis.g-R.nemesis.w)+
+        ' · '+Math.round(100*R.nemesis.w/R.nemesis.g)+'%</div></div>'
+       :'<div class="rp"><div class="k">NEMESIS</div><div class="e">😤</div><div class="v">none yet</div><div class="s">nobody has your number</div></div>')+
+      '</div></div>'+
+    (relics?'<div class="rsec" data-k="relic"><b>RELICS · '+earned.length+' / '+all.length+
+      '</b><i></i><span class="chev">\u25BE</span></div><div class="rgrp"><div class="rrel">'+relics+'</div></div>':'')+
+    '<div class="rsec" data-k="log"><b>COMBAT LOG · LAST '+form.length+'</b><i></i><span class="chev">\u25BE</span></div>'+
+    '<div class="rgrp"><div class="rlog">'+form.map(w=>'<b class="'+(w?"w":"l")+'">'+(w?"W":"L")+'</b>').join("")+'</div>'+
+    (sig?'<div class="rsig"><div class="em">⚔️</div><div class="tx"><b>Signature victory</b>'+
+      '<span>with '+esc(sig.with)+' vs '+esc(sig.vs)+' · '+esc(sig.date)+'</span></div>'+
+      '<div class="sc">'+sig.s+'</div></div></div>':'</div>');
+  initSheetFolds();
 }
+
 function renderQueueStatus(state){
   const card=document.getElementById("qStatusCard"), box=document.getElementById("qStatus");
   if(!card||!box) return;
@@ -6326,6 +6868,196 @@ async function playerAutoBoard(){
 /* ======================= RPG PLAYER VIEW ======================= */
 let myMatches=[], mySessions={};
 /* ---------- relationship + form analytics ---------- */
+/* ---------- collapsible player cards ---------- */
+const FOLD_DEFAULT_SHUT=["Session Stat Cards","Quest Log","Badges"];   // long lists start closed
+function foldKey(h3){ return "ss_fold_"+(h3.textContent||"").trim().slice(0,22).replace(/\s+/g,"_"); }
+function initFolds(){
+  document.querySelectorAll("#playerHome .phcard").forEach(card=>{
+    const h3=card.querySelector(":scope > h3"); if(!h3||h3.dataset.foldReady) return;
+    h3.dataset.foldReady="1";
+    const label=(h3.textContent||"").trim();
+    // the Gate status card must never hide — it is the reason people open the app
+    if(card.id==="qStatusCard"||label.indexOf("Your status")>=0){ card.classList.add("nofold"); return; }
+    let shut=localStorage.getItem(foldKey(h3));
+    if(shut===null) shut=FOLD_DEFAULT_SHUT.some(k=>label.indexOf(k)>=0)?"1":"0";
+    if(shut==="1") card.classList.add("folded");
+    h3.addEventListener("click",e=>{
+      if(e.target.closest("button")) return;            // don't fold when tapping Share/Edit
+      card.classList.toggle("folded");
+      try{ localStorage.setItem(foldKey(h3),card.classList.contains("folded")?"1":"0"); }catch(x){}
+    });
+  });
+}
+/* ---------- character sheet sub-sections ---------- */
+function initSheetFolds(){
+  const box=document.getElementById("careerBox"); if(!box) return;
+  box.querySelectorAll(".rsec").forEach(sec=>{
+    if(sec.dataset.ready) return; sec.dataset.ready="1";
+    const grp=sec.nextElementSibling && sec.nextElementSibling.classList.contains("rgrp")
+      ? sec.nextElementSibling : null;
+    if(!grp) return;
+    const key="ss_sheet_"+(sec.dataset.k||"");
+    if(localStorage.getItem(key)==="1"){ sec.classList.add("shut"); grp.classList.add("shut"); }
+    sec.addEventListener("click",()=>{
+      sec.classList.toggle("shut"); grp.classList.toggle("shut");
+      try{ localStorage.setItem(key,sec.classList.contains("shut")?"1":"0"); }catch(x){}
+    });
+  });
+}
+/* ================= MILESTONE MOMENTS ================= */
+const MS_CAP=2;                                  // per session — rare keeps it special
+function msSeenKey(){ return "ss_ms_"+(window.__mySessionId||"x"); }
+function msSeen(){ try{ return JSON.parse(localStorage.getItem(msSeenKey())||'{"n":0,"ids":[]}'); }
+  catch(e){ return {n:0,ids:[]}; } }
+function msMark(id){ const s=msSeen(); s.n++; s.ids.push(id);
+  try{ localStorage.setItem(msSeenKey(),JSON.stringify(s)); }catch(e){} }
+function msShow(m){
+  if(!document.getElementById("msOver")) return false;   // parked build — nothing to show
+  const s=msSeen();
+  if(s.ids.includes(m.id)) return false;          // never twice
+  if(s.n>=MS_CAP) return false;                   // rare by design
+  window.__msCur=m;
+  document.getElementById("msKick").textContent=m.kick;
+  document.getElementById("msEmoji").textContent=m.emoji;
+  document.getElementById("msHead").innerHTML=m.head;
+  document.getElementById("msSub").innerHTML=m.sub;
+  document.getElementById("msXp").innerHTML=m.xp? '<span>\u26A1 +'+m.xp+' XP</span>':"";
+  document.getElementById("msProg").innerHTML=m.prog
+    ? '<div class="l"><span>'+esc(m.prog.label)+'</span><span>'+m.prog.now+' / '+m.prog.goal+'</span></div>'+
+      '<div class="b"><i style="width:'+Math.min(100,Math.round(100*m.prog.now/m.prog.goal))+'%"></i></div>'
+    : "";
+  const cf=document.getElementById("msConf");
+  const cols=["#eac25f","#7cd18f","#d9453a","#f0e6cc","#7fb0e0"];
+  cf.innerHTML=Array.from({length:42},()=>{
+    const l=Math.random()*100, d=(2.2+Math.random()*2.2).toFixed(2), dl=(Math.random()*1.1).toFixed(2);
+    return '<i style="left:'+l.toFixed(1)+'%;top:-8%;width:'+(4+Math.round(Math.random()*4))+
+      'px;height:'+(9+Math.round(Math.random()*6))+'px;background:'+cols[Math.floor(Math.random()*5)]+
+      ';animation-duration:'+d+'s;animation-delay:'+dl+'s"></i>';
+  }).join("");
+  document.getElementById("msOver").classList.add("on");
+  msMark(m.id);
+  try{ if(navigator.vibrate) navigator.vibrate([18,60,18]); }catch(e){}
+  return true;
+}
+function msClose(e,force){
+  if(e && !force && e.target && e.target.id!=="msOver") return;
+  document.getElementById("msOver").classList.remove("on");
+}
+function msShare(e){
+  if(e) e.stopPropagation();
+  msClose(null,true);
+  shareCareerCard();
+}
+/* work out what (if anything) is worth celebrating */
+function msCheck(){
+  if(!auth||!myMatches||!myMatches.length) return;
+  const uid=auth.uid;
+  const {st,ex}=careerStatsFrom(myMatches,uid);
+  const nSess=new Set(myMatches.map(m=>m.session_id)).size;
+  const lv=levelOf(xpOf(st));
+  const cands=[];
+  // level up — highest value
+  const seenLv=+(localStorage.getItem("ss_lastLv")||0);
+  if(lv>seenLv && seenLv>0){
+    const need=25*lv*lv, prev=25*(lv-1)*(lv-1);
+    cands.push({id:"lv"+lv,pri:1,kick:"LEVEL UP",emoji:"\uD83D\uDC51",
+      head:"LEVEL "+lv+"<br>"+tierName(lv).toUpperCase(),
+      sub:xpOf(st).toLocaleString()+" XP and counting.<br><b>"+tierName(lv)+" tier reached.</b>",
+      xp:0,prog:{label:"NEXT TIER",now:xpOf(st),goal:need}});
+  }
+  try{ localStorage.setItem("ss_lastLv",String(lv)); }catch(e){}
+  // new badge
+  const earned=(window.__myEarned||[]);
+  let prev=[]; try{ prev=JSON.parse(localStorage.getItem("ss_badges")||"[]"); }catch(e){}
+  const fresh=earned.filter(n=>!prev.includes(n));
+  if(fresh.length && prev.length){
+    const all=(window.__myAllBadges||[]);
+    const b=all.find(x=>x.name===fresh[0])||{emoji:"\uD83C\uDFC5"};
+    cands.push({id:"bg:"+fresh[0],pri:2,kick:"BADGE EARNED",emoji:b.emoji,
+      head:fresh[0].toUpperCase().replace(/ /g,"<br>"),
+      sub:"A new relic for your sheet.<br><b>"+earned.length+" of "+all.length+" collected.</b>",
+      xp:0,prog:{label:"RELICS",now:earned.length,goal:all.length}});
+  }
+  try{ localStorage.setItem("ss_badges",JSON.stringify(earned)); }catch(e){}
+  // streaks
+  if(ex.curStreak>=3){
+    // the ladder must always stay ahead of the streak
+    const LADDER=[5,7,10,15,20,25,30,40,50,75,100];
+    const nextGoal=LADDER.find(n=>n>ex.curStreak) || (Math.ceil((ex.curStreak+1)/25)*25);
+    cands.push({id:"st"+ex.curStreak,pri:3,kick:"MILESTONE UNLOCKED",emoji:"\uD83D\uDD25",
+      head:({3:"THREE",4:"FOUR",5:"FIVE",6:"SIX",7:"SEVEN",8:"EIGHT",9:"NINE",10:"TEN"}[ex.curStreak]
+             || String(ex.curStreak))+"<br>IN A ROW",
+      sub:"You have taken "+ex.curStreak+" straight.<br><b>"+(nextGoal-ex.curStreak)+" more to reach "+nextGoal+".</b>",
+      xp:30,prog:{label:"STREAK",now:ex.curStreak,goal:nextGoal}});
+  }
+  // round-number match and night counts
+  [25,50,100,200].forEach(n=>{ if(st.g===n) cands.push({id:"g"+n,pri:4,kick:"MILESTONE UNLOCKED",
+    emoji:"\uD83C\uDFF8",head:n+"<br>MATCHES",
+    sub:"Your "+n+"th match with the Party.<br><b>"+st.w+" of them won.</b>",xp:0,
+    prog:{label:"MATCHES",now:st.g,goal:n*2}}); });
+  [5,10,25,50].forEach(n=>{ if(nSess===n) cands.push({id:"n"+n,pri:5,kick:"MILESTONE UNLOCKED",
+    emoji:"\uD83C\uDF19",head:n+"<br>NIGHTS",
+    sub:"Your "+n+"th session with the Party.<br><b>Devotion noted.</b>",xp:0,
+    prog:{label:"NIGHTS",now:nSess,goal:n*2}}); });
+  if(!cands.length) return;
+  cands.sort((a,b)=>a.pri-b.pri);
+  msShow(cands[0]);
+}
+/* ================= RPG CHARACTER SHEET ================= */
+function rpgAttrs(rows,uid,nSess){
+  const g=rows.length||1;
+  let scored=0,conceded=0,wins=0,close=0,closeWon=0;
+  rows.forEach(m=>{
+    const onT1=(m.t1||[]).includes(uid);
+    const mine=onT1?m.s1:m.s2, theirs=onT1?m.s2:m.s1;
+    scored+=mine; conceded+=theirs;
+    const won=mine>theirs; if(won) wins++;
+    if(Math.abs(mine-theirs)<=2){ close++; if(won) closeWon++; }
+  });
+  const margin=(scored-conceded)/g;                     // avg point margin
+  const winRate=100*wins/g;
+  const perNight=nSess? g/nSess : 0;
+  const clutch=close? 100*closeWon/close : 0;
+  const clamp=v=>Math.max(4,Math.min(99,Math.round(v)));
+  return {
+    margin:Math.round(margin*10)/10, winRate:Math.round(winRate), perNight:Math.round(perNight*10)/10,
+    close, closeWon, nSess,
+    list:[
+      {k:"PWR",n:"Power",      d:"avg point margin "+(margin>=0?"+":"")+(Math.round(margin*10)/10),
+       v:clamp(50+margin*5),  c:"#e0704f"},
+      {k:"CON",n:"Consistency",d:Math.round(winRate)+"% win rate",
+       v:clamp(winRate*1.05), c:"#7cd18f"},
+      {k:"STA",n:"Stamina",    d:(Math.round(perNight*10)/10)+" games a night",
+       v:clamp(perNight*14),  c:"#7fb0e0"},
+      {k:"CLT",n:"Clutch",     d:close? closeWon+" of "+close+" games decided by \u22642" : "no close games yet",
+       v:clamp(close? clutch : 45), c:"#eac25f"},
+      {k:"DEV",n:"Devotion",   d:nSess+" night"+(nSess===1?"":"s")+" with the Party",
+       v:clamp(nSess*4.2),    c:"#c48fe0"}
+    ]};
+}
+function rpgGrade(v){ return v>=90?"S":v>=80?"A":v>=70?"B":v>=60?"C":"D"; }
+/* class comes from the SHAPE of the attributes, so everyone gets an identity */
+function rpgClass(a){
+  const m={}; a.list.forEach(x=>m[x.k]=x.v);
+  const top=a.list.slice().sort((x,y)=>y.v-x.v)[0].k;
+  const NAMES={PWR:"The Duelist",CON:"The Metronome",STA:"The Grinder",
+               CLT:"The Closer",DEV:"The Faithful"};
+  // a couple of combinations feel better than a single stat
+  if(m.PWR>=78&&m.CON>=78) return "The Executioner";
+  if(m.STA>=85&&m.DEV>=80)  return "The Marathoner";
+  if(m.CLT>=80&&m.CON<65)   return "The Gambler";
+  return NAMES[top]||"The Contender";
+}
+async function rpgPercentile(uid){
+  try{
+    const r=await sFetch("/rest/v1/leaderboard_alltime?select=profile_id,xp&order=xp.desc&limit=500");
+    if(!r.ok) return null;
+    const rows=await r.json();
+    const i=rows.findIndex(x=>x.profile_id===uid);
+    if(i<0||rows.length<6) return null;
+    return Math.max(1,Math.round(100*(i+1)/rows.length));
+  }catch(e){ return null; }
+}
 function relationStats(rows,uid){
   const partner={}, rival={};
   rows.forEach(m=>{
@@ -6429,6 +7161,8 @@ function renderRPG(){
   const nSessions=new Set(myMatches.map(m=>m.session_id)).size;
   window.__myShare={st,ex,name:(myProfile.reclub_name||myProfile.full_name||"Player")};
   try{ renderCareer(); }catch(e){}
+  /* milestone moments parked - staging only */
+  try{ initFolds(); }catch(e){}
   const _cav=document.getElementById("csAv");
   if(myProfile.avatar) _cav.innerHTML='<img src="'+myProfile.avatar+'" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
   else _cav.textContent=(myProfile.reclub_name||"?").trim().slice(0,1).toUpperCase();
@@ -6446,6 +7180,11 @@ function renderRPG(){
   const customs=window.__customBadges||[];
   const unlockedNow=BADGES.filter(b=>b.f(st,ex,nSessions)).map(b=>b.id)
     .concat(customs.filter(b=>customBadgeUnlocked(b,st,ex,nSessions)).map(b=>"c:"+b.id));
+  // relics for the character sheet
+  window.__myAllBadges=BADGES.map(b=>({name:b.name,emoji:b.em||"🏅"}))
+    .concat(customs.map(b=>({name:b.name,emoji:b.emoji||b.em||"🏅"})));
+  window.__myEarned=BADGES.filter(b=>b.f(st,ex,nSessions)).map(b=>b.name)
+    .concat(customs.filter(b=>customBadgeUnlocked(b,st,ex,nSessions)).map(b=>b.name));
   const bb=document.getElementById("csBadges");
   bb.innerHTML=BADGES.map(b=>{
     const un=b.f(st,ex,nSessions);
