@@ -1221,6 +1221,7 @@ window.SS_CONFIG = {
     <button class="anitem"    data-mn="club" onclick="mnShow('club')">📈 <span>Club P&amp;L</span></button>
     <button class="anitem"    data-mn="bal"  onclick="mnShow('bal')">👥 <span>Balances</span></button>
     <button class="anitem"    data-mn="shut" onclick="mnShow('shut')">🏸 <span>Shuttlecocks</span></button>
+    <button class="anitem"    data-mn="train" onclick="mnShow('train')">🎓 <span>Trainings</span></button>
     <button class="anitem"    data-mn="shpnl" onclick="mnShow('shpnl')">📊 <span>Shuttle P&amp;L</span></button>
     <button class="anitem"    data-mn="set"  onclick="mnShow('set')">⚙️ <span>Settings</span></button>
     <div class="anfoot"><p class="hint" style="margin:0">🔒 The PIN is asked once when you open the
@@ -1279,10 +1280,8 @@ window.SS_CONFIG = {
     <p class="hint" style="border:none">Actual net uses only verified payments. "If everyone pays" assumes every player in the session settles the fee.</p>
   </div>
 
-   </div>
-   <div class="anpane" id="mn-club">
-  <div class="card" style="max-width:820px;margin:0 auto 14px">
-    <h3>📈 Period Summary</h3>
+<div class="card" style="max-width:820px;margin:0 auto 14px">
+    <h3>📈 Queue P&L Summary</h3>
     <div class="controls" style="flex-wrap:wrap">
       <button class="small" id="pdWeek" onclick="loadPeriod('week')">This week</button>
       <button class="small ghost" id="pdMonth" onclick="loadPeriod('month')">This month</button>
@@ -1292,10 +1291,32 @@ window.SS_CONFIG = {
     <div id="pdList"></div>
   </div>
 
+       </div>
+   <div class="anpane" id="mn-club">
     <div class="card">
-      <h3>🌊 Where the money goes</h3>
-      <p class="hint">Sessions carry shuttles as a cost; the club earns the margin back. Netted out so nothing is counted twice.</p>
+      <h3>🏦 Club P&amp;L <button class="small ghost" style="float:right" onclick="loadClubPnl()">⟳</button></h3>
+      <p class="hint">Every stream Stranger Strings runs. Tubes are costed when they are <b>sold or burned</b>, not when bought.</p>
+      <div class="controls" style="flex-wrap:wrap">
+        <button class="small" id="cpW" onclick="loadClubPnl('week')">This week</button>
+        <button class="small ghost" id="cpM" onclick="loadClubPnl('month')">This month</button>
+        <button class="small ghost" id="cpA" onclick="loadClubPnl('all')">All time</button>
+      </div>
+      <div id="cpKpis" style="margin-top:10px"></div>
+    </div>
+    <div class="card"><h3>💵 Revenue</h3><div id="cpRev"></div></div>
+    <div class="card"><h3>📦 Cost of goods sold</h3>
+      <p class="hint">Only the tubes actually consumed — by a queue night or an outside sale. Used tubes carry no cost.</p>
+      <div id="cpCogs"></div></div>
+    <div class="card"><h3>💸 Operating expenses</h3><div id="cpOpex"></div></div>
+    <div class="card">
+      <h3>🌊 Profit by stream</h3>
+      <p class="hint">Each stream against its own revenue and costs.</p>
       <div id="clubWaterfall"></div>
+    </div>
+    <div class="card">
+      <h3>💰 Funds flow <span class="hint" style="font-weight:400">cash basis</span></h3>
+      <p class="hint">What actually moved through the account, including stock you bought but have not sold yet.</p>
+      <div id="cpCash"></div>
     </div>
    </div>
    <div class="anpane" id="mn-bal">
@@ -1328,12 +1349,46 @@ window.SS_CONFIG = {
       <button class="small ghost" id="shTabBuy"   onclick="shTab('buy')">➕ Add batch</button>
       <button class="small ghost" id="shTabPrice" onclick="shTab('price')">🏷 Prices</button>
       <button class="small ghost" id="shTabPnl"   onclick="shTab('pnl')">💰 Channels</button>
+      <button class="small ghost" id="shTabUsed"  onclick="shTab('used')">♻️ Used</button>
       <button class="small ghost" id="shTabManage" onclick="shTab('manage')">⚙️ Manage</button>
     </div>
     <div id="shBody" style="margin-top:12px"></div>
   </div>
 
    </div>
+   <div class="anpane" id="mn-train">
+     <div class="card">
+       <h3>🎓 Trainings <button class="small ghost" style="float:right" onclick="loadTrainings()">⟳</button></h3>
+       <p class="hint">Coaching sessions — separate from the queue, with their own fee, coach cost and QR.</p>
+       <div class="controls" style="flex-wrap:wrap">
+         <select id="trPick" style="flex:1;min-width:210px" onchange="openTraining()"></select>
+         <button class="small" onclick="newTraining()">＋ New</button>
+       </div>
+       <div id="trSummary" style="margin-top:10px"></div>
+     </div>
+     <div class="card" id="trDetailCard" style="display:none">
+       <h3>📋 Details <button class="small ghost" style="float:right" onclick="delTraining()">🗑</button></h3>
+       <div id="trDetail"></div>
+     </div>
+     <div class="card" id="trAttCard" style="display:none">
+       <h3>👥 Trainees</h3>
+       <div class="controls" style="flex-wrap:wrap">
+         <select id="trAddPlayer" style="flex:1;min-width:170px"></select>
+         <button class="small ghost" onclick="trAddRegistered()">＋ Player</button>
+       </div>
+       <div class="controls" style="flex-wrap:wrap">
+         <input id="trGuest" placeholder="Guest name" style="flex:1;min-width:150px">
+         <button class="small ghost" onclick="trAddGuest()">＋ Guest</button>
+       </div>
+       <div id="trAtt" style="margin-top:8px"></div>
+     </div>
+     <div class="card" id="trQrCard" style="display:none">
+       <h3>🏦 Training payment QR</h3>
+       <p class="hint">Shown to trainees. Separate from the queue session QR.</p>
+       <div id="trQr"></div>
+     </div>
+   </div>
+
    <div class="anpane" id="mn-shpnl">
      <div class="card">
        <h3>📊 Shuttle P&amp;L <button class="small ghost" style="float:right" onclick="loadShuttlePnl()">⟳</button></h3>
@@ -4019,10 +4074,12 @@ function mnShow(which){
   window.__mnPane=which;
   document.querySelectorAll("#tab-money .anpane").forEach(p=>p.classList.toggle("on",p.id==="mn-"+which));
   document.querySelectorAll("#mnnav .anitem").forEach(b=>b.classList.toggle("on",b.dataset.mn===which));
-  if(which==="club"){ loadPeriod(window.__pdRange||"week"); }
+  if(which==="club"){ loadClubPnl(); }
+  if(which==="sess"){ loadPeriod(window.__pdRange||"week"); }
   if(which==="bal"){ loadBalances(); }
   if(which==="shut"){ loadShuttles(); }
   if(which==="shpnl"){ loadShuttlePnl(); }
+  if(which==="train"){ loadTrainings(); }
   if(which==="set"){ loadClubQR(); showFeeDefault(); }
 }
 async function showFeeDefault(){
@@ -4053,56 +4110,33 @@ async function saveFeeDefault(){
   showFeeDefault();
 }
 /* ---------- consolidated waterfall, now on Club P&L ---------- */
-function renderClubWaterfall(){
+function renderClubWaterfall(streams){
   const box=document.getElementById("clubWaterfall"); if(!box) return;
-  const sess=(window.__pdSess||window.__allSessions||[]);
-  const ids=new Set(sess.map(s=>s.id));
-  const from=sess.length? sess.map(s=>s.session_date).sort()[0] : null;
-  let court=0,shut=0,other=0;
-  sess.forEach(s=>{ const e=expensesOf(s);
-    court+=e.rate*e.hours*e.courts; shut+=e.tube*e.tubes; other+=e.other; });
-  const fees=window.__fnFeesAll||0;
-  let intM=0, extM=0;
-  if(!window.__shMissing && SH.brands.length){
-    // queue margin only for sessions inside the period
-    (window.__allSessions||[]).forEach(s=>{
-      if(!ids.has(s.id)) return;
-      const e=expensesOf(s); if(!e.tubes) return;
-      const b=SH.brands.find(y=>y.name===e.brand);
-      intM+=e.tubes*(e.tube-(b? +b.wac||0 : 0));
-    });
-    // outside sales inside the period
-    SH.sales.forEach(x=>{
-      if(from && x.sold_on && x.sold_on < from) return;
-      extM+=x.tubes*((+x.price_per_tube)-(+x.cost_per_tube||0));
-    });
-  }
-  if(!fees&&!court&&!shut){ box.innerHTML='<p class="hint">Add expenses and collections to see the waterfall.</p>'; return; }
-  const steps=[["Fees",fees,"var(--ok)"],["Court",-court,"var(--red)"],["Shuttles",-shut,"var(--red)"],
-    ["Other",-other,"var(--red)"],["Shuttle margin (queue)",intM,"var(--ok)"],
-    ["Shuttle margin (outside)",extM,"var(--ok)"]];
+  const shown=(streams||[]).filter(s=>Math.abs(s[1])>0.5);
+  if(!shown.length){ box.innerHTML='<p class="hint">No money moved in this period.</p>'; return; }
   let run=0; const bars=[];
-  steps.forEach(([l,v,c])=>{ bars.push([l,v,c,Math.min(run,run+v),Math.max(run,run+v)]); run+=v; });
+  shown.forEach(([l,v])=>{ bars.push([l,v,v>=0?"var(--ok)":"var(--red)",
+    Math.min(run,run+v),Math.max(run,run+v)]); run+=v; });
   const lo=Math.min(0,...bars.map(b=>b[3])), hi=Math.max(run,...bars.map(b=>b[4]));
   const span=(hi-lo)||1, px=v=>Math.round(130*v/span);
   box.innerHTML='<div class="wfrow">'+bars.map(([l,v,c,a,b2])=>
-    '<div class="wfcol"><div class="v" style="color:'+c+'">'+(v>=0?"+":"−")+pesos(Math.abs(v))+'</div>'+
+    '<div class="wfcol"><div class="v" style="color:'+c+'">'+(v>=0?"+":"\u2212")+pesos(Math.abs(v))+'</div>'+
     '<div class="bx" style="height:'+Math.max(3,px(b2-a))+'px;margin-bottom:'+px(a-lo)+'px;background:'+c+'"></div>'+
     '<div class="lb">'+l+'</div></div>').join("")+
     '<div class="wfcol"><div class="v" style="color:var(--gold)">'+pesos(run)+'</div>'+
     '<div class="bx" style="height:'+Math.max(3,px(Math.abs(run)))+'px;margin-bottom:'+px(0-lo)+
     'px;background:var(--gold)"></div><div class="lb"><b>Club net</b></div></div></div>'+
-    '<div class="paysum" style="margin-top:10px">'+
-    '<div><b class="'+(run>=0?"pos":"neg")+'">'+pesos(run)+'</b><span>club net</span></div>'+
-    '<div><b class="pos">'+pesos(intM+extM)+'</b><span>shuttle margin</span></div>'+
-    '<div><b class="'+((fees-court-shut-other)>=0?"pos":"neg")+'">'+pesos(fees-court-shut-other)+
-      '</b><span>sessions alone</span></div></div>';
+    '<div class="paysum" style="margin-top:10px">'+shown.map(([l,v])=>
+      '<div><b class="'+(v>=0?"pos":"neg")+'">'+pesos(v)+'</b><span>'+esc(l)+'</span></div>').join("")+
+    '<div><b class="'+(run>=0?"pos":"neg")+'">'+pesos(run)+'</b><span>club net</span></div></div>'+
+    '<p class="hint" style="margin-top:6px">Each stream nets its own revenue against its own costs. '+
+    'Shuttles burned by the queue are a cost to the session and a margin to the shuttle business.</p>';
 }
 /* ================= SHUTTLECOCKS ================= */
 let shView="stock";
 function shTab(v){
   shView=v;
-  ["stock","sale","buy","price","pnl","manage"].forEach(k=>{
+  ["stock","sale","buy","price","pnl","used","manage"].forEach(k=>{
     const b=document.getElementById("shTab"+k[0].toUpperCase()+k.slice(1));
     if(b) b.className="small"+(k===v?"":" ghost");
   });
@@ -4111,12 +4145,13 @@ function shTab(v){
 async function loadShuttles(){
   const box=document.getElementById("shBody"); if(!box) return;
   box.innerHTML='<p class="hint">Loading…</p>';
-  const [br,ch,pr,ba,sa]=await Promise.all([
+  const [br,ch,pr,ba,sa,us]=await Promise.all([
     sFetch("/rest/v1/shuttle_stock?select=*").catch(()=>null),
     sFetch("/rest/v1/shuttle_channels?select=*&order=sort.asc").catch(()=>null),
     sFetch("/rest/v1/shuttle_prices?select=*").catch(()=>null),
     sFetch("/rest/v1/shuttle_batches?select=*&order=received_on.desc").catch(()=>null),
-    sFetch("/rest/v1/shuttle_sales?select=*&order=sold_on.desc&limit=500").catch(()=>null)]);
+    sFetch("/rest/v1/shuttle_sales?select=*&order=sold_on.desc&limit=500").catch(()=>null),
+    sFetch("/rest/v1/used_shuttle_sales?select=*&order=sold_on.desc&limit=300").catch(()=>null)]);
   if(!br||!br.ok){ window.__shMissing=true;
     box.innerHTML='<p class="hint">Run shuttles.sql to enable shuttlecock tracking.</p>'; return; }
   window.__shMissing=false;
@@ -4125,6 +4160,7 @@ async function loadShuttles(){
   SH.prices=(pr&&pr.ok)? await pr.json():[];
   SH.batches=(ba&&ba.ok)? await ba.json():[];
   SH.sales=(sa&&sa.ok)? await sa.json():[];
+  window.__usedSales=(us&&us.ok)? await us.json():[];
   // queue usage comes from session expenses — one source of truth
   if(!window.__allSessions) await fillFinanceSessions();
   SH.queue=(window.__allSessions||[]).map(s=>{ const e=expensesOf(s);
@@ -4161,6 +4197,7 @@ function renderShuttles(){
   if(shView==="price")  return shPrices(box);
   if(shView==="pnl")    return shPnl(box);
   if(shView==="manage") return shManage(box);
+  if(shView==="used")   return shUsed(box);
 }
 /* ---------- stock ---------- */
 function shStock(box){
@@ -4296,6 +4333,355 @@ async function shSaleDel(id){
   const r=await sFetch("/rest/v1/shuttle_sales?id=eq."+id,{method:"DELETE"}).catch(()=>null);
   if(!r||!r.ok) return toast("Could not delete");
   toast("Sale removed"); loadShuttles();
+}
+/* ---------- consolidated club P&L: accrual first, cash as a sub-module ---------- */
+async function loadClubPnl(range){
+  if(range) window.__cpRange=range;
+  const rg=window.__cpRange||"month";
+  ["W","M","A"].forEach(k=>{ const b=document.getElementById("cp"+k);
+    if(b) b.className="small"+((k==="W"&&rg==="week")||(k==="M"&&rg==="month")||(k==="A"&&rg==="all")?"":" ghost"); });
+  const K=document.getElementById("cpKpis"); if(!K) return;
+  K.innerHTML='<p class="hint">Loading\u2026</p>';
+  let from=null;
+  if(rg!=="all"){ const d=new Date();
+    if(rg==="week"){ const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); } else d.setDate(1);
+    from=d.toISOString().slice(0,10); }
+  if(!window.__allSessions) await fillFinanceSessions();
+  if(!window.__shMissing && !SH.brands.length) await loadShuttles();
+  const sess=(window.__allSessions||[]).filter(s=>!from||s.session_date>=from);
+  const sids=sess.map(s=>s.id);
+  // ---- queue ----
+  let qFees=0,qCourt=0,qShutSell=0,qOther=0,qTubes=0,qCogs=0;
+  sess.forEach(s=>{ const e=expensesOf(s);
+    qCourt+=e.rate*e.hours*e.courts; qShutSell+=e.tube*e.tubes; qOther+=e.other; qTubes+=e.tubes;
+    const b=(SH.brands||[]).find(y=>y.name===e.brand);
+    qCogs+=e.tubes*(b? +b.wac||0 : 0); });
+  if(sids.length){
+    const pr=await sFetch("/rest/v1/payments?session_id=in.("+sids.join(",")+")&select=amount,verified").catch(()=>null);
+    if(pr&&pr.ok) (await pr.json()).forEach(p=>{ if(p.verified!==false) qFees+=+p.amount||0; });
+  }
+  // ---- shuttles ----
+  let shOutRev=0,shOutCogs=0,shOutTubes=0,shBuy=0,usedRev=0,usedTubes=0;
+  if(!window.__shMissing){
+    (SH.sales||[]).forEach(x=>{ if(from&&x.sold_on&&x.sold_on<from) return;
+      shOutRev+=x.tubes*(+x.price_per_tube); shOutCogs+=x.tubes*(+x.cost_per_tube||0); shOutTubes+=x.tubes; });
+    (SH.batches||[]).forEach(x=>{ if(from&&x.received_on&&x.received_on<from) return;
+      shBuy+=x.tubes_in*(+x.cost_per_tube); });
+    (window.__usedSales||[]).forEach(x=>{ if(from&&x.sold_on&&x.sold_on<from) return;
+      usedRev+=x.tubes*(+x.price_per_tube); usedTubes+=x.tubes; });
+  }
+  // ---- trainings ----
+  let trRev=0,trCoach=0,trCourt=0,trOther=0,trCount=0;
+  if(!window.__trMissing){
+    if(!TR.list.length) await loadTrainings();
+    (TR.list||[]).forEach(t=>{ if(from&&t.training_date<from) return;
+      trCount++; trRev+=+t.collected||0; trCoach+=+t.coach_total||0;
+      trCourt+=+t.court_total||0; trOther+=+t.other_cost||0; });
+  }
+  // ---- P&L (accrual). The queue's shuttle charge is an internal transfer and cancels. ----
+  const REV=[["Queue session fees",qFees],["Shuttle sales (outside)",shOutRev],
+             ["Used shuttle sales",usedRev],["Training fees",trRev]].filter(x=>x[1]>0);
+  const COGS=[["Tubes burned by queue"+(qTubes?" ("+qTubes+")":""),qCogs],
+              ["Tubes sold outside"+(shOutTubes?" ("+shOutTubes+")":""),shOutCogs],
+              ["Used tubes"+(usedTubes?" ("+usedTubes+")":"")+" \u2014 no cost",0]].filter(x=>x[1]>0||x[0].indexOf("no cost")>=0);
+  const OPEX=[["Court rental (queue)",qCourt],["Other (queue)",qOther],
+              ["Coach fees",trCoach],["Court rental (training)",trCourt],
+              ["Other (training)",trOther]].filter(x=>x[1]>0);
+  const rev=REV.reduce((a,b)=>a+b[1],0);
+  const cogs=qCogs+shOutCogs;
+  const opex=OPEX.reduce((a,b)=>a+b[1],0);
+  const gross=rev-cogs, net=gross-opex;
+  K.innerHTML='<div class="paysum">'+
+    '<div><b class="pos">'+pesos(rev)+'</b><span>revenue</span></div>'+
+    '<div><b class="neg">'+pesos(cogs)+'</b><span>cost of goods sold</span></div>'+
+    '<div><b class="'+(gross>=0?"pos":"neg")+'">'+pesos(gross)+'</b><span>gross profit</span></div>'+
+    '<div><b class="neg">'+pesos(opex)+'</b><span>operating expenses</span></div>'+
+    '<div><b class="'+(net>=0?"pos":"neg")+'">'+pesos(net)+'</b><span>net profit</span></div></div>'+
+    '<p class="hint" style="margin-top:6px">'+sess.length+' session'+(sess.length===1?"":"s")+
+    ' \u00b7 '+trCount+' training'+(trCount===1?"":"s")+
+    (rev?' \u00b7 margin '+Math.round(1000*net/rev)/10+'%':'')+'</p>';
+  const line=(k,v,tot,col)=>'<div class="shrow"><div class="sn2" style="flex:1"><b>'+esc(k)+'</b></div>'+
+    '<span class="shbar" style="flex:0 0 100px"><i style="width:'+
+      Math.min(100,Math.max(2,Math.round(100*v/Math.max(1,tot))))+'%;background:'+col+'"></i></span>'+
+    '<b class="mono" style="min-width:84px;text-align:right;color:'+col+'">'+pesos(v)+'</b></div>';
+  const tail=(label,v,col)=>'<div class="shrow" style="border-top:2px solid var(--line)">'+
+    '<div class="sn2" style="flex:1"><b>'+label+'</b></div>'+
+    '<b class="mono" style="min-width:84px;text-align:right;color:'+col+'">'+pesos(v)+'</b></div>';
+  document.getElementById("cpRev").innerHTML= REV.length
+    ? REV.sort((a,b)=>b[1]-a[1]).map(x=>line(x[0],x[1],rev,"var(--ok)")).join("")+tail("Total revenue",rev,"var(--ok)")
+    : '<p class="hint">No revenue in this period.</p>';
+  document.getElementById("cpCogs").innerHTML= cogs
+    ? COGS.map(x=>line(x[0],x[1],cogs,"var(--red)")).join("")+tail("Total COGS",cogs,"var(--red)")
+    : '<p class="hint">No tubes consumed in this period.</p>';
+  document.getElementById("cpOpex").innerHTML= OPEX.length
+    ? OPEX.sort((a,b)=>b[1]-a[1]).map(x=>line(x[0],x[1],opex,"var(--red)")).join("")+tail("Total opex",opex,"var(--red)")
+    : '<p class="hint">No operating costs in this period.</p>';
+  // ---- profit by stream ----
+  const qNet=qFees-qCourt-qShutSell-qOther;
+  const trNet=trRev-trCoach-trCourt-trOther;
+  const shNet=(qShutSell-qCogs)+(shOutRev-shOutCogs)+usedRev;
+  renderClubWaterfall([["Queue sessions",qNet],["Shuttle business",shNet],["Trainings",trNet]]);
+  // ---- funds flow (cash) ----
+  const cashIn=rev;
+  const cashOut=shBuy+opex;
+  const cash=cashIn-cashOut;
+  const stockDelta=shBuy-cogs;
+  document.getElementById("cpCash").innerHTML=
+    '<div class="paysum"><div><b class="pos">'+pesos(cashIn)+'</b><span>money in</span></div>'+
+    '<div><b class="neg">'+pesos(cashOut)+'</b><span>money out</span></div>'+
+    '<div><b class="'+(cash>=0?"pos":"neg")+'">'+pesos(cash)+'</b><span>net cash</span></div></div>'+
+    line("Stock purchased",shBuy,Math.max(1,cashOut),"var(--red)")+
+    line("Operating expenses",opex,Math.max(1,cashOut),"var(--red)")+
+    '<p class="hint" style="margin-top:8px">Net cash of <b>'+pesos(cash)+'</b> against net profit of <b>'+pesos(net)+
+    '</b>. The '+pesos(Math.abs(stockDelta))+' difference is stock '+
+    (stockDelta>=0? 'bought but not yet sold \u2014 it sits on the shelf as value, not a loss.'
+                  : 'sold from earlier purchases, so profit lands without cash going out.')+'</p>';
+}
+/* ================= TRAININGS ================= */
+const TR={list:[],cur:null,att:[]};
+async function loadTrainings(){
+  const sel=document.getElementById("trPick"); if(!sel) return;
+  const r=await sFetch("/rest/v1/training_pnl?select=*&order=training_date.desc").catch(()=>null);
+  if(!r||!r.ok){ window.__trMissing=true;
+    document.getElementById("trSummary").innerHTML='<p class="hint">Run trainings.sql to enable trainings.</p>';
+    return; }
+  window.__trMissing=false;
+  TR.list=await r.json();
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— choose a training —</option>'+
+    TR.list.map(t=>'<option value="'+t.id+'">'+esc(t.title)+' · '+t.training_date+'</option>').join("");
+  if(cur) sel.value=cur;
+  // period totals
+  const tot=TR.list.reduce((a,t)=>({heads:a.heads+t.heads,coll:a.coll+ +t.collected,
+    exp:a.exp+ +t.expenses,net:a.net+ +t.net}),{heads:0,coll:0,exp:0,net:0});
+  document.getElementById("trSummary").innerHTML=TR.list.length
+    ? '<div class="paysum"><div><b>'+TR.list.length+'</b><span>trainings</span></div>'+
+      '<div><b>'+tot.heads+'</b><span>trainee slots</span></div>'+
+      '<div><b class="pos">'+pesos(tot.coll)+'</b><span>collected</span></div>'+
+      '<div><b class="neg">'+pesos(tot.exp)+'</b><span>expenses</span></div>'+
+      '<div><b class="'+(tot.net>=0?"pos":"neg")+'">'+pesos(tot.net)+'</b><span>net</span></div></div>'+
+      TR.list.slice(0,8).map(t=>'<div class="pdrow" onclick="document.getElementById(\'trPick\').value=\''+t.id+
+        '\';openTraining()" style="cursor:pointer"><div class="pn2"><b>'+esc(t.title)+'</b>'+
+        '<span>'+t.training_date+' · '+t.paid_heads+'/'+t.heads+' paid · out '+pesos(t.expenses)+'</span></div>'+
+        '<b class="'+(+t.net>=0?"pos":"neg")+'">'+pesos(t.net)+'</b></div>').join("")
+    : '<p class="hint">No trainings yet. Create one to get started.</p>';
+  if(sel.value) openTraining();
+}
+async function newTraining(){
+  const title=await uiPrompt("Name this training","e.g. Saturday Clinic",
+    {title:"🎓 New training",ok:"Create"});
+  if(!title) return;
+  const r=await sFetch("/rest/v1/trainings",{method:"POST",headers:{Prefer:"return=representation"},
+    body:[{title:title.trim(),training_date:new Date().toISOString().slice(0,10),
+      fee:0,coach_fee:0,court_rate:0,court_hours:0,courts:0,other_cost:0,created_by:auth.uid}]}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not create the training");
+  const row=(await r.json())[0]||{};
+  toast("🎓 "+title+" created");
+  await loadTrainings();
+  const sel=document.getElementById("trPick"); if(row.id){ sel.value=row.id; openTraining(); }
+}
+async function openTraining(){
+  const id=document.getElementById("trPick").value;
+  const dc=document.getElementById("trDetailCard"), ac=document.getElementById("trAttCard"),
+        qc=document.getElementById("trQrCard");
+  if(!id){ dc.style.display="none"; ac.style.display="none"; qc.style.display="none"; return; }
+  const r=await sFetch("/rest/v1/trainings?id=eq."+id+"&select=*").catch(()=>null);
+  if(!r||!r.ok) return;
+  TR.cur=(await r.json())[0]; if(!TR.cur) return;
+  const t=TR.cur;
+  dc.style.display="block"; ac.style.display="block"; qc.style.display="block";
+  const fld=(lab,id2,val,type,step)=>'<div class="mrow"><label>'+lab+'</label><input id="'+id2+
+    '" type="'+(type||"text")+'"'+(step?' step="'+step+'" min="0"':'')+' value="'+esc(String(val==null?"":val))+
+    '" onchange="saveTraining()" style="max-width:200px"></div>';
+  document.getElementById("trDetail").innerHTML=
+    fld("Title","trTitle",t.title)+
+    fld("Date","trDate",t.training_date,"date")+
+    fld("Coach","trCoach",t.coach_name)+
+    '<p class="clab2">Revenue</p>'+
+    fld("Fee per trainee","trFee",t.fee,"number","10")+
+    '<p class="clab2">Expenses</p>'+
+    fld("Coach fee per head","trCoachFee",t.coach_fee,"number","10")+
+    fld("Court rate / hr","trRate",t.court_rate,"number","10")+
+    fld("Hours","trHours",t.court_hours,"number","0.5")+
+    fld("Courts","trCourts",t.courts,"number","1")+
+    fld("Other — name","trOtherName",t.other_name)+
+    fld("Other — cost","trOther",t.other_cost,"number","10")+
+    '<div id="trPnl" class="shcalc"></div>';
+  await loadTrainingAtt();
+  renderTrainingQR();
+}
+async function saveTraining(){
+  if(!TR.cur) return;
+  const g=id=>(document.getElementById(id)||{}).value;
+  const body={title:g("trTitle")||"Training",training_date:g("trDate"),coach_name:g("trCoach")||"",
+    fee:+g("trFee")||0,coach_fee:+g("trCoachFee")||0,court_rate:+g("trRate")||0,
+    court_hours:+g("trHours")||0,courts:+g("trCourts")||0,
+    other_name:g("trOtherName")||"",other_cost:+g("trOther")||0};
+  const r=await sFetch("/rest/v1/trainings?id=eq."+TR.cur.id,{method:"PATCH",body}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not save");
+  Object.assign(TR.cur,body);
+  trPnl(); loadTrainings();
+}
+async function delTraining(){
+  if(!TR.cur) return;
+  if(!await uiConfirm("Delete “"+TR.cur.title+"”?\nIts trainees and payments go with it.",
+    {title:"🗑 Delete training",ok:"Delete"})) return;
+  const r=await sFetch("/rest/v1/trainings?id=eq."+TR.cur.id,{method:"DELETE"}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not delete");
+  TR.cur=null; toast("Deleted");
+  document.getElementById("trPick").value="";
+  openTraining(); loadTrainings();
+}
+async function loadTrainingAtt(){
+  if(!TR.cur) return;
+  const r=await sFetch("/rest/v1/training_attendees?training_id=eq."+TR.cur.id+
+    "&select=id,profile_id,guest_name,paid,amount,profiles!training_attendees_profile_id_fkey(reclub_name,full_name)"+
+    "&order=created_at.asc").catch(()=>null);
+  TR.att=(r&&r.ok)? await r.json():[];
+  // player picker
+  const sel=document.getElementById("trAddPlayer");
+  if(!window.__allPlayers){
+    const pr=await sFetch("/rest/v1/profiles?select=id,reclub_name,full_name&order=reclub_name.asc").catch(()=>null);
+    window.__allPlayers=(pr&&pr.ok)? await pr.json():[];
+  }
+  const inAlready=new Set(TR.att.map(a=>a.profile_id).filter(Boolean));
+  sel.innerHTML='<option value="">— pick a player —</option>'+
+    (window.__allPlayers||[]).filter(p=>!inAlready.has(p.id))
+      .map(p=>'<option value="'+p.id+'">'+esc(p.reclub_name||p.full_name||"Player")+'</option>').join("");
+  const nm=a=>a.profile_id? ((a.profiles&&(a.profiles.reclub_name||a.profiles.full_name))||"Player")
+                          : (a.guest_name||"Guest");
+  document.getElementById("trAtt").innerHTML= TR.att.length
+    ? TR.att.map(a=>'<div class="shrow"><span class="qdot" style="background:'+
+        (a.paid?"var(--ok)":"var(--red)")+'"></span>'+
+        '<div class="sn2"><b>'+esc(nm(a))+'</b><span>'+(a.profile_id?"member":"guest")+
+        (a.paid?' · paid '+pesos(a.amount):' · unpaid')+'</span></div>'+
+        '<button class="small '+(a.paid?"ghost":"")+'" onclick="trTogglePaid(\''+a.id+'\','+(a.paid?"true":"false")+
+        ')">'+(a.paid?"↩ Unpay":"₱ Paid")+'</button>'+
+        '<button class="small ghost" onclick="trRemove(\''+a.id+'\')">🗑</button></div>').join("")
+    : '<p class="hint">No trainees yet.</p>';
+  trPnl();
+}
+function trPnl(){
+  const el=document.getElementById("trPnl"); if(!el||!TR.cur) return;
+  const t=TR.cur, heads=TR.att.length;
+  const collected=TR.att.filter(a=>a.paid).reduce((a,b)=>a+(+b.amount||0),0);
+  const expected=heads*(+t.fee||0);
+  const coach=heads*(+t.coach_fee||0);
+  const court=(+t.court_rate||0)*(+t.court_hours||0)*(+t.courts||0);
+  const other=+t.other_cost||0;
+  const exp=coach+court+other;
+  el.innerHTML=
+    '<div><span>Expected ('+heads+' × '+pesos(t.fee)+')</span><b>'+pesos(expected)+'</b></div>'+
+    '<div><span>Collected</span><b class="pos">'+pesos(collected)+'</b></div>'+
+    '<div><span>Coach ('+heads+' × '+pesos(t.coach_fee)+')</span><b class="neg">−'+pesos(coach)+'</b></div>'+
+    '<div><span>Court</span><b class="neg">−'+pesos(court)+'</b></div>'+
+    (other?'<div><span>'+esc(t.other_name||"Other")+'</span><b class="neg">−'+pesos(other)+'</b></div>':'')+
+    '<div style="border-top:1px solid var(--line);margin-top:5px;padding-top:7px">'+
+      '<span><b>Net (actual)</b></span><b class="'+(collected-exp>=0?"pos":"neg")+'">'+pesos(collected-exp)+'</b></div>'+
+    '<div><span>If everyone pays</span><b class="'+(expected-exp>=0?"pos":"neg")+'">'+pesos(expected-exp)+'</b></div>';
+}
+async function trAddRegistered(){
+  const pid=document.getElementById("trAddPlayer").value;
+  if(!pid||!TR.cur) return toast("Pick a player first");
+  const r=await sFetch("/rest/v1/training_attendees",{method:"POST",
+    body:[{training_id:TR.cur.id,profile_id:pid,amount:+TR.cur.fee||0}]}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not add");
+  loadTrainingAtt(); loadTrainings();
+}
+async function trAddGuest(){
+  const n=(document.getElementById("trGuest").value||"").trim();
+  if(!n||!TR.cur) return toast("Type a guest name");
+  const r=await sFetch("/rest/v1/training_attendees",{method:"POST",
+    body:[{training_id:TR.cur.id,guest_name:n,amount:+TR.cur.fee||0}]}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not add");
+  document.getElementById("trGuest").value="";
+  loadTrainingAtt(); loadTrainings();
+}
+async function trTogglePaid(id,paid){
+  const body=paid? {paid:false,paid_at:null}
+                 : {paid:true,paid_at:new Date().toISOString(),amount:+((TR.cur||{}).fee)||0};
+  const r=await sFetch("/rest/v1/training_attendees?id=eq."+id,{method:"PATCH",body}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not update");
+  loadTrainingAtt(); loadTrainings();
+}
+async function trRemove(id){
+  const r=await sFetch("/rest/v1/training_attendees?id=eq."+id,{method:"DELETE"}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not remove");
+  loadTrainingAtt(); loadTrainings();
+}
+async function renderTrainingQR(){
+  const box=document.getElementById("trQr"); if(!box) return;
+  const r=await sFetch("/rest/v1/club_settings?id=eq.1&select=training_qr,training_note").catch(()=>null);
+  const cs=(r&&r.ok)? ((await r.json())[0]||{}):{};
+  window.__trainQR=cs.training_qr||"";
+  box.innerHTML=(window.__trainQR
+      ? '<img src="'+window.__trainQR+'" alt="Training QR" style="max-width:220px;border-radius:12px;display:block;margin:0 auto 8px">'
+      : '<p class="hint">No training QR set yet.</p>')+
+    '<div class="mrow"><label>Note</label><input id="trQrNote" value="'+esc(cs.training_note||"")+
+      '" placeholder="e.g. GCash · Coach Ryan" style="max-width:230px"></div>'+
+    '<div class="controls"><input type="file" id="trQrFile" accept="image/*" style="flex:1">'+
+      '<button class="small" onclick="saveTrainingQR()">Save</button></div>';
+}
+async function saveTrainingQR(){
+  const f=(document.getElementById("trQrFile")||{}).files;
+  const note=(document.getElementById("trQrNote")||{}).value||"";
+  let qr=window.__trainQR||"";
+  if(f&&f[0]){ qr=await shrinkImage(f[0],420,"image/png"); }
+  const r=await sFetch("/rest/v1/club_settings?id=eq.1",{method:"PATCH",
+    body:{training_qr:qr,training_note:note,updated_by:auth.uid,updated_at:new Date().toISOString()}}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not save the QR");
+  window.__trainQR=qr; toast("🏦 Training QR saved"); renderTrainingQR();
+}
+/* ================= USED SHUTTLES ================= */
+function shUsed(box){
+  const rows=window.__usedSales||[];
+  const tot=rows.reduce((a,b)=>a+b.tubes*(+b.price_per_tube),0);
+  const tubes=rows.reduce((a,b)=>a+b.tubes,0);
+  box.innerHTML=
+    '<p class="hint">Used tubes already burned by sessions. They were expensed at the time, so this is '+
+    '<b>revenue with no cost of goods</b> — it never touches new stock.</p>'+
+    '<div class="paysum"><div><b>'+tubes+'</b><span>tubes sold</span></div>'+
+    '<div><b class="pos">'+pesos(tot)+'</b><span>revenue</span></div>'+
+    '<div><b>'+rows.length+'</b><span>sales</span></div></div>'+
+    '<div class="mrow"><label>Tubes</label><input id="usTubes" type="number" min="1" value="1" style="max-width:110px" oninput="usCalc()"></div>'+
+    '<div class="mrow"><label>Price / tube</label><input id="usPrice" type="number" min="0" step="10" value="100" style="max-width:130px" oninput="usCalc()"></div>'+
+    '<div class="mrow"><label>Buyer / note</label><input id="usBuyer" placeholder="e.g. Kuya Ben · practice tubes"></div>'+
+    '<div class="mrow"><label>Date</label><input id="usDate" type="date" value="'+new Date().toISOString().slice(0,10)+'" style="max-width:170px"></div>'+
+    '<div class="shcalc" id="usCalcBox"></div>'+
+    '<div class="controls" style="justify-content:flex-end"><button class="small" onclick="usSave()">Record sale</button></div>'+
+    '<p class="clab2" style="margin-top:14px">Recent used sales</p>'+
+    (rows.length? rows.slice(0,12).map(x=>'<div class="shrow"><div class="sn2"><b>'+x.tubes+
+      ' tube'+(x.tubes>1?"s":"")+'</b><span>'+esc(x.sold_on)+(x.buyer?' · '+esc(x.buyer):'')+'</span></div>'+
+      '<b class="mono pos">'+pesos(x.tubes*(+x.price_per_tube))+'</b>'+
+      '<button class="small ghost" onclick="usDel(\''+x.id+'\')">🗑</button></div>').join("")
+      : '<p class="hint">Nothing recorded yet.</p>');
+  usCalc();
+}
+function usCalc(){
+  const t=+((document.getElementById("usTubes")||{}).value)||0;
+  const p=+((document.getElementById("usPrice")||{}).value)||0;
+  const el=document.getElementById("usCalcBox"); if(!el) return;
+  el.innerHTML='<div><span>Revenue</span><b class="pos">'+pesos(t*p)+'</b></div>'+
+    '<div><span>Cost of goods</span><b>'+pesos(0)+'</b></div>'+
+    '<div style="border-top:1px solid var(--line);margin-top:5px;padding-top:7px">'+
+      '<span><b>Straight to the club</b></span><b class="pos">'+pesos(t*p)+'</b></div>';
+}
+async function usSave(){
+  const t=+document.getElementById("usTubes").value||0;
+  if(!t) return toast("How many tubes?");
+  const r=await sFetch("/rest/v1/used_shuttle_sales",{method:"POST",body:[{
+    tubes:t, price_per_tube:+document.getElementById("usPrice").value||0,
+    buyer:document.getElementById("usBuyer").value||"",
+    sold_on:document.getElementById("usDate").value, created_by:auth.uid}]}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not record — run trainings.sql");
+  toast("♻️ "+t+" used tube"+(t>1?"s":"")+" recorded");
+  loadShuttles();
+}
+async function usDel(id){
+  if(!await uiConfirm("Delete this used-shuttle sale?",{title:"🗑 Delete",ok:"Delete"})) return;
+  const r=await sFetch("/rest/v1/used_shuttle_sales?id=eq."+id,{method:"DELETE"}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not delete");
+  toast("Removed"); loadShuttles();
 }
 /* ---------- dedicated shuttle P&L ---------- */
 async function loadShuttlePnl(range){
@@ -5611,7 +5997,6 @@ async function loadPeriod(range){
     '<div><b>'+sess.length+'</b><span>sessions</span></div></div>'+
     (dueTot-inTot>0? '<p class="hint" style="margin-top:2px">'+pesos(dueTot-inTot)+' still uncollected across this period.</p>':'');
   window.__pdSess=sess;
-  try{ renderClubWaterfall(); }catch(e){}
   list.innerHTML="";
   rows.forEach(r=>{
     const d=document.createElement("div"); d.className="pdrow";
