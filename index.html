@@ -727,6 +727,12 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
   font-size:13px;color:var(--muted);transition:transform .18s ease}
 .phcard.folded > h3::after{transform:translateY(-50%) rotate(-90deg)}
 .phcard.folded > *:not(h3){display:none!important}
+/* admin cards fold too — the tab was running to ~3 screenfuls once populated */
+#tab-admin .card > h3{cursor:pointer;user-select:none;position:relative;padding-right:24px}
+#tab-admin .card > h3::after{content:"\25BE";position:absolute;right:0;top:50%;transform:translateY(-50%);
+  font-size:12px;color:var(--muted);transition:transform .18s ease}
+#tab-admin .card.folded > h3::after{transform:translateY(-50%) rotate(-90deg)}
+#tab-admin .card.folded > *:not(h3){display:none!important}
 .phcard.nofold > h3{cursor:default}
 .phcard.nofold > h3::after{display:none}
 .foldnote{font-size:11px;color:var(--muted);margin-top:2px}
@@ -748,6 +754,27 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
   .rsig .tx b{font-size:14px}
   .ratt{margin-bottom:9px}
 }
+.mtr{border:1.5px solid rgba(202,166,78,.45);border-radius:12px;padding:12px;
+  background:rgba(202,166,78,.06);margin-bottom:10px}
+.mtr.done{border-color:rgba(78,154,99,.45);background:rgba(78,154,99,.06)}
+.mtr .t{font-family:Georgia,serif;font-size:17px}
+.mtr .d{font-size:12px;color:var(--muted);margin-top:2px}
+.mtr .row{display:flex;align-items:center;gap:8px;margin-top:9px;flex-wrap:wrap}
+.mtr .amt{margin-left:auto;font-family:Georgia,serif;font-size:20px;color:var(--gold)}
+.mtr.done .amt{color:var(--ok)}
+.mtrpill{border-radius:999px;padding:3px 10px;font-size:10.5px;font-weight:800;white-space:nowrap}
+.mtrpill.due{background:rgba(207,107,88,.18);color:var(--red);border:1px solid rgba(207,107,88,.55)}
+.mtrpill.paid{background:rgba(78,154,99,.18);color:var(--ok);border:1px solid rgba(78,154,99,.5)}
+.mtrbtn{width:100%;border:none;border-radius:11px;padding:12px;font-size:14px;font-weight:800;
+  background:linear-gradient(90deg,var(--ok),var(--gold));color:#07130b;margin-top:10px;
+  font-family:inherit;cursor:pointer}
+.mtrqr{text-align:center;padding:4px 0 2px}
+.mtrqr img{width:210px;max-width:78%;border-radius:14px;background:#fff;padding:8px;display:block;margin:0 auto 10px}
+.mtrhist{display:flex;align-items:center;gap:9px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.mtrhist:last-child{border-bottom:none}
+.mtrhist .n{flex:1;min-width:0}
+.mtrhist .n b{display:block}
+.mtrhist .n span{font-size:11px;color:var(--muted)}
 #playerHome{padding-bottom:96px}
 #qStatus{padding:16px 18px;text-align:center}
 #qStatus .qlab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
@@ -1358,33 +1385,18 @@ window.SS_CONFIG = {
    </div>
    <div class="anpane" id="mn-train">
      <div class="card">
-       <h3>🎓 Trainings <button class="small ghost" style="float:right" onclick="loadTrainings()">⟳</button></h3>
-       <p class="hint">Coaching sessions — separate from the queue, with their own fee, coach cost and QR.</p>
+       <h3>🎓 Trainings <button class="small ghost" style="float:right" onclick="loadTrainingMetrics()">⟳</button></h3>
+       <p class="hint">Coaching revenue and costs. Create and manage trainings in the <b>Admin</b> tab.</p>
        <div class="controls" style="flex-wrap:wrap">
-         <select id="trPick" style="flex:1;min-width:210px" onchange="openTraining()"></select>
-         <button class="small" onclick="newTraining()">＋ New</button>
+         <button class="small" id="tmW" onclick="loadTrainingMetrics('week')">This week</button>
+         <button class="small ghost" id="tmM" onclick="loadTrainingMetrics('month')">This month</button>
+         <button class="small ghost" id="tmA" onclick="loadTrainingMetrics('all')">All time</button>
        </div>
-       <div id="trSummary" style="margin-top:10px"></div>
+       <div id="tmKpis" style="margin-top:10px"></div>
      </div>
-     <div class="card" id="trDetailCard" style="display:none">
-       <h3>📋 Details <button class="small ghost" style="float:right" onclick="delTraining()">🗑</button></h3>
-       <div id="trDetail"></div>
-     </div>
-     <div class="card" id="trAttCard" style="display:none">
-       <h3>👥 Trainees</h3>
-       <div class="controls" style="flex-wrap:wrap">
-         <select id="trAddPlayer" style="flex:1;min-width:170px"></select>
-         <button class="small ghost" onclick="trAddRegistered()">＋ Player</button>
-       </div>
-       <div class="controls" style="flex-wrap:wrap">
-         <input id="trGuest" placeholder="Guest name" style="flex:1;min-width:150px">
-         <button class="small ghost" onclick="trAddGuest()">＋ Guest</button>
-       </div>
-       <div id="trAtt" style="margin-top:8px"></div>
-     </div>
-     <div class="card" id="trQrCard" style="display:none">
-       <h3>🏦 Training payment QR</h3>
-       <p class="hint">Shown to trainees. Separate from the queue session QR.</p>
+     <div class="card"><h3>📋 By training</h3><div id="tmList"></div></div>
+     <div class="card"><h3>🏦 Training payment QR</h3>
+       <p class="hint">Shown to trainees with unpaid fees.</p>
        <div id="trQr"></div>
      </div>
    </div>
@@ -1461,6 +1473,36 @@ window.SS_CONFIG = {
       <button onclick="adminCreateSession()">+ Create</button>
     </div>
     <p class="hint">A unique 6-character join code is generated automatically — share it with players.</p>
+  </div>
+
+  <div class="card" style="max-width:760px;margin:0 auto 14px">
+    <h3>🎓 Trainings <button class="small ghost" style="float:right" onclick="loadTrainings()">⟳</button></h3>
+    <p class="hint">Coaching sessions, separate from the queue. <b>Trainings earn no XP.</b></p>
+    <div class="controls">
+      <input id="atTitle" placeholder="Training title (e.g. Saturday Clinic)" style="flex:2;min-width:190px">
+      <input id="atDate" type="date" style="width:160px">
+      <input id="atFee" type="number" min="0" step="10" placeholder="₱ fee" style="width:100px" title="Fee per trainee">
+      <button class="small" onclick="createTraining()">＋ Create</button>
+    </div>
+    <div class="controls" style="margin-top:8px">
+      <select id="trPick" style="flex:1;min-width:200px" onchange="openTraining()"></select>
+    </div>
+    <div id="trDetail" style="margin-top:10px"></div>
+    <div id="trAttWrap" style="display:none;margin-top:12px">
+      <p class="clab2">Trainees</p>
+      <div class="controls" style="flex-wrap:wrap">
+        <select id="trAddPlayer" style="flex:1;min-width:160px"></select>
+        <button class="small ghost" onclick="trAddRegistered()">＋ Player</button>
+      </div>
+      <div class="controls" style="flex-wrap:wrap">
+        <input id="trGuest" placeholder="Guest name" style="flex:1;min-width:150px">
+        <button class="small ghost" onclick="trAddGuest()">＋ Guest</button>
+      </div>
+      <div id="trAtt" style="margin-top:8px"></div>
+      <div class="controls" style="margin-top:10px;justify-content:flex-end">
+        <button class="small ghost" onclick="delTraining()">🗑 Delete training</button>
+      </div>
+    </div>
   </div>
   <div class="card" style="max-width:760px;margin:0 auto 14px">
     <h3>👥 Players <button class="small" style="float:right" onclick="exportPlayers()">⬇ Export Excel</button></h3>
@@ -1614,9 +1656,13 @@ window.SS_CONFIG = {
     </div>
   </div>
   <div class="phcard">
-    <h3>💳 Session Fees</h3>
-    <div id="duesBox"><p class="soon">Your session fees appear here.</p></div>
+    <h3><span class="htxt">💳 Fees &amp; Dues</span></h3>
+    <div id="duesBox"><p class="soon">Your fees appear here.</p></div>
+    <div id="myTrainQrCard" style="display:none;margin-top:10px">
+      <div id="myTrainQr"></div>
+    </div>
   </div>
+
   <div class="phcard">
     <h3>🎴 Session Stat Cards</h3>
     <div class="controls">
@@ -4079,7 +4125,7 @@ function mnShow(which){
   if(which==="bal"){ loadBalances(); }
   if(which==="shut"){ loadShuttles(); }
   if(which==="shpnl"){ loadShuttlePnl(); }
-  if(which==="train"){ loadTrainings(); }
+  if(which==="train"){ loadTrainings(); loadTrainingMetrics(); }
   if(which==="set"){ loadClubQR(); showFeeDefault(); }
 }
 async function showFeeDefault(){
@@ -4373,7 +4419,7 @@ async function loadClubPnl(range){
   // ---- trainings ----
   let trRev=0,trCoach=0,trCourt=0,trOther=0,trCount=0;
   if(!window.__trMissing){
-    if(!TR.list.length) await loadTrainings();
+    if(!window.__trLoaded) await loadTrainings();
     (TR.list||[]).forEach(t=>{ if(from&&t.training_date<from) return;
       trCount++; trRev+=+t.collected||0; trCoach+=+t.coach_total||0;
       trCourt+=+t.court_total||0; trOther+=+t.other_cost||0; });
@@ -4440,32 +4486,77 @@ async function loadClubPnl(range){
 /* ================= TRAININGS ================= */
 const TR={list:[],cur:null,att:[]};
 async function loadTrainings(){
-  const sel=document.getElementById("trPick"); if(!sel) return;
   const r=await sFetch("/rest/v1/training_pnl?select=*&order=training_date.desc").catch(()=>null);
   if(!r||!r.ok){ window.__trMissing=true;
-    document.getElementById("trSummary").innerHTML='<p class="hint">Run trainings.sql to enable trainings.</p>';
+    const d0=document.getElementById("trDetail");
+    if(d0) d0.innerHTML='<p class="hint">Run trainings.sql to enable trainings.</p>';
     return; }
   window.__trMissing=false;
   TR.list=await r.json();
-  const cur=sel.value;
-  sel.innerHTML='<option value="">— choose a training —</option>'+
-    TR.list.map(t=>'<option value="'+t.id+'">'+esc(t.title)+' · '+t.training_date+'</option>').join("");
-  if(cur) sel.value=cur;
-  // period totals
-  const tot=TR.list.reduce((a,t)=>({heads:a.heads+t.heads,coll:a.coll+ +t.collected,
-    exp:a.exp+ +t.expenses,net:a.net+ +t.net}),{heads:0,coll:0,exp:0,net:0});
-  document.getElementById("trSummary").innerHTML=TR.list.length
-    ? '<div class="paysum"><div><b>'+TR.list.length+'</b><span>trainings</span></div>'+
-      '<div><b>'+tot.heads+'</b><span>trainee slots</span></div>'+
-      '<div><b class="pos">'+pesos(tot.coll)+'</b><span>collected</span></div>'+
-      '<div><b class="neg">'+pesos(tot.exp)+'</b><span>expenses</span></div>'+
-      '<div><b class="'+(tot.net>=0?"pos":"neg")+'">'+pesos(tot.net)+'</b><span>net</span></div></div>'+
-      TR.list.slice(0,8).map(t=>'<div class="pdrow" onclick="document.getElementById(\'trPick\').value=\''+t.id+
-        '\';openTraining()" style="cursor:pointer"><div class="pn2"><b>'+esc(t.title)+'</b>'+
-        '<span>'+t.training_date+' · '+t.paid_heads+'/'+t.heads+' paid · out '+pesos(t.expenses)+'</span></div>'+
-        '<b class="'+(+t.net>=0?"pos":"neg")+'">'+pesos(t.net)+'</b></div>').join("")
-    : '<p class="hint">No trainings yet. Create one to get started.</p>';
-  if(sel.value) openTraining();
+  const sel=document.getElementById("trPick");
+  if(sel){ const cur=sel.value;
+    sel.innerHTML='<option value="">— choose a training —</option>'+
+      TR.list.map(t=>'<option value="'+t.id+'">'+esc(t.title)+' · '+t.training_date+'</option>').join("");
+    if(cur) sel.value=cur;
+    if(sel.value) openTraining();
+  }
+  window.__trLoaded=true;
+  if(document.getElementById("tmKpis")) loadTrainingMetrics();
+}
+/* ---------- Money tab: metrics only ---------- */
+async function loadTrainingMetrics(range){
+  if(range) window.__tmRange=range;
+  const rg=window.__tmRange||"month";
+  ["W","M","A"].forEach(k=>{ const b=document.getElementById("tm"+k);
+    if(b) b.className="small"+((k==="W"&&rg==="week")||(k==="M"&&rg==="month")||(k==="A"&&rg==="all")?"":" ghost"); });
+  const K=document.getElementById("tmKpis"); if(!K) return;
+  if(window.__trMissing){ K.innerHTML='<p class="hint">Run trainings.sql to enable trainings.</p>'; return; }
+  if(!window.__trLoaded){ await loadTrainings(); return; }   // loadTrainings calls back in
+  let from=null;
+  if(rg!=="all"){ const d=new Date();
+    if(rg==="week"){ const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); } else d.setDate(1);
+    from=d.toISOString().slice(0,10); }
+  const rows=(TR.list||[]).filter(t=>!from||t.training_date>=from);
+  if(!rows.length){ K.innerHTML='<p class="hint">No trainings in this period.</p>';
+    document.getElementById("tmList").innerHTML=""; renderTrainingQR(); return; }
+  const tot=rows.reduce((a,t)=>({
+    heads:a.heads+t.heads, paid:a.paid+t.paid_heads,
+    coll:a.coll+ +t.collected, exp:a.exp+ +t.expenses, expect:a.expect+ +t.expected}),
+    {heads:0,paid:0,coll:0,exp:0,expect:0});
+  const uncollected=tot.expect-tot.coll;
+  const net=tot.coll-tot.exp;
+  K.innerHTML='<div class="paysum">'+
+    '<div><b class="pos">'+pesos(tot.coll)+'</b><span>collected</span></div>'+
+    '<div><b class="'+(uncollected>0?"neg":"")+'">'+pesos(uncollected)+'</b><span>uncollected</span></div>'+
+    '<div><b>'+pesos(tot.expect)+'</b><span>revenue expected</span></div>'+
+    '<div><b class="neg">'+pesos(tot.exp)+'</b><span>expenses</span></div>'+
+    '<div><b class="'+(net>=0?"pos":"neg")+'">'+pesos(net)+'</b><span>net</span></div></div>'+
+    '<p class="hint" style="margin-top:6px">'+rows.length+' training'+(rows.length===1?"":"s")+
+    ' · '+tot.paid+' of '+tot.heads+' trainees paid. Trainings earn no XP.</p>';
+  document.getElementById("tmList").innerHTML=rows.map(t=>{
+    const unc=(+t.expected)-(+t.collected);
+    return '<div class="shrow"><div class="sn2"><b>'+esc(t.title)+'</b>'+
+      '<span>'+t.training_date+' · '+t.paid_heads+'/'+t.heads+' paid'+
+      (unc>0?' · '+pesos(unc)+' uncollected':'')+' · out '+pesos(t.expenses)+'</span></div>'+
+      '<b class="mono '+(+t.net>=0?"pos":"neg")+'">'+pesos(t.net)+'</b></div>';
+  }).join("");
+  renderTrainingQR();
+}
+
+async function createTraining(){
+  const g=id=>(document.getElementById(id)||{}).value;
+  const title=(g("atTitle")||"").trim();
+  if(!title) return toast("Name the training first");
+  const r=await sFetch("/rest/v1/trainings",{method:"POST",headers:{Prefer:"return=representation"},
+    body:[{title,training_date:g("atDate")||new Date().toISOString().slice(0,10),
+      fee:+g("atFee")||0,coach_fee:0,court_rate:0,court_hours:0,courts:0,other_cost:0,
+      created_by:auth.uid}]}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not create — run trainings.sql");
+  const row=(await r.json())[0]||{};
+  document.getElementById("atTitle").value=""; document.getElementById("atFee").value="";
+  toast("🎓 "+title+" created");
+  await loadTrainings();
+  if(row.id){ document.getElementById("trPick").value=row.id; openTraining(); }
 }
 async function newTraining(){
   const title=await uiPrompt("Name this training","e.g. Saturday Clinic",
@@ -4482,14 +4573,14 @@ async function newTraining(){
 }
 async function openTraining(){
   const id=document.getElementById("trPick").value;
-  const dc=document.getElementById("trDetailCard"), ac=document.getElementById("trAttCard"),
-        qc=document.getElementById("trQrCard");
-  if(!id){ dc.style.display="none"; ac.style.display="none"; qc.style.display="none"; return; }
+  const wrap=document.getElementById("trAttWrap");
+  if(!id){ document.getElementById("trDetail").innerHTML="";
+    if(wrap) wrap.style.display="none"; return; }
   const r=await sFetch("/rest/v1/trainings?id=eq."+id+"&select=*").catch(()=>null);
   if(!r||!r.ok) return;
   TR.cur=(await r.json())[0]; if(!TR.cur) return;
   const t=TR.cur;
-  dc.style.display="block"; ac.style.display="block"; qc.style.display="block";
+  if(wrap) wrap.style.display="block";
   const fld=(lab,id2,val,type,step)=>'<div class="mrow"><label>'+lab+'</label><input id="'+id2+
     '" type="'+(type||"text")+'"'+(step?' step="'+step+'" min="0"':'')+' value="'+esc(String(val==null?"":val))+
     '" onchange="saveTraining()" style="max-width:200px"></div>';
@@ -4497,18 +4588,26 @@ async function openTraining(){
     fld("Title","trTitle",t.title)+
     fld("Date","trDate",t.training_date,"date")+
     fld("Coach","trCoach",t.coach_name)+
-    '<p class="clab2">Revenue</p>'+
     fld("Fee per trainee","trFee",t.fee,"number","10")+
-    '<p class="clab2">Expenses</p>'+
-    fld("Coach fee per head","trCoachFee",t.coach_fee,"number","10")+
-    fld("Court rate / hr","trRate",t.court_rate,"number","10")+
-    fld("Hours","trHours",t.court_hours,"number","0.5")+
-    fld("Courts","trCourts",t.courts,"number","1")+
-    fld("Other — name","trOtherName",t.other_name)+
-    fld("Other — cost","trOther",t.other_cost,"number","10")+
-    '<div id="trPnl" class="shcalc"></div>';
+    '<div id="trPnl" class="shcalc"></div>'+
+    '<button class="small ghost" style="width:100%;margin-top:6px" onclick="trToggleCosts()">'+
+      '<span id="trCostLbl">⚙️ Costs</span></button>'+
+    '<div id="trCosts" style="display:none;margin-top:8px">'+
+      fld("Coach fee per head","trCoachFee",t.coach_fee,"number","10")+
+      fld("Court rate / hr","trRate",t.court_rate,"number","10")+
+      fld("Hours","trHours",t.court_hours,"number","0.5")+
+      fld("Courts","trCourts",t.courts,"number","1")+
+      fld("Other — name","trOtherName",t.other_name)+
+      fld("Other — cost","trOther",t.other_cost,"number","10")+
+    '</div>';
   await loadTrainingAtt();
-  renderTrainingQR();
+}
+function trToggleCosts(){
+  const box=document.getElementById("trCosts"), lbl=document.getElementById("trCostLbl");
+  if(!box) return;
+  const open=box.style.display!=="none";
+  box.style.display=open?"none":"block";
+  if(lbl) lbl.textContent=(open?"⚙️ Costs":"⚙️ Hide costs");
 }
 async function saveTraining(){
   if(!TR.cur) return;
@@ -6185,7 +6284,8 @@ async function enterApp(cachedProfile){
     loadHall();
     loadPlayerStats();
     loadPartnersAdmin();
-    fillFinanceSessions(); loadClubQR(); showHofEpoch(); rtLoad();
+    fillFinanceSessions(); loadClubQR(); showHofEpoch(); rtLoad(); loadTrainings();
+    setTimeout(()=>{ try{ initAdminFolds(); }catch(e){} },80);
     sFetch("/rest/v1/club_settings?id=eq.1&select=fee_default").then(async r=>{
       if(r&&r.ok){ const v=((await r.json())[0]||{}).fee_default;
         window.__feeDefault=v||0;
@@ -6926,23 +7026,37 @@ async function loadMyPayments(){
 function renderDues(){
   const box=document.getElementById("duesBox"); if(!box) return;
   const all=window.__payAll||[];
-  if(!all.length){ box.innerHTML='<p class="soon">No session fees on your account.</p>'; return; }
-  const unpaid=all.filter(x=>!x.paid);
-  const owed=unpaid.reduce((a,b)=>a+Number(b.amount||0),0);
+  const unpaidQ=all.filter(x=>!x.paid);
+  const trAll=window.__myTrain||[];
+  const unpaidT=trAll.filter(x=>!x.paid);
+  const owedQ=unpaidQ.reduce((a,b)=>a+Number(b.amount||0),0);
+  const owedT=unpaidT.reduce((a,b)=>a+Number(b.amount||(b.trainings&&b.trainings.fee)||0),0);
+  const owed=owedQ+owedT, n=unpaidQ.length+unpaidT.length;
+  if(!all.length && !trAll.length){
+    box.innerHTML='<p class="soon">No fees on your account.</p>'; return; }
   let html="";
-  if(!unpaid.length){
+  if(!n){
     html='<div class="benchstate inplay">✅ <b>All settled.</b><br>Nothing outstanding — thank you!</div>';
   }else{
-    html='<div class="duehead"><b>'+pesos(owed)+'</b><span>outstanding across '+unpaid.length+
-      ' session'+(unpaid.length===1?"":"s")+'</span></div>';
-    html+=unpaid.map(x=>'<div class="duerow"><div class="dm"><b>'+esc(x.s.title)+'</b><span>'+
-      (x.s.session_date||"")+'</span></div><b class="damt">'+pesos(x.amount)+'</b></div>').join("");
-    html+='<p class="hint" style="margin-top:10px">Pay on the <b>⚡ Gate</b> tab, then send your receipt to the '+
-      '<b>Reclub chat</b> — payments are only verified once the receipt is posted there.</p>';
+    html='<div class="duehead"><b>'+pesos(owed)+'</b><span>outstanding across '+n+
+      ' item'+(n===1?"":"s")+'</span></div>';
+    if(unpaidQ.length) html+='<p class="clab2">Queue sessions</p>'+
+      unpaidQ.map(x=>'<div class="duerow"><div class="dm"><b>'+esc(x.title||"Session")+'</b>'+
+        '<span>'+esc(x.session_date||"")+'</span></div><b>'+pesos(x.amount)+'</b></div>').join("");
+    if(unpaidT.length){
+      const fmt=d2=>{ try{ return new Date(d2+"T00:00:00").toLocaleDateString(undefined,
+        {day:"numeric",month:"short"}); }catch(e){ return d2; } };
+      html+='<p class="clab2">Trainings</p>'+
+        unpaidT.map(x=>{ const t=x.trainings;
+          return '<div class="duerow"><div class="dm"><b>'+esc(t.title)+'</b>'+
+            '<span>'+fmt(t.training_date)+(t.coach_name?' · '+esc(t.coach_name):'')+'</span></div>'+
+            '<b>'+pesos(+x.amount||+t.fee||0)+'</b></div>'; }).join("")+
+        '<button class="mtrbtn" onclick="showTrainingQR()">🏦 Show training payment QR</button>';
+    }
   }
-  // deliberately no lifetime "total spent" here — that stays admin-only
   box.innerHTML=html;
 }
+
 function renderMyPayment(){
   const s=window.__payTarget, mine=window.__payMine, box=document.getElementById("payBody");
   if(!s||!box) return;
@@ -7255,7 +7369,24 @@ let myMatches=[], mySessions={};
 /* ---------- relationship + form analytics ---------- */
 /* ---------- collapsible player cards ---------- */
 const FOLD_DEFAULT_SHUT=["Session Stat Cards","Quest Log","Badges"];   // long lists start closed
+/* admin: only the two things you touch every night stay open */
+const ADMIN_OPEN=["Create Session","Match Manager"];
 function foldKey(h3){ return "ss_fold_"+(h3.textContent||"").trim().slice(0,22).replace(/\s+/g,"_"); }
+function initAdminFolds(){
+  document.querySelectorAll("#tab-admin .card").forEach(card=>{
+    const h3=card.querySelector(":scope > h3"); if(!h3||h3.dataset.foldReady) return;
+    h3.dataset.foldReady="1";
+    const label=(h3.textContent||"").trim();
+    let shut=localStorage.getItem(foldKey(h3));
+    if(shut===null) shut=ADMIN_OPEN.some(k=>label.indexOf(k)>=0)?"0":"1";
+    if(shut==="1") card.classList.add("folded");
+    h3.addEventListener("click",e=>{
+      if(e.target.closest("button")||e.target.closest("input")||e.target.closest("select")) return;
+      card.classList.toggle("folded");
+      try{ localStorage.setItem(foldKey(h3),card.classList.contains("folded")?"1":"0"); }catch(x){}
+    });
+  });
+}
 function initFolds(){
   document.querySelectorAll("#playerHome .phcard").forEach(card=>{
     const h3=card.querySelector(":scope > h3"); if(!h3||h3.dataset.foldReady) return;
@@ -7288,6 +7419,31 @@ function initSheetFolds(){
       try{ localStorage.setItem(key,sec.classList.contains("shut")?"1":"0"); }catch(x){}
     });
   });
+}
+/* ---------- trainings, player side: dues merge into Fees, history in Profile ---------- */
+async function loadMyTrainings(){
+  if(!auth||!auth.uid) return;
+  const r=await sFetch("/rest/v1/training_attendees?profile_id=eq."+auth.uid+
+    "&select=id,paid,amount,paid_at,trainings!training_attendees_training_id_fkey"+
+    "(id,title,training_date,fee,coach_name,status)&order=created_at.desc").catch(()=>null);
+  window.__myTrain=(r&&r.ok)? (await r.json()).filter(x=>x.trainings):[];
+  renderDues();     // unpaid training fees join the queue fees; nothing else surfaces
+}
+async function showTrainingQR(){
+  const card=document.getElementById("myTrainQrCard"), box=document.getElementById("myTrainQr");
+  if(!card||!box) return;
+  box.innerHTML='<p class="hint">Loading…</p>'; card.style.display="block";
+  const r=await sFetch("/rest/v1/club_settings?id=eq.1&select=training_qr,training_note").catch(()=>null);
+  const cs=(r&&r.ok)? ((await r.json())[0]||{}):{};
+  box.innerHTML='<div class="mtrqr">'+
+    (cs.training_qr? '<img src="'+cs.training_qr+'" alt="Training payment QR">'
+      : '<p class="hint">The Party Leader has not set a training QR yet — ask them for payment details.</p>')+
+    (cs.training_note? '<div style="font-weight:800;font-size:13.5px">'+esc(cs.training_note)+'</div>':'')+
+    '<p class="hint" style="margin-top:6px">Scan, pay the training fee, then send your receipt in the '+
+    'Reclub chat. The Party Leader marks you paid.</p></div>'+
+    '<button class="mtrbtn" style="background:transparent;border:1.5px solid var(--line);color:var(--muted)" '+
+    'onclick="document.getElementById(\'myTrainQrCard\').style.display=\'none\'">✕ Close</button>';
+  card.scrollIntoView({behavior:"smooth",block:"center"});
 }
 /* ================= MILESTONE MOMENTS ================= */
 const MS_CAP=2;                                  // per session — rare keeps it special
@@ -7548,6 +7704,7 @@ function renderRPG(){
   try{ renderCareer(); }catch(e){}
   /* milestone moments parked - staging only */
   try{ initFolds(); }catch(e){}
+  try{ loadMyTrainings(); }catch(e){}
   const _cav=document.getElementById("csAv");
   if(myProfile.avatar) _cav.innerHTML='<img src="'+myProfile.avatar+'" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
   else _cav.textContent=(myProfile.reclub_name||"?").trim().slice(0,1).toUpperCase();
