@@ -775,6 +775,24 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .mtrhist .n{flex:1;min-width:0}
 .mtrhist .n b{display:block}
 .mtrhist .n span{font-size:11px;color:var(--muted)}
+.predwrap{display:inline-flex;align-items:center;gap:7px}
+.predwrap input{width:74px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+  border-radius:9px;padding:7px 9px;font-size:13px;font-family:inherit}
+.predbadge{display:inline-flex;align-items:center;gap:9px;background:rgba(202,166,78,.09);
+  border:1.5px solid rgba(202,166,78,.5);border-radius:11px;padding:6px 12px;cursor:pointer}
+.predbadge b{font-family:Georgia,serif;font-size:22px;color:var(--gold);line-height:1}
+.predbadge .pu{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.predbadge .pr{font-family:"Courier New",monospace;font-size:11px;color:var(--muted)}
+.predbar{position:relative;height:24px;background:var(--panel2);border-radius:8px;border:1px solid var(--line);overflow:hidden;margin:8px 0 4px}
+.predbar i{position:absolute;top:0;bottom:0;background:rgba(124,209,143,.22);
+  border-left:2px solid var(--ok);border-right:2px solid var(--ok)}
+.predbar s{position:absolute;top:-3px;width:3px;height:30px;background:var(--gold);text-decoration:none}
+.predscale{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:10px}
+.predlev{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:13.5px}
+.predlev:last-child{border-bottom:none}
+.predlev .n{flex:1}
+.predlev .g{font-family:Georgia,serif;font-size:18px;min-width:48px;text-align:right}
+.predlev .d{font-family:"Courier New",monospace;font-size:12px;min-width:48px;text-align:right;font-weight:800}
 #playerHome{padding-bottom:96px}
 #qStatus{padding:16px 18px;text-align:center}
 #qStatus .qlab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
@@ -1005,6 +1023,14 @@ window.SS_CONFIG = {
       <button class="small ghost" onclick="importRoster(true)">🔄 Roster</button>
       <button class="small ghost" onclick="adminAddRegistered()">➕ Add player</button>
       <button class="small" onclick="shareSessionBoard()" title="Download tonight's leaderboard as an image">🏆 Leaderboard card</button>
+      <span class="predwrap" id="predWrap" title="Projected games per player — tap for detail">
+        <input id="predHeads" type="number" min="0" placeholder="heads" oninput="predRender()"
+               title="Expected headcount — switches to the live roster once players are in">
+        <span class="predbadge" onclick="predOpen()">
+          <b id="predG">—</b><span class="pu">games each</span>
+          <span class="pr" id="predR"></span>
+        </span>
+      </span>
       <button class="small ghost" onclick="adminRepairNames()" title="Backfill player names on old database matches from this device's local record">🩹 Fix names</button>
       <span class="hint" id="sessInfo"></span>
     </div>
@@ -1159,6 +1185,12 @@ window.SS_CONFIG = {
        <h3>⏱ Court idle time</h3>
        <p class="hint">Gap between one match finishing and the next starting on the same court.</p>
        <div id="opIdle"></div>
+     </div>
+     <div class="card">
+       <h3>🧪 Match predictor — backtest</h3>
+       <p class="hint">The projection replayed over completed sessions, against what actually happened.
+       A session starts at its <b>first match</b>, so the utilisation factor absorbs any late start.</p>
+       <div id="predBack"></div>
      </div>
      <div class="card">
        <h3>💸 Cost per match</h3>
@@ -1791,6 +1823,15 @@ window.SS_CONFIG = {
     <div id="gatePreviewWrap" style="max-height:70vh;overflow-y:auto;border-radius:12px"></div>
     <div class="actions" style="justify-content:flex-end;margin-top:10px">
       <button class="ghost" onclick="closeGatePreview()">Close</button>
+    </div>
+  </div>
+</div>
+<div class="overlay" id="predModal" onclick="if(event.target===this)closeModal('predModal')">
+  <div class="modal" style="max-width:560px">
+    <h3>🎯 Tonight's projection</h3>
+    <div id="predBody"></div>
+    <div class="controls" style="justify-content:flex-end;margin-top:10px">
+      <button class="small ghost" onclick="closeModal('predModal')">Close</button>
     </div>
   </div>
 </div>
@@ -2519,6 +2560,7 @@ function sendQueueToCourt(q){
 /* ======================= COURTS ======================= */
 function addCourt(){ S.courts.push({id:uid(),name:"Court "+(S.courts.length+1),slots:[null,null,null,null],start:null}); save(); renderCourts(); }
 function renderCourts(){
+  setTimeout(()=>{try{predRender();}catch(e){}},0);
   const w=document.getElementById("courts"); w.innerHTML="";
   document.getElementById("cHint").style.display=S.courts.length?"none":"";
   S.courts.forEach(c=>{
@@ -4178,6 +4220,207 @@ function renderClubWaterfall(streams){
     '<p class="hint" style="margin-top:6px">Each stream nets its own revenue against its own costs. '+
     'Shuttles burned by the queue are a cost to the session and a margin to the shuttle business.</p>';
 }
+/* ================= MATCH COUNT PREDICTOR =================
+   A session starts at its FIRST MATCH, not at the booked hour. Rather than guess
+   a warm-up allowance, we measure a utilisation factor from history:
+       util = matches actually played / (courts x booked hours / cycle)
+   That single number absorbs late starts, breaks and early finishes.        */
+const PRED_MIN_SESSIONS=5;
+async function predStats(force){
+  if(window.__pred && !force) return window.__pred;
+  const out={ok:false,n:0};
+  if(!window.__allSessions) await fillFinanceSessions();
+  const sess=(window.__allSessions||[]);
+  if(!sess.length){ window.__pred=out; return out; }
+  const ids=sess.map(s=>s.id);
+  const [mr,rr]=await Promise.all([
+    sFetch("/rest/v1/matches?session_id=in.("+ids.join(",")+
+      ")&select=session_id,court_name,started_at,ended_at&limit=4000").catch(()=>null),
+    sFetch("/rest/v1/session_players?session_id=in.("+ids.join(",")+
+      ")&select=session_id,profile_id").catch(()=>null)]);
+  const ms=(mr&&mr.ok)? await mr.json():[];
+  const roster=(rr&&rr.ok)? await rr.json():[];
+  if(!ms.length){ window.__pred=out; return out; }
+  const heads={}; roster.forEach(r=>heads[r.session_id]=(heads[r.session_id]||0)+1);
+  const bySess={};
+  ms.forEach(m=>{ (bySess[m.session_id]=bySess[m.session_id]||[]).push(m); });
+  const durs=[], gaps=[], rows=[];
+  Object.keys(bySess).forEach(sid=>{
+    const list=bySess[sid].filter(m=>m.started_at&&m.ended_at);
+    if(!list.length) return;
+    list.forEach(m=>{ const d=(new Date(m.ended_at)-new Date(m.started_at))/60000;
+      if(d>1&&d<90) durs.push(d); });
+    // changeover, per court
+    const byCourt={};
+    list.forEach(m=>{ (byCourt[m.court_name||"?"]=byCourt[m.court_name||"?"]||[]).push(m); });
+    Object.values(byCourt).forEach(l=>{ l.sort((a,b)=>new Date(a.started_at)-new Date(b.started_at));
+      for(let i=1;i<l.length;i++){ const g=(new Date(l[i].started_at)-new Date(l[i-1].ended_at))/60000;
+        if(g>=0&&g<=45) gaps.push(g); } });
+    const s=sess.find(x=>x.id===sid); if(!s) return;
+    const e=expensesOf(s);
+    const bookedCourts=e.courts||Object.keys(byCourt).length;
+    const bookedHours=e.hours||0;
+    rows.push({sid, title:s.title, date:s.session_date,
+      matches:list.length, courts:bookedCourts, hours:bookedHours,
+      players:heads[sid]||0,
+      firstStart:Math.min(...list.map(m=>new Date(m.started_at).getTime())),
+      lastEnd:Math.max(...list.map(m=>new Date(m.ended_at).getTime()))});
+  });
+  if(durs.length<8){ window.__pred=out; return out; }
+  const med=a=>{ const b=[...a].sort((x,y)=>x-y); return b[Math.floor(b.length/2)]; };
+  const dur=med(durs), idle=gaps.length? med(gaps):3;
+  const cycle=dur+idle;
+  // utilisation, only from sessions where booked hours/courts are recorded
+  const usable=rows.filter(r=>r.hours>0&&r.courts>0&&r.players>0);
+  const utils=usable.map(r=>r.matches/Math.max(1,(r.courts*r.hours*60)/cycle));
+  const pick=(a,q)=>{ const b=[...a].sort((x,y)=>x-y); return b[Math.max(0,Math.min(b.length-1,Math.floor(q*b.length)))]; };
+  Object.assign(out,{ok:usable.length>=PRED_MIN_SESSIONS, n:usable.length,
+    dur:Math.round(dur*10)/10, idle:Math.round(idle*10)/10, cycle,
+    util:utils.length? utils.reduce((a,b)=>a+b,0)/utils.length : 0.8,
+    utilLo:utils.length? pick(utils,0.2):0.7, utilHi:utils.length? pick(utils,0.8):0.9,
+    rows:usable, allRows:rows});
+  window.__pred=out; return out;
+}
+function predCalc(P,players,courts,hours,util){
+  if(!players||!courts||!hours) return null;
+  const theo=(courts*hours*60)/P.cycle;
+  const m=Math.max(0,Math.round(theo*(util==null?P.util:util)));
+  return {matches:m, gpp:m*4/players};
+}
+/* live headcount: typed value until the roster is in, then the real count */
+function predHeadcount(){
+  const live=(S.players||[]).filter(p=>p.active!==false).length;
+  if(live>0) return {n:live, live:true};
+  const typed=+((document.getElementById("predHeads")||{}).value)||0;
+  return {n:typed, live:false};
+}
+async function predRender(){
+  const wrap=document.getElementById("predWrap"); if(!wrap) return;
+  const P=await predStats();
+  const g=document.getElementById("predG"), r=document.getElementById("predR");
+  const inp=document.getElementById("predHeads");
+  const hc=predHeadcount();
+  if(inp){ inp.style.display=hc.live?"none":"";
+    if(hc.live) inp.title="Using the live roster ("+hc.n+")"; }
+  if(!P.ok){ g.textContent="—";
+    r.textContent=(P.n?("needs "+(PRED_MIN_SESSIONS-P.n)+" more session"+((PRED_MIN_SESSIONS-P.n)===1?"":"s")):"no history yet");
+    return; }
+  const courts=(S.courts||[]).length;
+  const s=(window.__sessRows||[]).find(x=>x.id===(S.db&&S.db.sessionId));
+  const hours=s? (expensesOf(s).hours||0) : 0;
+  if(!hc.n||!courts||!hours){
+    g.textContent="—";
+    r.textContent = !hc.n? "type a headcount" : (!courts? "add courts" : "set hours in Money");
+    return;
+  }
+  const mid=predCalc(P,hc.n,courts,hours);
+  const lo=predCalc(P,hc.n,courts,hours,P.utilLo);
+  const hi=predCalc(P,hc.n,courts,hours,P.utilHi);
+  g.textContent=(Math.round(mid.gpp*10)/10);
+  r.innerHTML=(Math.round(lo.gpp*10)/10)+"–"+(Math.round(hi.gpp*10)/10)+
+    "<br>"+mid.matches+" matches"+(hc.live?"":" · est "+hc.n);
+}
+async function predOpen(){
+  const P=await predStats(); const box=document.getElementById("predBody");
+  const modal=document.getElementById("predModal");
+  if(!box||!modal) return;
+  openModal("predModal");
+  if(!P.ok){ box.innerHTML='<p class="hint">The projection needs <b>'+PRED_MIN_SESSIONS+
+    ' completed sessions</b> with court hours recorded. You have <b>'+P.n+'</b>.</p>'+
+    '<p class="hint">Set court rate, hours and courts in Money → Session Finances for each night, '+
+    'and this fills in on its own.</p>'; return; }
+  const hc=predHeadcount();
+  const courts=(S.courts||[]).length||4;
+  const s=(window.__sessRows||[]).find(x=>x.id===(S.db&&S.db.sessionId));
+  const hours=(s? expensesOf(s).hours:0)||3;
+  const players=hc.n||20;
+  const mid=predCalc(P,players,courts,hours);
+  const lo=predCalc(P,players,courts,hours,P.utilLo);
+  const hi=predCalc(P,players,courts,hours,P.utilHi);
+  const LO=Math.max(0,Math.floor(lo.gpp-1)), HI=Math.ceil(hi.gpp+1);
+  const pos=v=>Math.max(0,Math.min(100,(v-LO)/Math.max(0.1,HI-LO)*100));
+  const lev=(lbl,pl,ct,hr,cyc)=>{
+    const alt=cyc? {matches:Math.round(((ct*hr*60)/cyc)*P.util)} : null;
+    const g2=alt? alt.matches*4/pl : predCalc(P,pl,ct,hr).gpp;
+    const d=g2-mid.gpp;
+    return '<div class="predlev"><div class="n">'+lbl+'</div>'+
+      '<div class="g" style="color:'+(d>=0?"var(--ok)":"var(--red)")+'">'+(Math.round(g2*10)/10)+'</div>'+
+      '<div class="d" style="color:'+(d>=0?"var(--ok)":"var(--red)")+'">'+(d>=0?"+":"")+(Math.round(d*10)/10)+'</div></div>';
+  };
+  let back="";
+  for(let c=courts;c<=courts+2&&!back;c++)
+    for(const hr of [hours,hours+0.5,hours+1]){
+      const g2=predCalc(P,players,c,hr).gpp;
+      if(g2>=7){ back=c+" courts × "+hr+"h → "+(Math.round(g2*10)/10); break; }
+    }
+  const cap=Math.floor(mid.matches*4/6);
+  box.innerHTML=
+    '<p class="hint">'+players+' player'+(players===1?"":"s")+(hc.live?" (live roster)":" (your estimate)")+
+    ' · '+courts+' courts · '+hours+'h. Calibrated on your last '+P.n+' sessions — '+
+    'match '+P.dur+'min, changeover '+P.idle+'min, '+Math.round(P.util*100)+'% utilisation.</p>'+
+    '<div class="predbar"><i style="left:'+pos(lo.gpp)+'%;width:'+Math.max(2,pos(hi.gpp)-pos(lo.gpp))+'%"></i>'+
+      '<s style="left:'+pos(mid.gpp)+'%"></s></div>'+
+    '<div class="predscale"><span>slow '+(Math.round(lo.gpp*10)/10)+'</span>'+
+      '<span style="color:var(--gold);font-weight:800">likely '+(Math.round(mid.gpp*10)/10)+'</span>'+
+      '<span>fast '+(Math.round(hi.gpp*10)/10)+'</span></div>'+
+    '<div class="paysum"><div><b>'+mid.matches+'</b><span>matches</span></div>'+
+      '<div><b>'+mid.matches*4+'</b><span>player slots</span></div>'+
+      '<div><b class="'+(cap>=players?"pos":"neg")+'">'+cap+'</b><span>cap for 6 each</span></div></div>'+
+    '<p class="clab2" style="margin-top:12px">What would change it</p>'+
+    lev("+1 court",players,courts+1,hours)+
+    lev("+30 minutes",players,courts,hours+0.5)+
+    lev("changeover "+P.idle+" → 1.5 min",players,courts,hours,P.dur+1.5)+
+    lev("+6 players",players+6,courts,hours)+
+    lev("−4 players",Math.max(4,players-4),courts,hours)+
+    (back? '<p class="hint" style="margin-top:10px">For <b>7 games each</b>: '+back+'</p>':'')+
+    '<p class="hint">A session starts at its <b>first match</b> — the '+Math.round(P.util*100)+
+    '% utilisation already accounts for the gap between your booking and the first serve.</p>';
+}
+/* ---------- backtest, in Operations ---------- */
+async function loadPredBacktest(){
+  const box=document.getElementById("predBack"); if(!box) return;
+  const P=await predStats(true);
+  if(!P.ok){
+    const pct=Math.round(100*P.n/PRED_MIN_SESSIONS);
+    box.innerHTML='<div class="locked"><div class="lk">🧪</div><h4>Not enough sessions yet</h4>'+
+      '<p>The predictor calibrates on completed sessions that have <b>court hours recorded</b>. '+
+      'It needs <b>'+PRED_MIN_SESSIONS+'</b> before a backtest means anything.</p>'+
+      '<div class="lkbar"><i style="width:'+Math.min(100,pct)+'%"></i></div>'+
+      '<p style="margin-top:10px"><b>'+P.n+' of '+PRED_MIN_SESSIONS+'</b> sessions ready</p></div>';
+    return;
+  }
+  const rows=P.rows.map(r=>{
+    const mid=predCalc(P,r.players,r.courts,r.hours);
+    const lo=predCalc(P,r.players,r.courts,r.hours,P.utilLo);
+    const hi=predCalc(P,r.players,r.courts,r.hours,P.utilHi);
+    const actual=r.matches*4/r.players;
+    return {...r, actual, pred:mid.gpp, lo:lo.gpp, hi:hi.gpp,
+      err:mid.gpp-actual, inRange:actual>=lo.gpp-0.05&&actual<=hi.gpp+0.05};
+  }).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const cov=rows.filter(r=>r.inRange).length;
+  const mae=rows.reduce((a,b)=>a+Math.abs(b.err),0)/rows.length;
+  const bias=rows.reduce((a,b)=>a+b.err,0)/rows.length;
+  const r1=v=>Math.round(v*10)/10;
+  box.innerHTML='<div class="paysum">'+
+    '<div><b class="'+(cov/rows.length>=.7?"pos":"neg")+'">'+cov+'/'+rows.length+'</b><span>inside the range</span></div>'+
+    '<div><b>'+Math.round(100*cov/rows.length)+'%</b><span>coverage</span></div>'+
+    '<div><b class="'+(mae<=0.8?"pos":"")+'">'+r1(mae)+'</b><span>avg error (games)</span></div>'+
+    '<div><b class="'+(Math.abs(bias)<=0.3?"pos":"")+'">'+(bias>=0?"+":"")+r1(bias)+'</b><span>bias</span></div></div>'+
+    '<div style="overflow-x:auto"><table class="satable" style="margin-top:10px">'+
+    '<tr><th>Date</th><th class="r">Players</th><th>Setup</th><th class="r">Matches</th>'+
+    '<th class="r">Actual</th><th class="r">Predicted</th><th class="r">Error</th><th></th></tr>'+
+    rows.map(r=>'<tr><td class="mono">'+esc(r.date||"")+'</td><td class="mono">'+r.players+'</td>'+
+      '<td class="mono">'+r.courts+'×'+r.hours+'h</td><td class="mono">'+r.matches+'</td>'+
+      '<td class="mono">'+r1(r.actual)+'</td>'+
+      '<td class="mono" style="color:var(--muted)">'+r1(r.lo)+'–'+r1(r.hi)+'</td>'+
+      '<td class="mono" style="color:'+(Math.abs(r.err)<=.5?"var(--ok)":Math.abs(r.err)<=1?"var(--warn)":"var(--red)")+'">'+
+        (r.err>=0?"+":"")+r1(r.err)+'</td>'+
+      '<td>'+(r.inRange?'<span class="shpill ok">in range</span>':'<span class="shpill crit">missed</span>')+'</td></tr>').join("")+
+    '</table></div>'+
+    '<p class="hint" style="margin-top:8px">Calibrated on match '+P.dur+'min, changeover '+P.idle+
+    'min, '+Math.round(P.util*100)+'% utilisation. A bias near zero means the projection is not '+
+    'systematically optimistic or pessimistic.</p>';
+}
 /* ================= SHUTTLECOCKS ================= */
 let shView="stock";
 function shTab(v){
@@ -5121,7 +5364,7 @@ function anShow(which){
   if(which==="queue"){ loadQuality(); rtLoad().then(renderSkillModel); }
   if(which==="club"){ loadAnalytics(); }
   if(which==="player"){ loadPlayerInsights(); }
-  if(which==="ops"){ loadOps(); }
+  if(which==="ops"){ loadOps(); loadPredBacktest(); }
   if(which==="fair"){ loadFairness(); }
   if(which==="retain"){ rtLoad().then(loadRetention); }
   if(which==="session"){ fillSessionAnalytics(); }
@@ -8510,6 +8753,26 @@ async function mmAddGo(){
   document.getElementById("mmAdd").style.display="none";
   renderPlayers(); renderHome(); adminLoadMatches(true);
 }
+/* Editing or deleting a match in the Match Manager used to touch only the database.
+   The Queue view board, the session leaderboard and the players' Gate all read from
+   local state, so they kept showing the old score until a reload. This syncs them. */
+function mmSyncLocal(matchNo, patch){
+  const i=(S.matches||[]).findIndex(x=>x.n===matchNo);
+  if(i<0){
+    // not in local state (e.g. another device recorded it) — still refresh what we can
+    save(); renderHome(); renderPlayers();
+    return false;
+  }
+  if(patch===null) S.matches.splice(i,1);
+  else Object.assign(S.matches[i],patch);
+  save();                       // save() upserts queue_state, so players' Gate updates too
+  renderHome(); renderPlayers(); renderCourts(); renderQueues();
+  if(!window.__rtMissing && !window.__mmRatingWarned){
+    window.__mmRatingWarned=true;
+    toast("\u26A0\uFE0F Skill ratings still reflect the old result \u2014 rebuild from history when convenient");
+  }
+  return true;
+}
 async function adminLoadMatches(manual){
   const box=document.getElementById("mmList"); if(!box) return;
   if(!S.db||!S.db.sessionId){ box.innerHTML='<p class="hint">Select your active session in the Home tab first.</p>'; return; }
@@ -8531,14 +8794,18 @@ async function adminLoadMatches(manual){
       const s1=+a, s2=+b;
       if(!(s1>=0&&s2>=0)||s1===s2) return alert("Scores must be non-negative and not a draw.");
       const pr=await sFetch("/rest/v1/matches?id=eq."+m.id,{method:"PATCH",body:{s1,s2}});
-      toast(pr.ok?"Match #"+m.match_no+" updated":"Update failed");
+      if(!pr||!pr.ok){ toast("Update failed"); return; }
+      mmSyncLocal(m.match_no,{s1,s2});          // queue board, session leaderboard, player Gate
+      toast("Match #"+m.match_no+" updated");
       adminLoadMatches();
     };
     const del=document.createElement("button"); del.className="small ghost"; del.textContent="🗑";
     del.onclick=async()=>{
       if(!await uiConfirm("Delete match #"+m.match_no+" ("+m.s1+"–"+m.s2+")?\nThis removes it from history and leaderboards.",{title:"Delete match",ok:"Delete"})) return;
       const pr=await sFetch("/rest/v1/matches?id=eq."+m.id,{method:"DELETE"});
-      toast(pr.ok?"Match #"+m.match_no+" deleted":"Delete failed");
+      if(!pr||!pr.ok){ toast("Delete failed"); return; }
+      mmSyncLocal(m.match_no,null);             // remove locally too
+      toast("Match #"+m.match_no+" deleted");
       adminLoadMatches();
     };
     div.append(ed,del); box.appendChild(div);
