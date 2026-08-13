@@ -849,6 +849,24 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .brfpri{background:linear-gradient(90deg,var(--ok),var(--gold));color:#07130b}
 .brfgho{background:transparent;border:1.5px solid rgba(255,255,255,.2);color:var(--muted)}
 .brfskip{text-align:center;font-size:11.5px;color:#5f6b62;margin-top:9px;cursor:pointer}
+/* admin side-nav — same pattern as Money and the Analysis Center */
+#admnav .anitem.dz{color:var(--red)}
+#admnav .anitem.dz.on{background:rgba(207,107,88,.14);border-color:rgba(207,107,88,.5);color:#e0917f}
+.adstrip{background:linear-gradient(90deg,rgba(124,176,138,.14),rgba(202,166,78,.10));
+  border:1.5px solid rgba(124,176,138,.45);border-radius:14px;padding:11px 16px;margin-bottom:13px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.adstrip.idle{border-color:var(--line);background:var(--panel2)}
+.adstrip .lab{font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.adstrip .v{font-family:Georgia,serif;font-size:20px;color:var(--ink);line-height:1.1}
+.adstrip .v small{font-size:11.5px;color:var(--muted);font-family:inherit}
+.adstrip .sep{width:1px;align-self:stretch;background:var(--line)}
+.adpred{margin-left:auto;display:flex;align-items:center;gap:8px;background:rgba(202,166,78,.10);
+  border:1.5px solid rgba(202,166,78,.5);border-radius:11px;padding:6px 12px}
+.adpred b{font-family:Georgia,serif;font-size:21px;color:var(--gold);line-height:1}
+.adpred span{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.dzcard{border-color:rgba(207,107,88,.45)!important;
+  background:linear-gradient(180deg,rgba(207,107,88,.07),rgba(207,107,88,.02))}
+.dzcard h3{color:var(--red)}
 #playerHome{padding-bottom:96px}
 #qStatus{padding:16px 18px;text-align:center}
 #qStatus .qlab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
@@ -1551,7 +1569,20 @@ window.SS_CONFIG = {
 
 <!-- ================= ADMIN (Phase 1: sessions) ================= -->
 <section id="tab-admin" class="tab">
-  <div class="card" style="max-width:760px;margin:0 auto 14px">
+  <div class="anwrap">
+  <div class="annav" id="admnav">
+    <div class="antitle">📋 Admin</div>
+    <button class="anitem on" data-ad="sess"   onclick="adShow('sess')">🏸 <span>Sessions</span></button>
+    <button class="anitem"    data-ad="people" onclick="adShow('people')">👥 <span>People</span></button>
+    <button class="anitem"    data-ad="hist"   onclick="adShow('hist')">🗓 <span>History</span></button>
+    <button class="anitem"    data-ad="hall"   onclick="adShow('hall')">♛ <span>Hall of Fame</span></button>
+    <button class="anitem dz" data-ad="danger" onclick="adShow('danger')">⚠️ <span>Danger Zone</span></button>
+    <div class="anfoot"><p class="hint" style="margin:0">Cards remember whether you left them open.</p></div>
+  </div>
+  <div class="anbody">
+    <div class="anpane on" id="ad-sess">
+      <div id="adTonight"></div>
+<div class="card" style="max-width:760px;margin:0 auto 14px">
     <h3>Create Session</h3>
     <div class="controls">
       <input id="asTitle" placeholder="Session title (e.g. Wednesday Night Smash)" style="flex:2;min-width:200px">
@@ -1563,6 +1594,12 @@ window.SS_CONFIG = {
     <p class="hint">A unique 6-character join code is generated automatically — share it with players.</p>
   </div>
 
+  <div class="card" style="max-width:760px;margin:14px auto 0">
+    <h3>🎞 Match Manager <button class="small ghost" style="float:right" onclick="adminLoadMatches(true)">🔄</button></h3>
+    <button class="small ghost" id="mmAddBtn" style="margin-bottom:10px" onclick="mmToggleAdd()">＋ Add a match</button>
+    <div id="mmAdd" style="display:none"></div>
+    <div id="mmList"><p class="hint">Select your active session in the Home tab to manage its matches.</p></div>
+  </div>
   <div class="card" style="max-width:760px;margin:0 auto 14px">
     <h3>🎓 Trainings <button class="small ghost" style="float:right" onclick="loadTrainings()">⟳</button></h3>
     <p class="hint">Coaching sessions, separate from the queue. <b>Trainings earn no XP.</b></p>
@@ -1592,7 +1629,9 @@ window.SS_CONFIG = {
       </div>
     </div>
   </div>
-  <div class="card" style="max-width:760px;margin:0 auto 14px">
+      </div>
+    <div class="anpane" id="ad-people">
+<div class="card" style="max-width:760px;margin:0 auto 14px">
     <h3>👥 Players <button class="small" style="float:right" onclick="exportPlayers()">⬇ Export Excel</button></h3>
     <p id="plStats" class="hint" style="font-size:14px;margin:4px 0 2px">Loading…</p>
     <div class="controls" style="margin-top:8px">
@@ -1605,54 +1644,6 @@ window.SS_CONFIG = {
       <span class="hint" id="plPageLbl"></span>
       <button class="small ghost" id="plNext" onclick="plPage(1)">Next ▶</button>
     </div>
-  </div>
-  <div class="card" style="max-width:760px;margin:0 auto">
-    <h3>Sessions</h3>
-    <div id="sessList"><p class="hint">Loading sessions…</p></div>
-    <div class="controls" id="sessPager" style="justify-content:space-between;display:none">
-      <button class="small ghost" id="sessPrev" onclick="sessPage(-1)">◀ Prev</button>
-      <span class="hint" id="sessPageLbl"></span>
-      <button class="small ghost" id="sessNext" onclick="sessPage(1)">Next ▶</button>
-    </div>
-  </div>
-  <div class="card" style="max-width:760px;margin:14px auto 0">
-    <h3>♛ Hall of Fame
-      <button class="small ghost" style="float:right" onclick="resetHall()" title="Wipe ALL recorded matches — clears the Hall, Quest Logs and Session Cards for everyone">↺ Reset</button>
-      <button class="small ghost" style="float:right;margin-right:6px" onclick="loadHall(true)">🔄</button></h3>
-    <div class="hallbox">
-    <div class="authtabs" style="margin-bottom:10px">
-      <button class="hfW on" onclick="hallMode('w')">Weekly</button>
-      <button class="hfM" onclick="hallMode('m')">Monthly</button>
-      <button class="hfA" onclick="hallMode('a')">All-time</button>
-    </div>
-    <div class="controls" style="justify-content:space-between;margin-bottom:6px">
-      <button class="small ghost" onclick="hallNav(-1)">◀</button>
-      <b class="hfLabel" style="font-size:13px"></b>
-      <button class="small ghost hfNext" onclick="hallNav(1)">▶</button>
-    </div>
-    <div class="controls" style="justify-content:center;margin-bottom:8px">
-      <button class="small" onclick="shareHallPoster()">📸 Download poster</button>
-    </div>
-    <div class="hfList"><p class="soon">Summoning the champions…</p></div>
-    </div>
-  </div>
-  <div class="card" style="max-width:760px;margin:14px auto 0">
-    <p class="hint" style="text-align:right;margin:0">
-      <select id="rhScope" style="max-width:130px">
-        <option value="w">This week</option>
-        <option value="m">This month</option>
-        <option value="a">All-time</option>
-      </select>
-      <button class="small ghost" onclick="resetHall()">↺ Reset Hall</button>
-      <button class="small ghost" onclick="masterResetHall()" title="Start the Hall of Fame and levels from a clean slate">🧨 Master reset</button>
-      <button class="small ghost" onclick="restoreHallHistory()" title="Undo a master reset">↩ Restore full history</button></p>
-      <p class="hint" id="hofEpochNote" style="margin-top:4px"></p>
-  </div>
-  <div class="card" style="max-width:760px;margin:14px auto 0">
-    <h3>🎞 Match Manager <button class="small ghost" style="float:right" onclick="adminLoadMatches(true)">🔄</button></h3>
-    <button class="small ghost" id="mmAddBtn" style="margin-bottom:10px" onclick="mmToggleAdd()">＋ Add a match</button>
-    <div id="mmAdd" style="display:none"></div>
-    <div id="mmList"><p class="hint">Select your active session in the Home tab to manage its matches.</p></div>
   </div>
   <div class="card" style="max-width:760px;margin:14px auto 0">
     <h3>🎖 Side Quests <span class="hint" style="font-weight:400">+100 XP each</span></h3>
@@ -1712,6 +1703,59 @@ window.SS_CONFIG = {
     <div id="ptnList" style="margin-top:10px"><p class="hint">Loading partners…</p></div>
   </div>
 
+    </div>
+    <div class="anpane" id="ad-hist">
+<div class="card" style="max-width:760px;margin:0 auto">
+    <h3>Sessions</h3>
+    <div id="sessList"><p class="hint">Loading sessions…</p></div>
+    <div class="controls" id="sessPager" style="justify-content:space-between;display:none">
+      <button class="small ghost" id="sessPrev" onclick="sessPage(-1)">◀ Prev</button>
+      <span class="hint" id="sessPageLbl"></span>
+      <button class="small ghost" id="sessNext" onclick="sessPage(1)">Next ▶</button>
+    </div>
+  </div>
+      </div>
+    <div class="anpane" id="ad-hall">
+<div class="card" style="max-width:760px;margin:14px auto 0">
+    <h3>♛ Hall of Fame
+      <button class="small ghost" style="float:right" onclick="resetHall()" title="Wipe ALL recorded matches — clears the Hall, Quest Logs and Session Cards for everyone">↺ Reset</button>
+      <button class="small ghost" style="float:right;margin-right:6px" onclick="loadHall(true)">🔄</button></h3>
+    <div class="hallbox">
+    <div class="authtabs" style="margin-bottom:10px">
+      <button class="hfW on" onclick="hallMode('w')">Weekly</button>
+      <button class="hfM" onclick="hallMode('m')">Monthly</button>
+      <button class="hfA" onclick="hallMode('a')">All-time</button>
+    </div>
+    <div class="controls" style="justify-content:space-between;margin-bottom:6px">
+      <button class="small ghost" onclick="hallNav(-1)">◀</button>
+      <b class="hfLabel" style="font-size:13px"></b>
+      <button class="small ghost hfNext" onclick="hallNav(1)">▶</button>
+    </div>
+    <div class="controls" style="justify-content:center;margin-bottom:8px">
+      <button class="small" onclick="shareHallPoster()">📸 Download poster</button>
+    </div>
+    <div class="hfList"><p class="soon">Summoning the champions…</p></div>
+    </div>
+  </div>
+      </div>
+    <div class="anpane" id="ad-danger">
+<div class="card dzcard" style="max-width:760px;margin:14px auto 0">
+    <h3><span class="htxt">⚠️ Danger Zone</span></h3>
+    <p class="hint">These cannot be undone from inside the app. Read the line before you tap.<br><b>Master reset</b> asks you to type <b>RESET</b> — a tap alone will not do it.</p>
+    <p class="hint" style="text-align:right;margin:0">
+      <select id="rhScope" style="max-width:130px">
+        <option value="w">This week</option>
+        <option value="m">This month</option>
+        <option value="a">All-time</option>
+      </select>
+      <button class="small ghost" onclick="resetHall()">↺ Reset Hall</button>
+      <button class="small ghost" onclick="masterResetHall()" title="Start the Hall of Fame and levels from a clean slate">🧨 Master reset</button>
+      <button class="small ghost" onclick="restoreHallHistory()" title="Undo a master reset">↩ Restore full history</button></p>
+      <p class="hint" id="hofEpochNote" style="margin-top:4px"></p>
+  </div>
+      </div>
+  </div>
+</div>
 </section>
 
 <!-- ================= PLAYER HOME (Phase 1) ================= -->
@@ -6654,7 +6698,10 @@ async function enterApp(cachedProfile){
     loadPlayerStats();
     loadPartnersAdmin();
     fillFinanceSessions(); loadClubQR(); showHofEpoch(); rtLoad(); loadTrainings();
-    setTimeout(()=>{ try{ initAdminFolds(); }catch(e){} },80);
+    setTimeout(()=>{ try{ initAdminFolds(); }catch(e){}
+      let pane="sess"; try{ pane=localStorage.getItem("ss_adPane")||"sess"; }catch(e){}
+      try{ adShow(pane); }catch(e){}
+    },80);
     sFetch("/rest/v1/club_settings?id=eq.1&select=fee_default").then(async r=>{
       if(r&&r.ok){ const v=((await r.json())[0]||{}).fee_default;
         window.__feeDefault=v||0;
@@ -8548,7 +8595,11 @@ async function masterResetHall(){
     "\u2022 Matches, sessions, payments and expenses are NOT deleted\n"+
     "\u2022 Reversible \u2014 you can restore the full history later\n\n"+
     "New counting starts from "+today+".";
-  if(!await uiConfirm(msg,{title:"🧨 Master reset",ok:"Reset everything"})) return;
+  if(!await uiConfirm(msg,{title:"🧨 Master reset",ok:"Continue"})) return;
+  // a tap alone must not be able to do this
+  const typed=await uiPrompt("Type RESET in capitals to confirm.","RESET",
+    {title:"🧨 Confirm master reset",ok:"Reset everything"});
+  if(String(typed||"").trim()!=="RESET") return toast("Master reset cancelled");
   const r=await sFetch("/rest/v1/rpc/admin_reset_hall",{method:"POST",body:{p_from:today}}).catch(()=>null);
   if(!r||!r.ok){
     const j=r? await r.json().catch(()=>({})):{};
@@ -9115,6 +9166,44 @@ function mmSyncLocal(matchNo, patch){
     toast("\u26A0\uFE0F Skill ratings still reflect the old result \u2014 rebuild from history when convenient");
   }
   return true;
+}
+/* ---------- Admin: side-pane navigation ---------- */
+function adShow(which){
+  window.__adPane=which;
+  document.querySelectorAll("#tab-admin .anpane").forEach(p=>p.classList.toggle("on",p.id==="ad-"+which));
+  document.querySelectorAll("#admnav .anitem").forEach(b=>b.classList.toggle("on",b.dataset.ad===which));
+  try{ localStorage.setItem("ss_adPane",which); }catch(e){}
+  if(which==="sess")  renderTonight();
+  if(which==="hist")  adminLoadSessions();
+  if(which==="hall")  loadHall();
+  if(which==="people"){ loadPlayerStats(); loadPartnersAdmin(); }
+  setTimeout(()=>{ try{ initAdminFolds(); }catch(e){} },30);
+}
+/* a one-line answer to "how is tonight going?" without leaving the tab */
+function renderTonight(){
+  const box=document.getElementById("adTonight"); if(!box) return;
+  const sid=S.db&&S.db.sessionId;
+  const s=(window.__sessRows||[]).find(x=>x.id===sid);
+  if(!s){ box.innerHTML='<div class="adstrip idle">'+
+    '<div><div class="lab">Tonight</div><div class="v">No active session</div></div>'+
+    '<p class="hint" style="margin:0 0 0 auto">Create one below, then select it in the Queue tab.</p></div>';
+    return; }
+  const joined=(S.players||[]).filter(p=>p.active!==false).length;
+  const played=(S.matches||[]).length;
+  const courts=(S.courts||[]).length;
+  const pred=document.getElementById("predG");
+  const g=pred? pred.textContent : "—";
+  box.innerHTML='<div class="adstrip">'+
+    '<div><div class="lab">Tonight</div><div class="v">'+esc(s.title)+
+      '<small> · code '+esc(s.code||"")+'</small></div></div>'+
+    '<div class="sep"></div>'+
+    '<div><div class="lab">Joined</div><div class="v">'+joined+'</div></div>'+
+    '<div class="sep"></div>'+
+    '<div><div class="lab">Matches</div><div class="v">'+played+'</div></div>'+
+    '<div class="sep"></div>'+
+    '<div><div class="lab">Courts</div><div class="v">'+courts+'</div></div>'+
+    (g&&g!=="—"? '<div class="adpred"><b>'+g+'</b><span>games<br>each</span></div>':'')+
+    '</div>';
 }
 async function adminLoadMatches(manual){
   const box=document.getElementById("mmList"); if(!box) return;
