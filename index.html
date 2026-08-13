@@ -1630,6 +1630,9 @@ window.SS_CONFIG = {
       <b class="hfLabel" style="font-size:13px"></b>
       <button class="small ghost hfNext" onclick="hallNav(1)">▶</button>
     </div>
+    <div class="controls" style="justify-content:center;margin-bottom:8px">
+      <button class="small" onclick="shareHallPoster()">📸 Download poster</button>
+    </div>
     <div class="hfList"><p class="soon">Summoning the champions…</p></div>
     </div>
   </div>
@@ -1783,6 +1786,9 @@ window.SS_CONFIG = {
       <button class="small ghost" onclick="hallNav(-1)">◀</button>
       <b class="hfLabel" style="font-size:13px"></b>
       <button class="small ghost hfNext" onclick="hallNav(1)">▶</button>
+    </div>
+    <div class="controls" style="justify-content:center;margin-bottom:8px">
+      <button class="small" onclick="shareHallPoster()">📸 Download poster</button>
     </div>
     <div class="hfList"><p class="soon">Summoning the champions…</p></div>
     </div>
@@ -8215,6 +8221,215 @@ async function ensureAvatars(ids){
     want.forEach(id=>{ if(!window.__avCache[id]) delete window.__avCache[id]; });  // allow a retry later
   }
 }
+/* ================= HALL OF FAME POSTER =================
+   1080x1350 for Instagram. Weekly runs Monday->Sunday (ISO), matching both
+   weekStartISO() here and date_trunc('week') in the leaderboard views.     */
+function hofPeriodLabel(){
+  const fmt=(d,o)=>d.toLocaleDateString(undefined,o);
+  if(hfMode==="a") return {head:"LEGENDS", per:"ALL TIME", pack:"T H E   I M M O R T A L S"};
+  if(hfMode==="m"){
+    const s=new Date(monthStartISO(hfOffset)+"T00:00:00Z");
+    return {head:fmt(s,{month:"long",year:"numeric",timeZone:"UTC"}).toUpperCase(),
+            per:(hfOffset===0? "MONTH TO DATE":"FULL MONTH"),
+            pack:"T H E   C H A S I N G   P A C K"};
+  }
+  const s=new Date(weekStartISO(hfOffset)+"T00:00:00Z");
+  const e=new Date(s.getTime()+6*86400000);
+  const sameMonth=s.getUTCMonth()===e.getUTCMonth();
+  // build "MON 10" ourselves — locale order varies and can read "10 MON"
+  const wd=d=>fmt(d,{weekday:"short",timeZone:"UTC"}).toUpperCase();
+  const dd=d=>String(d.getUTCDate()).padStart(2,"0");
+  const d1=wd(s)+" "+dd(s), d2=wd(e)+" "+dd(e);
+  const tail=sameMonth? fmt(e,{month:"long",year:"numeric",timeZone:"UTC"}).toUpperCase()
+    : fmt(s,{month:"short",timeZone:"UTC"}).toUpperCase()+" – "+fmt(e,{month:"long",year:"numeric",timeZone:"UTC"}).toUpperCase();
+  return {head:(hfOffset===0?"THIS WEEK":"WEEK OF "+fmt(s,{month:"short",day:"numeric",timeZone:"UTC"}).toUpperCase()),
+          per:d1+" – "+d2+" "+tail, pack:"T H E   C H A S I N G   P A C K"};
+}
+async function shareHallPoster(){
+  const rows=window.__hofRows||[];
+  if(!rows.length) return toast("No leaderboard to share yet");
+  toast("🏆 Building the poster…");
+  await ensureAvatars(rows.slice(0,10).map(r=>r.profile_id));
+  buildHallPoster(rows.slice(0,10), c=>{
+    const per=hfMode==="a"?"all-time":(hfMode==="m"?monthStartISO(hfOffset):weekStartISO(hfOffset));
+    c.toBlob(b=>{ download("stranger-strings-hall-of-fame-"+per+".png", b);
+      toast("📸 Poster downloaded — post it and tag them"); });
+  });
+}
+function buildHallPoster(rows, done){
+  const W=1080,H=1350,cx=W/2;
+  const c=document.createElement("canvas"); c.width=W; c.height=H;
+  const x=c.getContext("2d");
+  const GOLD="#eac25f",GOLD2="#caa64e",INK="#fff6d8",MUTE="#8fae95";
+  const RING=["#eac25f","#cfd6cf","#c98d54"];
+  const TITLES=["Ruler of the Upside Down","Demogorgon Slayer","Gatekeeper of Greenfield"];
+  const L=hofPeriodLabel();
+  const xpOf=r=>(r.xp!=null? r.xp : r.wins*30+(r.games-r.wins)*10);
+  // ---- backdrop ----
+  let g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,"#101f16"); g.addColorStop(.55,"#070f0a"); g.addColorStop(1,"#03100a");
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  let rg=x.createRadialGradient(cx,240,20,cx,240,620);
+  rg.addColorStop(0,"rgba(202,166,78,.24)"); rg.addColorStop(1,"rgba(202,166,78,0)");
+  x.fillStyle=rg; x.fillRect(0,0,W,H);
+  rg=x.createRadialGradient(cx,H,40,cx,H,640);
+  rg.addColorStop(0,"rgba(18,44,26,.95)"); rg.addColorStop(1,"rgba(18,44,26,0)");
+  x.fillStyle=rg; x.fillRect(0,0,W,H);
+  for(let i=0;i<150;i++){ x.fillStyle="rgba(234,194,95,"+(0.12+Math.random()*.5)+")";
+    x.beginPath(); x.arc(Math.random()*W,Math.random()*H,Math.random()<.85?1.2:2.1,0,7); x.fill(); }
+  x.save(); x.shadowColor="rgba(202,166,78,.7)"; x.shadowBlur=28;
+  x.strokeStyle=GOLD2; x.lineWidth=3; x.strokeRect(18,18,W-36,H-36); x.restore();
+  x.strokeStyle=GOLD; x.lineWidth=3;
+  [[30,30,1,1],[W-30,30,-1,1],[30,H-30,1,-1],[W-30,H-30,-1,-1]].forEach(([px,py,sx,sy])=>{
+    x.beginPath(); x.moveTo(px,py+44*sy); x.lineTo(px,py); x.lineTo(px+44*sx,py); x.stroke(); });
+  // ---- fairy lights ----
+  const LC=["#d9453a",GOLD,"#6fbf82","#f0e6cc"];
+  x.strokeStyle="rgba(255,255,255,.16)"; x.lineWidth=2;
+  x.beginPath(); x.moveTo(52,52); x.quadraticCurveTo(cx,86,W-52,52); x.stroke();
+  for(let i=0;i<12;i++){
+    const t=(i+1)/13, bx=52+(W-104)*t;
+    const by=52+ (86-52)*2*t*(1-t) + 16;
+    x.save(); x.shadowColor=LC[i%4]; x.shadowBlur=16; x.fillStyle=LC[i%4];
+    x.beginPath(); x.arc(bx,by,6.5,0,7); x.fill(); x.restore();
+  }
+  // ---- header ----
+  x.textAlign="center";
+  x.fillStyle=MUTE; x.font="800 15px Georgia";
+  x.fillText("H A L L   O F   F A M E", cx, 104);
+  x.save(); x.shadowColor="rgba(202,166,78,.85)"; x.shadowBlur=40;
+  x.fillStyle=INK; let hs=62; x.font="bold "+hs+"px Georgia";
+  while(x.measureText(L.head).width>W-180 && hs>30){ hs-=3; x.font="bold "+hs+"px Georgia"; }
+  x.fillText(L.head, cx, 160); x.restore();
+  x.font="800 17px Georgia"; const pw=x.measureText(L.per).width+48;
+  x.save(); x.translate(cx,190);
+  const lg=x.createLinearGradient(-pw/2,0,pw/2,0);
+  lg.addColorStop(0,"rgba(124,209,143,.2)"); lg.addColorStop(1,"rgba(202,166,78,.3)");
+  x.fillStyle=lg; x.beginPath(); x.roundRect(-pw/2,-19,pw,38,999); x.fill();
+  x.strokeStyle=GOLD2; x.lineWidth=2; x.stroke();
+  x.fillStyle=INK; x.fillText(L.per,0,7); x.restore();
+  // ---- podium ----
+  const avOf=id=>(window.__avCache&&window.__avCache[id])||"";
+  const order=[[1,"p2"],[0,"p1"],[2,"p3"]];
+  const CW=[300,352,300], GAP=12;
+  const totalW=CW[0]+CW[1]+CW[2]+GAP*2;
+  let px0=cx-totalW/2;
+  const cardTop=[300,246,300], cardH=[344,398,344];
+  const jobs=[];
+  order.forEach(([idx,cls],slot)=>{
+    const r=rows[idx]; const w=CW[slot], left=px0; px0+=w+GAP;
+    if(!r) return;
+    const top=cardTop[slot], hgt=cardH[slot], mid=left+w/2;
+    const ring=RING[idx];
+    // card
+    x.save();
+    if(idx===0){ x.shadowColor="rgba(234,194,95,.5)"; x.shadowBlur=44; }
+    else { x.shadowColor=ring+"44"; x.shadowBlur=20; }
+    const cg=x.createLinearGradient(0,top,0,top+hgt);
+    if(idx===0){ cg.addColorStop(0,"rgba(234,194,95,.14)"); cg.addColorStop(1,"rgba(234,194,95,.02)"); }
+    else { cg.addColorStop(0,"rgba(255,255,255,.05)"); cg.addColorStop(1,"rgba(255,255,255,.01)"); }
+    x.fillStyle=cg; x.beginPath(); x.roundRect(left,top,w,hgt,20); x.fill();
+    x.strokeStyle=ring; x.lineWidth=idx===0?3:2.5; x.stroke(); x.restore();
+    // medal + crown
+    let y=top+18;
+    x.textAlign="center"; x.font=(idx===0?"44px":"38px")+" Georgia";
+    if(idx===0){ x.save(); x.shadowColor="rgba(234,194,95,.95)"; x.shadowBlur=16;
+      x.font="50px Georgia"; x.fillText("\uD83D\uDC51",mid,top-8); x.restore();
+      x.font="44px Georgia"; }
+    x.fillText(["\uD83E\uDD47","\uD83E\uDD48","\uD83E\uDD49"][idx],mid,y+30);
+    // avatar
+    const R=idx===0?107:88;
+    const acy=y+42+R;
+    x.save(); const ag=x.createRadialGradient(mid,acy,R*0.6,mid,acy,R+18);
+    ag.addColorStop(0,ring+"55"); ag.addColorStop(1,ring+"00");
+    x.fillStyle=ag; x.beginPath(); x.arc(mid,acy,R+18,0,7); x.fill(); x.restore();
+    const ig=x.createLinearGradient(mid-R,acy-R,mid+R,acy+R);
+    ig.addColorStop(0,"#1c3324"); ig.addColorStop(1,"#0d1a12");
+    x.fillStyle=ig; x.beginPath(); x.arc(mid,acy,R,0,7); x.fill();
+    const url=avOf(r.profile_id);
+    if(url) jobs.push({url,mid,acy,R});
+    else { x.fillStyle="#f7efd8"; x.font="bold "+(idx===0?86:70)+"px Georgia";
+      x.fillText((r.display_name||"?").trim().slice(0,1).toUpperCase(),mid,acy+(idx===0?30:24)); }
+    x.save(); x.shadowColor=ring; x.shadowBlur=idx===0?26:14;
+    x.strokeStyle=ring; x.lineWidth=idx===0?5:4;
+    x.beginPath(); x.arc(mid,acy,R,0,7); x.stroke(); x.restore();
+    // text
+    let ty=acy+R+42;
+    x.fillStyle=INK; let ns=idx===0?48:36; x.font="bold "+ns+"px Georgia";
+    let nm=r.display_name||"Player";
+    while(x.measureText(nm).width>w-24 && ns>18){ ns-=2; x.font="bold "+ns+"px Georgia"; }
+    x.fillText(nm,mid,ty);
+    ty+=idx===0?46:38;
+    x.fillStyle=GOLD; x.font="bold "+(idx===0?40:30)+"px Georgia";
+    x.fillText(xpOf(r).toLocaleString()+" XP",mid,ty);
+    ty+=24;
+    x.fillStyle=MUTE; x.font="bold 14px Georgia";
+    x.fillText(r.wins+"W \u00b7 "+r.games+"G \u00b7 "+Math.round(r.win_rate)+"%",mid,ty);
+    ty+=24;
+    x.fillStyle=ring; x.font="800 11px Georgia";
+    x.fillText(TITLES[idx].toUpperCase(),mid,ty);
+  });
+  // ---- chasing pack ----
+  let ry=724;
+  x.strokeStyle="rgba(202,166,78,.25)"; x.lineWidth=1;
+  x.beginPath(); x.moveTo(38,ry); x.lineTo(W-38,ry); x.stroke();
+  x.textAlign="center"; x.fillStyle=MUTE; x.font="800 11px Georgia";
+  x.fillText(L.pack, cx, ry+22);
+  ry+=38;
+  const ROW=64;
+  rows.slice(3,10).forEach((r,i)=>{
+    const yy=ry+i*ROW;
+    x.textAlign="center"; x.fillStyle=GOLD2; x.font="bold 25px Georgia";
+    x.fillText(String(i+4), 74, yy+30);
+    // avatar
+    const ax=124, ar=24;
+    x.fillStyle="#14251a"; x.beginPath(); x.arc(ax,yy+22,ar,0,7); x.fill();
+    const url=avOf(r.profile_id);
+    if(url) jobs.push({url,mid:ax,acy:yy+22,R:ar});
+    else { x.fillStyle="#f0e6cc"; x.font="bold 21px Georgia";
+      x.fillText((r.display_name||"?").trim().slice(0,1).toUpperCase(),ax,yy+30); }
+    x.strokeStyle="rgba(202,166,78,.45)"; x.lineWidth=2;
+    x.beginPath(); x.arc(ax,yy+22,ar,0,7); x.stroke();
+    x.textAlign="left"; x.fillStyle="#f0e6cc"; x.font="25px Georgia";
+    let nm=r.display_name||"Player";
+    while(x.measureText(nm).width>300 && nm.length>4) nm=nm.slice(0,-2)+"\u2026";
+    x.fillText(nm,158,yy+31);
+    x.textAlign="right"; x.fillStyle=GOLD; x.font="bold 25px Georgia";
+    x.fillText(xpOf(r).toLocaleString()+" XP",W-52,yy+31);
+    x.fillStyle=MUTE; x.font="bold 12.5px Georgia";
+    x.fillText(r.wins+"W \u00b7 "+r.games+"G \u00b7 "+Math.round(r.win_rate)+"%",W-176,yy+30);
+    x.strokeStyle="rgba(202,166,78,.13)"; x.lineWidth=1;
+    x.beginPath(); x.moveTo(38,yy+ROW-18); x.lineTo(W-38,yy+ROW-18); x.stroke();
+  });
+  // ---- footer + async avatars ----
+  const finish=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      x.save(); x.beginPath(); x.arc(cx-152,H-76,35,0,7); x.clip();
+      x.drawImage(img,cx-187,H-111,70,70); x.restore();
+      x.save(); x.shadowColor="rgba(124,209,143,.55)"; x.shadowBlur=14;
+      x.strokeStyle="#7cd18f"; x.lineWidth=3; x.beginPath(); x.arc(cx-152,H-76,35,0,7); x.stroke(); x.restore();
+      x.textAlign="left"; x.fillStyle=GOLD; x.font="800 23px Georgia";
+      x.fillText("STRANGER STRINGS",cx-104,H-82);
+      x.fillStyle=MUTE; x.font="800 13px Georgia";
+      x.fillText("GREENFIELD BADMINTON CLUB \u00b7 #NoOneRalliesAlone",cx-104,H-60);
+      done(c);
+    };
+    img.onerror=()=>done(c);
+    img.src=LOGO;
+  };
+  if(!jobs.length) return finish();
+  let left=jobs.length;
+  jobs.forEach(j=>{
+    const im=new Image(); im.crossOrigin="anonymous";
+    im.onload=()=>{ x.save(); x.beginPath(); x.arc(j.mid,j.acy,j.R,0,7); x.clip();
+      const s=Math.max(2*j.R/im.width,2*j.R/im.height);
+      const dw=im.width*s, dh=im.height*s;
+      x.drawImage(im,j.mid-dw/2,j.acy-dh/2,dw,dh); x.restore();
+      if(--left===0) finish(); };
+    im.onerror=()=>{ if(--left===0) finish(); };
+    im.src=j.url;
+  });
+}
 async function loadHall(manual){
   const seq=++hfSeq;
   const boxes=[...document.querySelectorAll(".hallbox")];
@@ -8273,6 +8488,7 @@ async function loadHall(manual){
       '<span class="lbnm">'+esc(x.display_name||"Player")+(me?'<span class="youpill">YOU</span>':"")+'</span>'+
       '<span class="lbst">'+xpOfRow(x)+' XP <small>· '+x.wins+'W · '+x.games+'G · '+Math.round(x.win_rate)+'%</small></span></div>';
   }).join("");
+  window.__hofRows=rows;
   const myIdx=auth? rows.findIndex(x=>x.profile_id===auth.uid) : -1;
   if(myIdx>=10){ const x=rows[myIdx];
     html+='<div class="lbprow me"><span class="lbrank">'+(myIdx+1)+'</span>'+
