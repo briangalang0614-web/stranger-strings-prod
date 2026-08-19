@@ -867,6 +867,39 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .dzcard{border-color:rgba(207,107,88,.45)!important;
   background:linear-gradient(180deg,rgba(207,107,88,.07),rgba(207,107,88,.02))}
 .dzcard h3{color:var(--red)}
+.qpill{display:inline-flex;align-items:center;gap:7px;border-radius:11px;padding:6px 12px;cursor:pointer;
+  border:1.5px solid var(--line);background:var(--panel)}
+.qpill b{font-family:Georgia,serif;font-size:20px;line-height:1}
+.qpill .t{font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:800;line-height:1.25}
+.qpill .go{color:var(--muted);font-size:13px}
+.qpill.req{border-color:rgba(202,166,78,.55)} .qpill.req b{color:var(--gold)}
+.qpill.ben{border-color:rgba(224,166,60,.5)}  .qpill.ben b{color:var(--warn)}
+.qpill.zero{opacity:.45} .qpill.zero b{color:var(--muted)}
+.qprow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.qprow:last-of-type{border-bottom:none}
+.qpav{width:30px;height:30px;border-radius:50%;background:#1c3324;border:1.5px solid rgba(202,166,78,.4);
+  display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:13px;flex:none;
+  overflow:hidden}
+.qpav img{width:100%;height:100%;object-fit:cover}
+.qprow .t{flex:1;min-width:0}
+.qprow .t b{display:block;font-size:13.5px}
+.qprow .t span{font-size:10.5px;color:var(--muted)}
+.qpmut{font-size:9px;font-weight:800;border-radius:999px;padding:2px 8px;white-space:nowrap;
+  background:rgba(78,154,99,.16);color:var(--ok);border:1px solid rgba(78,154,99,.5)}
+/* small flags on the player cards */
+.pflag{font-size:9px;font-weight:800;letter-spacing:.05em;margin-top:3px;display:block}
+.pflag.req{color:var(--gold)}
+.pflag.out{color:var(--warn)}
+.pcard.satout{border-left-color:var(--warn)!important;background:rgba(224,166,60,.06)}
+.chpicks{display:flex;gap:10px}
+.chpick{flex:1;border-radius:13px;overflow:hidden;border:2px solid var(--line);background:var(--panel2);
+  position:relative;cursor:pointer}
+.chpick.on{border-color:var(--gold);box-shadow:0 0 24px rgba(202,166,78,.4)}
+.chpick img{width:100%;display:block}
+.chtag{position:absolute;top:6px;right:6px;z-index:3;font-size:8px;font-weight:800;border-radius:999px;
+  padding:3px 8px;background:rgba(234,194,95,.94);color:#0a1208}
+.chcap{padding:8px 6px;text-align:center;font-size:12px;font-weight:800;border-top:1px solid var(--line)}
+.chcap span{display:block;font-size:9.5px;color:var(--muted);font-weight:600;margin-top:2px}
 #playerHome{padding-bottom:96px}
 #qStatus{padding:16px 18px;text-align:center}
 #qStatus .qlab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
@@ -1105,6 +1138,10 @@ window.SS_CONFIG = {
           <span class="pr" id="predR"></span>
         </span>
       </span>
+      <span class="qpill req" id="qpReq" onclick="qpOpen('req')" title="Who has asked for a partner">
+        <b id="qpReqN">0</b><span class="t">Partner<br>requests</span><span class="go">›</span></span>
+      <span class="qpill ben" id="qpBen" onclick="qpOpen('ben')" title="Who is sitting this one out">
+        <b id="qpBenN">0</b><span class="t">Sat<br>out</span><span class="go">›</span></span>
       <button class="small ghost" onclick="adminRepairNames()" title="Backfill player names on old database matches from this device's local record">🩹 Fix names</button>
       <span class="hint" id="sessInfo"></span>
     </div>
@@ -1937,6 +1974,27 @@ window.SS_CONFIG = {
     <div id="briefBody"></div>
   </div>
 </div>
+<div class="overlay" id="chModal" onclick="if(event.target===this)closeModal('chModal')">
+  <div class="modal" style="max-width:440px">
+    <h3 style="text-align:center">Pick your look</h3>
+    <p class="hint" style="text-align:center">Both cards are rendered from your real night — tap one, then download.</p>
+    <div id="chBody"></div>
+    <div class="controls" style="margin-top:12px">
+      <button class="small ghost" style="flex:1" onclick="closeModal('chModal')">Cancel</button>
+      <button class="small" style="flex:1" onclick="chDownload()">⬇ Download</button>
+    </div>
+  </div>
+</div>
+<div class="overlay" id="qpModal" onclick="if(event.target===this)closeModal('qpModal')">
+  <div class="modal" style="max-width:460px">
+    <h3 id="qpTitle"></h3>
+    <p class="hint" id="qpSub"></p>
+    <div id="qpBody"></div>
+    <div class="controls" style="justify-content:flex-end;margin-top:10px">
+      <button class="small" onclick="closeModal('qpModal')">Close</button>
+    </div>
+  </div>
+</div>
 <div class="overlay" id="predModal" onclick="if(event.target===this)closeModal('predModal')">
   <div class="modal" style="max-width:560px">
     <h3>🎯 Tonight's projection</h3>
@@ -2464,7 +2522,7 @@ async function adminUnbench(p){
       {method:"PATCH",body:{active:true}}).catch(()=>null);
     if(!r||!r.ok){ toast("Could not update — they may need to tap “I’m back in”"); return; }
   }
-  p.active=true; p.benchedBySelf=false; p.waitSince=now();
+  p.active=true; p.benchedBySelf=false; p.benchedAt=null; p.waitSince=now();
   save(); renderHome(); toast("🏸 "+p.name+" is back in the rotation");
 }
 function iconBtn(txt,title,fn){ const b=document.createElement("button");
@@ -2481,6 +2539,7 @@ function metaLine(p,mini){
 }
 
 function renderPlayers(){
+  setTimeout(()=>{try{qpRefresh();}catch(e){}},0);
   const pool=document.getElementById("pool"); pool.innerHTML="";
   const q=S.ui.search.toLowerCase();
   let list=S.players.filter(p=>ownerOf(p.id).kind==="pool" && (!q||p.name.toLowerCase().includes(q)));
@@ -4390,6 +4449,116 @@ function brfRow(em,title,body){
     '<span>'+esc(body)+'</span></div></div>';
 }
 function briefClose(){ briefMark(); closeModal("briefModal"); }
+/* ---------- share style chooser: render BOTH real cards, let them pick ---------- */
+function shareChooser(name, st, ex, opts, fileBase){
+  const box=document.getElementById("chBody"); if(!box) return;
+  opts=opts||{};
+  window.__chPick="classic";
+  window.__chCanvas={};
+  window.__chFile=fileBase||"stranger-strings-card";
+  box.innerHTML='<p class="hint" style="text-align:center">Rendering both looks…</p>';
+  openModal("chModal");
+  let done=0;
+  const paint=()=>{
+    if(done<2) return;
+    box.innerHTML='<div class="chpicks">'+
+      ["classic","upside"].map(v=>{
+        const c=window.__chCanvas[v];
+        return '<div class="chpick'+(v==="classic"?" on":"")+'" data-v="'+v+'" onclick="chSelect(\''+v+'\')">'+
+          (v==="classic"?'<span class="chtag">SELECTED</span>':'')+
+          '<img src="'+c.toDataURL("image/png")+'" alt="">'+
+          '<div class="chcap">'+(v==="classic"?"🌲 Classic":"🔻 Upside Down")+
+          '<span>'+(v==="classic"?"Gold · club colours":"Crimson · glitched")+'</span></div></div>';
+      }).join("")+'</div>';
+  };
+  ["classic","upside"].forEach(v=>{
+    buildShareCard(name, st, ex, c=>{ window.__chCanvas[v]=c; done++; paint(); },
+      Object.assign({},opts,{variant:v}));
+  });
+}
+function chSelect(v){
+  window.__chPick=v;
+  document.querySelectorAll("#chBody .chpick").forEach(el=>{
+    const on=el.dataset.v===v;
+    el.classList.toggle("on",on);
+    const tag=el.querySelector(".chtag");
+    if(on && !tag){ const s=document.createElement("span"); s.className="chtag"; s.textContent="SELECTED";
+      el.insertBefore(s,el.firstChild); }
+    if(!on && tag) tag.remove();
+  });
+}
+function chDownload(){
+  const c=(window.__chCanvas||{})[window.__chPick||"classic"];
+  if(!c) return toast("Still rendering — try again in a second");
+  c.toBlob(b=>{ download((window.__chFile||"card")+"-"+(window.__chPick)+".png", b);
+    closeModal("chModal");
+    toast("📸 Card downloaded — post it and tag the Party"); });
+}
+/* ---------- queue status pills: who asked for a partner, who sat out ---------- */
+function qpData(){
+  const P=window.__prefs||{};
+  const alive=(S.players||[]).filter(p=>p.active!==false);
+  const nameOf=id=>{ const p=(S.players||[]).find(x=>x.id===id); return p? p.name : null; };
+  const req=[];
+  alive.forEach(p=>{
+    const want=P[p.id];
+    if(!want) return;
+    const wn=nameOf(want); if(!wn) return;
+    req.push({id:p.id,name:p.name,wantId:want,want:wn,
+      mutual:String(P[want]||"")===String(p.id)});
+  });
+  const out=(S.players||[]).filter(p=>p.benchedBySelf)
+    .map(p=>({id:p.id,name:p.name,games:(p.games||0),
+      since:p.benchedAt? Math.max(0,Math.round((now()-p.benchedAt)/60000)) : null}));
+  return {req,out,mutual:req.filter(r=>r.mutual).length/2};
+}
+function qpRefresh(){
+  const d=qpData();
+  const set=(id,n,zero)=>{ const el=document.getElementById(id); if(el) el.textContent=n;
+    const pill=document.getElementById(zero); if(pill) pill.classList.toggle("zero",n===0); };
+  set("qpReqN",d.req.length,"qpReq");
+  set("qpBenN",d.out.length,"qpBen");
+}
+function qpOpen(kind){
+  const d=qpData();
+  const T=document.getElementById("qpTitle"), S2=document.getElementById("qpSub"),
+        B=document.getElementById("qpBody");
+  if(!T) return;
+  const avOf=id=>(window.__avCache&&window.__avCache[id])||"";
+  const face=(id,nm)=>{ const u=avOf(id);
+    return '<span class="qpav">'+(u? '<img src="'+u+'">' : esc((nm||"?").trim().slice(0,1).toUpperCase()))+'</span>'; };
+  if(kind==="req"){
+    T.textContent="🤝 Partner requests";
+    S2.textContent="Hints for the next autofill — fair rotation still comes first.";
+    B.innerHTML = d.req.length
+      ? d.req.map(r=>'<div class="qprow">'+face(r.id,r.name)+
+          '<div class="t"><b>'+esc(r.name)+'</b><span>wants '+esc(r.want)+'</span></div>'+
+          (r.mutual?'<span class="qpmut">MUTUAL</span>':'')+'</div>').join("")+
+        (d.mutual>=1? '<p class="hint" style="margin-top:10px">💛 <b style="color:var(--ok)">'+
+          Math.round(d.mutual)+' mutual pair'+(Math.round(d.mutual)===1?"":"s")+
+          '</b> — autofill will try these first.</p>':'')
+      : '<p class="hint">Nobody has asked for a partner yet.</p>';
+  }else{
+    T.textContent="🪑 Sat out";
+    S2.textContent="Skipped by autofill until they tap back in.";
+    B.innerHTML = d.out.length
+      ? d.out.map(p=>'<div class="qprow">'+face(p.id,p.name)+
+          '<div class="t"><b>'+esc(p.name)+'</b><span>'+
+          (p.since!=null? 'out '+p.since+' min · ':'')+p.games+' game'+(p.games===1?"":"s")+
+          '</span></div>'+
+          '<button class="small ghost" onclick="qpBackIn(\''+p.id+'\')">↩ Back in</button></div>').join("")+
+        '<p class="hint" style="margin-top:10px">They still owe the session fee — they are only skipped '+
+        'when building matches.</p>'
+      : '<p class="hint">Everyone is in the rotation.</p>';
+  }
+  openModal("qpModal");
+}
+async function qpBackIn(id){
+  const p=(S.players||[]).find(x=>x.id===id); if(!p) return;
+  await adminUnbench(p);        // reuse the admin path so session_players is updated too
+  renderPlayers(); qpRefresh();
+  if(qpData().out.length) qpOpen("ben"); else closeModal("qpModal");
+}
 /* ================= MATCH COUNT PREDICTOR =================
    A session starts at its FIRST MATCH, not at the booked hour. Rather than guess
    a warm-up allowance, we measure a utilisation factor from history:
@@ -7014,7 +7183,8 @@ async function importRoster(manual){
     }else{
       // sync the player's own bench choice — but never yank someone off a live court
       const onCourt=ownerOf(mine.id).kind==="c";
-      if(row.active===false && mine.active && !onCourt){ mine.active=false; mine.benchedBySelf=true; benched++; }
+      if(row.active===false && mine.active && !onCourt){ mine.active=false; mine.benchedBySelf=true;
+        mine.benchedAt=mine.benchedAt||now(); benched++; }
       else if(row.active!==false && !mine.active && mine.benchedBySelf){
         mine.active=true; mine.benchedBySelf=false; mine.waitSince=now(); returned++; }
     }
@@ -8200,6 +8370,17 @@ function renderSessionCard(){
   }, {variant:document.getElementById("scStyle").value});
 }
 function downloadSessionCard(){
+  // the style dropdown is now a visual chooser — render both, let them pick
+  const sid0=document.getElementById("scSel").value;
+  const rows0=(myMatches||[]).filter(m=>m.session_id===sid0);
+  if(!rows0.length) return toast("No matches in that session yet");
+  const s0=mySessions[sid0];
+  const {st,ex}=careerStatsFrom(rows0,auth.uid);
+  return shareChooser(myProfile.reclub_name||"Player", st, ex,
+    {session:s0, date:(s0&&s0.session_date)||""},
+    "stranger-strings-"+((s0&&s0.session_date)||"card"));
+}
+function downloadSessionCardLegacy(){
   // always rebuild from the CURRENT style — never trust a cached canvas
   const sid=document.getElementById("scSel").value;
   const rows=(myMatches||[]).filter(m=>m.session_id===sid);
