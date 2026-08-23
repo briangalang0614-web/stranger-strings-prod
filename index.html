@@ -900,6 +900,12 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
   padding:3px 8px;background:rgba(234,194,95,.94);color:#0a1208}
 .chcap{padding:8px 6px;text-align:center;font-size:12px;font-weight:800;border-top:1px solid var(--line)}
 .chcap span{display:block;font-size:9.5px;color:var(--muted);font-weight:600;margin-top:2px}
+.brfhelp{margin-left:auto;flex:none;padding:4px 9px!important;font-size:13px!important;line-height:1}
+#qStatusCard{position:relative}
+#qStatusCard .brfhelp{position:absolute;top:8px;right:8px;margin:0;width:30px;height:30px;
+  border-radius:50%;padding:0!important;display:flex;align-items:center;justify-content:center;
+  opacity:.7;font-size:14px!important}
+#qStatusCard .brfhelp:hover{opacity:1}
 #playerHome{padding-bottom:96px}
 #qStatus{padding:16px 18px;text-align:center}
 #qStatus .qlab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
@@ -1370,7 +1376,8 @@ window.SS_CONFIG = {
        <div id="saKpis" style="margin-top:10px"></div>
      </div>
      <div class="card" id="saBoardCard" style="display:none">
-       <h3>🏆 Session leaderboard</h3>
+       <h3>🏆 Session leaderboard
+         <button class="small" id="saDl" style="float:right" onclick="downloadSessionBoard()" disabled>📸 Download card</button></h3>
        <div id="saBoard"></div>
      </div>
      <div class="card" id="saMatchCard" style="display:none">
@@ -1835,6 +1842,11 @@ window.SS_CONFIG = {
     </div>
   </div>
 
+  <div class="phcard" id="trendCard" style="display:none">
+    <h3><span class="htxt">📈 How you're tracking</span></h3>
+    <div id="trendBody"></div>
+  </div>
+
   <div class="phcard">
     <h3>🎴 Session Stat Cards</h3>
     <div class="controls">
@@ -1876,23 +1888,36 @@ window.SS_CONFIG = {
   </div>
   </div>
 <div class="ptab on" id="pt-gate">
-<div class="phcard">
-    <h3>🎟 Enter the Gate — Session Code</h3>
+<div class="phcard" id="qStatusCard" style="display:none;padding:0;overflow:hidden">
+    <div id="qStatus"></div>
+  </div><div class="phcard" id="recapCard" style="display:none">
+  <h3><span class="htxt">🌙 Your night</span></h3>
+  <div id="recapBody"></div>
+</div>
+<div class="phcard" id="benchStrip" style="display:none;padding:10px 12px">
+  <div class="gstrip">
+    <button class="gs" id="gsBench" onclick="toggleBench()">🪑 Sit this one out</button>
+    <button class="gs" id="gsPref" onclick="gateShowPref()">🤝 Partner</button>
+  </div>
+</div>
+<div class="phcard" style="padding:8px"><div id="pboardWrap">
+    <p class="soon" style="padding:10px">Enter tonight's code above and the live board appears here — courts, up next, the leaderboard podium, and match history, updating in real time.</p>
+  </div></div><div class="phcard" id="whosInCard" style="display:none">
+  <h3><span class="htxt">👥 Who's in tonight</span><span class="hn" id="whosInN"></span></h3>
+  <div id="whosInBody"></div>
+</div>
+<div class="phcard" id="payCard" style="display:none">
+    <h3>💳 Session Fee</h3>
+    <div id="payBody"></div>
+  </div><div class="phcard" id="joinCard">
+    <h3><span class="htxt">🎟 Enter the Gate — Session Code</span></h3>
     <div class="joinrow">
       <input id="joinCode" maxlength="6" placeholder="CODE">
       <button onclick="playerJoin()">Join</button>
     </div>
     <p class="autherr" id="joinMsg"></p>
     <p class="soon" id="gateHint" style="margin-top:8px;font-size:12.5px">📱 Scan the session QR at the front desk, or ask the Party Leader for tonight's 6-character code.</p>
-  </div>
-  <div class="phcard" id="qStatusCard" style="display:none;padding:0;overflow:hidden">
-    <div id="qStatus"></div>
-  </div>
-  <div class="phcard" id="payCard" style="display:none">
-    <h3>💳 Session Fee</h3>
-    <div id="payBody"></div>
-  </div>
-  <div class="phcard" id="benchCard" style="display:none">
+  </div><div class="phcard" id="benchCard" style="display:none">
     <h3>🪑 Bench &amp; Partner</h3>
     <div id="benchState" class="benchstate"></div>
     <button id="benchBtn" class="wide" onclick="toggleBench()">🪑 Sit this one out</button>
@@ -1909,9 +1934,10 @@ window.SS_CONFIG = {
         If you both pick each other, it counts double.</p>
     </div>
   </div>
-  <div class="phcard" style="padding:8px"><div id="pboardWrap">
-    <p class="soon" style="padding:10px">Enter tonight's code above and the live board appears here — courts, up next, the leaderboard podium, and match history, updating in real time.</p>
-  </div></div>
+  
+  
+  
+  
 </div>
 <div class="ptab" id="pt-ach">
 <div class="phcard">
@@ -3408,9 +3434,11 @@ function buildSessionBoardCard(d, done){
     }
     // ---- summary chips ----
     const sm=d.summary||{};
+    const txp = d.totalXp!=null ? d.totalXp
+      : (d.board||[]).reduce((a,p)=>a+(+p.xp||0),0);
     const chips=[["\uD83D\uDC65", String(sm.players||b5.length||0), "PLAYERS"],
                  ["\uD83C\uDFAE", String(sm.matches||0), "GAMES"],
-                 ["\u26A1", String(d.totalXp||0), "TOTAL XP"]];
+                 ["\u26A1", txp.toLocaleString(), "TOTAL XP"]];
     const cw=264, gap=22, x0=cx-(cw*3+gap*2)/2, cy=1072, chh=104;
     chips.forEach((ch,i)=>{
       const bx=x0+i*(cw+gap);
@@ -3424,7 +3452,8 @@ function buildSessionBoardCard(d, done){
     // ---- footer: ranking note, then SESSION | DATE ----
     x.fillStyle=MUTE; x.font="italic 20px Georgia";
     x.fillText("Rankings are based on win %", cx, 1212);
-    const dt=new Date();
+    // date the session, not the day you pressed download
+    const dt=d.sessDate? new Date(d.sessDate+"T00:00:00") : new Date();
     const dstr=String(dt.getDate()).padStart(2,"0")+" "+
       dt.toLocaleDateString(undefined,{month:"long"})+" "+dt.getFullYear();
     const line=((d.sessTitle||"SESSION").toUpperCase())+"  |  "+dstr;
@@ -3442,6 +3471,30 @@ function buildSessionBoardCard(d, done){
   img.src=LOGO;
 }
 /* fetch the podium avatars — the admin Queue view never loads them otherwise */
+/* ---------- download a PAST session's leaderboard, same template as the queue view ---------- */
+async function downloadSessionBoard(){
+  const d=window.__saCard;
+  if(!d||!d.board||!d.board.length) return toast("Pick a session with matches first");
+  toast("Building the leaderboard card…");
+  const av=await shareSessionBoardPrefetch(d);
+  if(av && av.withPhoto<av.shown)
+    toast("\uD83D\uDCF7 "+av.withPhoto+" of "+av.shown+" have photos — the rest show initials");
+  buildSessionBoardCard(d, c=>{
+    const stamp=(d.sessDate||new Date().toISOString().slice(0,10));
+    const fname="stranger-strings-leaderboard-"+stamp+".png";
+    c.toBlob(async b=>{
+      try{
+        if(navigator.canShare){
+          const f=new File([b],fname,{type:"image/png"});
+          if(navigator.canShare({files:[f]})){
+            await navigator.share({files:[f],title:d.sessTitle||"Session Leaderboard"}); return; }
+        }
+      }catch(e){}
+      download(fname,b);
+      toast("📸 Leaderboard card downloaded");
+    });
+  });
+}
 async function shareSessionBoardPrefetch(d){
   window.__avImgs=window.__avImgs||{};
   const shown=(d.board||[]).slice(0,5).map(p=>p.pid).filter(Boolean);   // top 5, not just the podium
@@ -3459,6 +3512,7 @@ async function shareSessionBoard(){
   const sid=S.db&&S.db.sessionId;
   const srow=(window.__sessRows||[]).find(z=>z.id===sid);
   d.sessTitle=(srow&&srow.title)||"Session";
+  d.sessDate=(srow&&srow.session_date)||"";
   if(!d.board||!d.board.length) return toast("No qualified players yet — play a few matches first");
   toast("Building the leaderboard card…");
   const av=await shareSessionBoardPrefetch(d);
@@ -3962,6 +4016,10 @@ function liveData(){
     summary:{players:S.players.length,matches:S.matches.length,avgMs:Math.round(avgMs)},
     live:S.courts.filter(c=>c.start).map(c=>({court:c.name,start:c.start,
       t1:c.slots.slice(0,2).filter(Boolean).map(pl),t2:c.slots.slice(2).filter(Boolean).map(pl)})),
+    // courts with players on them but the timer not yet running — otherwise those
+    // players fall through every branch and are wrongly told "not in the queue yet"
+    assigned:S.courts.filter(c=>!c.start&&c.slots.some(Boolean)).map(c=>({court:c.name,
+      t1:c.slots.slice(0,2).filter(Boolean).map(pl),t2:c.slots.slice(2).filter(Boolean).map(pl)})),
     next:S.queues.filter(q=>q.slots.slice(0,2).some(Boolean)&&q.slots.slice(2).some(Boolean)).slice(0,2)
       .map(q=>({name:q.name,t1:q.slots.slice(0,2).filter(Boolean).map(pl),t2:q.slots.slice(2).filter(Boolean).map(pl)})),
     // every queue in order — lets each player find their own place in line
@@ -4397,7 +4455,7 @@ const BRIEF_KEY="ss_briefed_v1";
 function briefSeen(){ try{ return localStorage.getItem(BRIEF_KEY)==="1"; }catch(e){ return false; } }
 function briefMark(){ try{ localStorage.setItem(BRIEF_KEY,"1"); }catch(e){} }
 function briefMaybeShow(sessionTitle){
-  if(briefSeen()) return false;
+  // shows on every join — a reminder of what the app can do, not a one-time tutorial
   briefShow(1,sessionTitle);
   return true;
 }
@@ -4493,6 +4551,204 @@ function chDownload(){
   c.toBlob(b=>{ download((window.__chFile||"card")+"-"+(window.__chPick)+".png", b);
     closeModal("chModal");
     toast("📸 Card downloaded — post it and tag the Party"); });
+}
+/* ---- progress that isn't rank: you against you, 30 days ---- */
+function renderTrends(){
+  const card=document.getElementById("trendCard"); if(!card||!auth) return;
+  const uid=auth.uid;
+  const all=(myMatches||[]).filter(m=>m.ended_at).slice()
+    .sort((a,b)=>new Date(a.ended_at)-new Date(b.ended_at));
+  if(all.length<6){ card.style.display="none"; return; }
+  const cut=Date.now()-30*864e5;
+  const recent=all.filter(m=>new Date(m.ended_at).getTime()>=cut);
+  const older =all.filter(m=>new Date(m.ended_at).getTime()< cut);
+  const agg=rows=>{
+    if(!rows.length) return null;
+    let sc=0,co=0,close=0,closeW=0; const nights=new Set();
+    rows.forEach(m=>{ const t1=(m.t1||[]).includes(uid);
+      const mine=t1?m.s1:m.s2, th=t1?m.s2:m.s1;
+      sc+=mine; co+=th; nights.add(m.session_id);
+      if(Math.abs(mine-th)<=2){ close++; if(mine>th) closeW++; } });
+    return {margin:(sc-co)/rows.length, conceded:co/rows.length,
+      close, closeW, perNight:rows.length/Math.max(1,nights.size)};
+  };
+  const R=agg(recent), O=agg(older);
+  if(!R){ card.style.display="none"; return; }
+  const buckets=6;
+  const spark=vals=>{ const mx=Math.max(...vals.map(Math.abs),1);
+    return '<span class="tspark">'+vals.map(v=>'<i style="height:'+
+      Math.max(8,Math.round(100*Math.abs(v)/mx))+'%;background:linear-gradient(180deg,var(--ok),#2f5c3d)"></i>').join("")+'</span>'; };
+  const chunk=(rows,fn)=>{ const out=[]; const n=Math.max(1,Math.ceil(rows.length/buckets));
+    for(let i=0;i<rows.length;i+=n) out.push(fn(rows.slice(i,i+n)));
+    while(out.length<buckets) out.unshift(out[0]||0);
+    return out.slice(-buckets); };
+  const marginSeries=chunk(recent,g=>{ const a=agg(g); return a?a.margin:0; });
+  const concSeries  =chunk(recent,g=>{ const a=agg(g); return a?a.conceded:0; });
+  const nightSeries =chunk(recent,g=>{ const a=agg(g); return a?a.perNight:0; });
+  const closeSeries =chunk(recent,g=>{ const a=agg(g); return a&&a.close? 100*a.closeW/a.close : 0; });
+  const d1=v=>Math.round(v*10)/10;
+  const delta=(now,then,invert)=>{ if(then==null) return {txt:"—",cls:"fl"};
+    const d=now-then; const good=invert? d<0 : d>0;
+    return {txt:(d>=0?"+":"")+d1(d), cls: Math.abs(d)<0.2?"fl":(good?"up":"dn")}; };
+  const dm=delta(R.margin,O?O.margin:null);
+  const dc=delta(R.conceded,O?O.conceded:null,true);
+  const row=(name,sub,series,val,cls)=>
+    '<div class="tgrow"><div class="t"><b>'+name+'</b><span>'+sub+'</span></div>'+
+    spark(series)+'<div class="d" style="color:'+
+      (cls==="up"?"var(--ok)":cls==="dn"?"var(--red)":"var(--muted)")+'">'+val+'</div></div>';
+  let note="";
+  if(O&&dc.cls==="up") note='You are conceding <b>'+Math.abs(d1(R.conceded-O.conceded))+
+    ' fewer points a game</b> than a month ago — you are getting harder to beat.';
+  else if(O&&dm.cls==="up") note='Your margins are <b>'+d1(R.margin-O.margin)+
+    ' points better</b> than a month ago.';
+  else note='Six weeks of your own form — not a ranking, just you against you.';
+  document.getElementById("trendBody").innerHTML=
+    '<p class="hint" style="margin:0 0 4px">Not a ranking. Just you, against you a month ago.</p>'+
+    row("Average margin","how close your games are",marginSeries,(R.margin>=0?"+":"")+d1(R.margin),dm.cls)+
+    row("Points conceded","per game",concSeries,d1(R.conceded),dc.cls)+
+    (R.close? row("Close games won","decided by 2 or less",closeSeries,R.closeW+" of "+R.close,
+      R.closeW*2>=R.close?"up":"fl") : "")+
+    row("Games a night","your stamina",nightSeries,d1(R.perNight),"fl")+
+    '<p class="hint" style="margin-top:9px;border-top:1px solid var(--line);padding-top:9px">'+note+'</p>';
+  card.style.display="block";
+  try{ initFolds(); }catch(e){}
+}
+/* ================= GATE QoL =================
+   Who's in tonight (with partner request), the night recap, and the
+   collapse rules that keep the Gate to roughly one screen.            */
+function gateShowPref(){
+  const c=document.getElementById("benchCard");
+  if(!c) return;
+  c.style.display="block"; c.classList.remove("folded");
+  c.scrollIntoView({behavior:"smooth",block:"center"});
+}
+/* ---- who's in tonight ---- */
+async function loadWhosIn(){
+  const card=document.getElementById("whosInCard"); if(!card) return;
+  const sid=window.__mySessionId; if(!sid){ card.style.display="none"; return; }
+  const r=await sFetch("/rest/v1/session_players?session_id=eq."+sid+
+    "&select=profile_id,active,pref_partner,profiles!session_players_profile_id_fkey(reclub_name,full_name)")
+    .catch(()=>null);
+  if(!r||!r.ok){ card.style.display="none"; return; }
+  const rows=(await r.json()).filter(x=>x.profile_id);
+  if(!rows.length){ card.style.display="none"; return; }
+  const nm=x=>(x.profiles&&(x.profiles.reclub_name||x.profiles.full_name))||"Player";
+  const byId={}; rows.forEach(x=>byId[x.profile_id]=nm(x));
+  const me=auth&&auth.uid;
+  const mine=rows.find(x=>x.profile_id===me);
+  const myPref=mine&&mine.pref_partner;
+  const theirPref={}; rows.forEach(x=>{ if(x.pref_partner) theirPref[x.profile_id]=x.pref_partner; });
+  const mutual = myPref && String(theirPref[myPref]||"")===String(me);
+  await ensureAvatars(rows.slice(0,24).map(x=>x.profile_id));
+  const face=(id,name)=>{ const u=(window.__avCache||{})[id];
+    return '<span class="wav">'+(u? '<img src="'+u+'">':esc((name||"?").trim().slice(0,1).toUpperCase()))+'</span>'; };
+  const SHOW=14;
+  const chips=rows.slice(0,SHOW).map(x=>{
+    const isMe=x.profile_id===me, isPref=myPref&&x.profile_id===myPref;
+    return '<span class="wchip'+(isMe?" me":(isPref?" req":""))+'" '+
+      (isMe?'':'onclick="whosInPick(\''+x.profile_id+'\',\''+esc(nm(x)).replace(/'/g,"")+'\')"')+'>'+
+      face(x.profile_id,nm(x))+esc(nm(x))+
+      (isMe?'<span class="wtag">YOU</span>':(isPref?'<span class="wtag">ASKED</span>':''))+'</span>';
+  }).join("")+(rows.length>SHOW? '<span class="wchip more">+'+(rows.length-SHOW)+'</span>':'');
+  document.getElementById("whosInN").textContent=rows.length+" joined";
+  document.getElementById("whosInBody").innerHTML=chips+
+    '<div class="wpair">'+(myPref
+      ? '🤝 You asked to play with <b>'+esc(byId[myPref]||"someone")+'</b>'+
+        (mutual? ' · <span class="wmut">they asked for you too</span>':'')+
+        '<br><span class="whint">A hint, not a reservation — fair rotation still comes first.</span>'
+      : '<span class="whint">Tap anyone above to ask to play with them.</span>')+'</div>';
+  card.style.display="block";
+  try{ initFolds(); }catch(e){}
+}
+async function whosInPick(pid,name){
+  if(!window.__mySessionId||!auth) return;
+  if(!await uiConfirm("Ask to play with "+name+"?\nThe Party Leader will try when it's a close call.",
+    {title:"🤝 Partner request",ok:"Ask"})) return;
+  const r=await sFetch("/rest/v1/session_players?session_id=eq."+window.__mySessionId+
+    "&profile_id=eq."+auth.uid,{method:"PATCH",body:{pref_partner:pid}}).catch(()=>null);
+  if(!r||!r.ok) return toast("Could not save that request");
+  toast("🤝 Asked to play with "+name);
+  loadWhosIn();
+  const sel=document.getElementById("prefSel"); if(sel) sel.value=pid;
+}
+/* ---- the night recap ---- */
+function nightRecap(){
+  const card=document.getElementById("recapCard"); if(!card) return;
+  const sid=window.__mySessionId;
+  const rows=(myMatches||[]).filter(m=>m.session_id===sid);
+  if(!rows.length||!auth){ card.style.display="none"; return; }
+  const uid=auth.uid;
+  let w=0,scored=0,conceded=0,best=null,worst=null,streak=0,cur=0;
+  const partners={};
+  const ordered=rows.slice().sort((a,b)=>new Date(a.ended_at)-new Date(b.ended_at));
+  ordered.forEach(m=>{
+    const onT1=(m.t1||[]).includes(uid);
+    const mine=onT1?m.s1:m.s2, th=onT1?m.s2:m.s1;
+    scored+=mine; conceded+=th;
+    const won=mine>th;
+    if(won){ w++; cur++; streak=Math.max(streak,cur); } else cur=0;
+    const ids=onT1?(m.t1||[]):(m.t2||[]), names=onT1?(m.t1n||[]):(m.t2n||[]);
+    ids.forEach((id,k)=>{ if(id&&id!==uid&&names[k]) partners[names[k]]=(partners[names[k]]||0)+(won?1.001:1); });
+    const thN=(onT1?(m.t2n||[]):(m.t1n||[])).filter(Boolean).join(" & ");
+    const myN=names.filter((_,k)=>ids[k]!==uid).filter(Boolean).join(" & ")||"solo";
+    if(won&&(!best||(mine-th)>best.d)) best={d:mine-th,s:mine+"–"+th,with:myN,vs:thN};
+    if(!won&&(!worst||(th-mine)<worst.d)) worst={d:th-mine,s:mine+"–"+th,vs:thN};
+  });
+  const g=rows.length;
+  const top=Object.keys(partners).sort((a,b)=>partners[b]-partners[a])[0];
+  const topN=top? Math.floor(partners[top]) : 0;
+  const topW=top? Math.round((partners[top]-topN)*1000) : 0;
+  const xp=w*30+(g-w)*10;
+  const waits=[]; rows.forEach(m=>{ const v=(m.waits||{})[uid]; if(v!=null) waits.push(+v); });
+  const avgWait=waits.length? Math.round(waits.reduce((a,b)=>a+b,0)/waits.length) : null;
+  const mom=[];
+  if(best) mom.push(['⚔️','Best win',best.s+' with '+esc(best.with)+' over '+esc(best.vs)]);
+  if(streak>=2) mom.push(['🔥',streak+'-game win streak','Your longest run of the night']);
+  if(top&&topN>=2) mom.push(['🤝','Played most with '+esc(top),topN+' games together · '+topW+' of them won']);
+  if(worst&&worst.d<=4) mom.push(['😤','Toughest game',worst.s+' against '+esc(worst.vs)+' — that one was close']);
+  document.getElementById("recapBody").innerHTML=
+    '<div class="rcbig">'+g+' game'+(g===1?"":"s")+'. '+w+' win'+(w===1?"":"s")+'.</div>'+
+    '<p class="hint" style="margin:2px 0 0">'+
+      (w===g&&g>1? 'Unbeaten tonight.' : (streak>=3? 'You closed on a '+streak+'-game run.' :
+       (g>=6? 'A busy night on court.' : 'Thanks for coming out.')))+'</p>'+
+    '<div class="rcsum"><div><b>'+g+'</b><span>games</span></div>'+
+      '<div><b>'+w+'</b><span>wins</span></div>'+
+      '<div><b>+'+xp+'</b><span>xp</span></div>'+
+      (avgWait!=null? '<div><b>'+avgWait+'m</b><span>avg wait</span></div>':'')+'</div>'+
+    mom.map(m=>'<div class="rcmom"><div class="em">'+m[0]+'</div><div><b>'+m[1]+'</b>'+
+      '<span>'+m[2]+'</span></div></div>').join("")+
+    '<button class="rcbtn" onclick="downloadSessionCard()">📸 Share your night</button>'+
+    '<p class="hint" style="margin-top:8px">Full trends live on your <b>Profile</b>.</p>';
+  card.style.display="block";
+}
+/* ---- Gate collapse rules: keep it near one screen ---- */
+function gateTune(){
+  const st=(window.__lastStatus||"idle");
+  const joined=!!window.__mySessionId;
+  const jc=document.getElementById("joinCard");
+  if(jc){
+    const h3=jc.querySelector("h3 .htxt");
+    if(joined){ jc.classList.add("folded");
+      if(h3) h3.innerHTML='✓ In '+esc(window.__mySessionTitle||"tonight's session"); }
+    else { jc.classList.remove("folded");
+      if(h3) h3.textContent="🎟 Enter the Gate — Session Code"; }
+  }
+  const strip=document.getElementById("benchStrip");
+  const bench=document.getElementById("benchCard");
+  if(strip&&bench){
+    const live=(st==="playing"||st==="oncourt"||st==="next"||st==="queued");
+    strip.style.display=(joined&&live)?"block":"none";
+    if(joined&&live) bench.classList.add("folded");
+    const gb=document.getElementById("gsBench");
+    if(gb) gb.textContent=window.__benchOut? "↩ I'm back in" : "🪑 Sit this one out";
+    if(gb) gb.classList.toggle("on",!!window.__benchOut);
+  }
+  const wi=document.getElementById("whosInCard");
+  if(wi&&joined){
+    // expanded before you're in a match, collapsed once the night is running
+    const busy=(st==="playing"||st==="oncourt"||st==="next");
+    wi.classList.toggle("folded",busy);
+  }
 }
 /* ---------- queue status pills: who asked for a partner, who sat out ---------- */
 function qpData(){
@@ -6118,6 +6374,8 @@ async function loadSessionAnalytics(){
   const bc=document.getElementById("saBoardCard"), mc=document.getElementById("saMatchCard");
   if(!sel||!kp) return;
   const sid=sel.value;
+  const dl0=document.getElementById("saDl"); if(dl0) dl0.disabled=true;
+  window.__saCard=null;
   if(!sid){ kp.innerHTML='<p class="hint">Pick a session to break it down.</p>';
     bc.style.display="none"; mc.style.display="none"; return; }
   kp.innerHTML='<p class="hint">Loading…</p>';
@@ -6142,9 +6400,9 @@ async function loadSessionAnalytics(){
   ms.forEach(m=>{
     const w=m.s1>m.s2;
     (m.t1||[]).forEach((id,i)=>{ const n=(m.t1n||[])[i]||"Player";
-      who[id]=who[id]||{n,g:0,w:0,d:0}; who[id].n=n; who[id].g++; if(w)who[id].w++; who[id].d+=m.s1-m.s2; });
+      who[id]=who[id]||{n,pid:id,g:0,w:0,d:0}; who[id].n=n; who[id].g++; if(w)who[id].w++; who[id].d+=m.s1-m.s2; });
     (m.t2||[]).forEach((id,i)=>{ const n=(m.t2n||[])[i]||"Player";
-      who[id]=who[id]||{n,g:0,w:0,d:0}; who[id].n=n; who[id].g++; if(!w)who[id].w++; who[id].d+=m.s2-m.s1; });
+      who[id]=who[id]||{n,pid:id,g:0,w:0,d:0}; who[id].n=n; who[id].g++; if(!w)who[id].w++; who[id].d+=m.s2-m.s1; });
   });
   const arr=Object.values(who);
   const totalG=arr.reduce((a,b)=>a+b.g,0);
@@ -6159,6 +6417,16 @@ async function loadSessionAnalytics(){
   // leaderboard (same rule as the live board)
   const q=arr.filter(x=>x.g>=minG);
   const board=(q.length?q:arr).sort((a,b)=>(b.w/b.g)-(a.w/a.g)||b.w-a.w||b.d-a.d).slice(0,10);
+  // shape it exactly like the live board so the same poster template can render it
+  window.__saCard={
+    sessTitle:s.title||"Session",
+    sessDate:s.session_date||"",
+    doubleXp:!!(s.settings&&s.settings.doubleXp),
+    summary:{players:(roster.length||arr.length), matches:ms.length, avgMs:avgDur*60000},
+    board:board.map(x=>({n:x.n,pid:x.pid,g:x.g,w:x.w,
+      wr:Math.round(100*x.w/x.g), d:x.d,
+      xp:x.w*30+(x.g-x.w)*10}))};
+  const dl=document.getElementById("saDl"); if(dl) dl.disabled=false;
   bc.style.display="block";
   document.getElementById("saBoard").innerHTML='<table class="satable">'+
     '<tr><th>#</th><th>Player</th><th>Win %</th><th>W–L</th><th>+/−</th></tr>'+
@@ -7781,6 +8049,9 @@ function myQueueStatus(state){
   for(const c of (state.live||[])){
     if([].concat(c.t1||[],c.t2||[]).some(meMatches)) return {mode:"playing",court:c.court,start:c.start};
   }
+  for(const c of (state.assigned||[])){
+    if([].concat(c.t1||[],c.t2||[]).some(meMatches)) return {mode:"oncourt",court:c.court};
+  }
   const qs=state.queues||null;
   if(qs){
     for(let i=0;i<qs.length;i++){
@@ -7876,6 +8147,13 @@ async function renderCareer(){
 function renderQueueStatus(state){
   const card=document.getElementById("qStatusCard"), box=document.getElementById("qStatus");
   if(!card||!box) return;
+  if(!card.querySelector(".brfhelp")){
+    const b=document.createElement("button");
+    b.className="small ghost brfhelp"; b.textContent="\u2754";
+    b.title="How Stranger Strings works";
+    b.onclick=()=>briefShow(1);
+    card.appendChild(b);
+  }
   const s=myQueueStatus(state);
   card.style.display="block";
   if(s.mode==="playing"){
@@ -7883,6 +8161,11 @@ function renderQueueStatus(state){
     box.className="playing";
     box.innerHTML='<div class="qlab">Right now</div><div class="qbig">\uD83C\uDFF8 You\u2019re on '+esc(s.court||"court")+'</div>'+
       '<div class="qsub">Playing for '+mins+' min \u00b7 good luck</div>';
+  }else if(s.mode==="oncourt"){
+    box.className="playing";
+    box.innerHTML='<div class="qlab">Right now</div>'+
+      '<div class="qbig">\uD83C\uDFF8 Head to '+esc(s.court||"your court")+'</div>'+
+      '<div class="qsub">You\u2019ve been called \u2014 your match starts as soon as you\u2019re there.</div>';
   }else if(s.mode==="next"){
     box.className="next";
     box.innerHTML='<div class="qlab">Your status</div><div class="qbig">\u26A1 You\u2019re UP NEXT</div>'+
@@ -7900,6 +8183,8 @@ function renderQueueStatus(state){
     box.innerHTML='<div class="qlab">Your status</div><div class="qbig">Not in the queue yet</div>'+
       '<div class="qsub">The Party Leader builds the next matches \u2014 you\u2019ll be summoned here.</div>';
   }
+  window.__lastStatus=s.mode;
+  try{ gateTune(); }catch(e){}
   if(window.__sessionDouble) box.innerHTML+='<div class="dxbanner">\u26A1 2\u00d7 XP TONIGHT</div>';
 }
 function checkSummoned(state){
@@ -8298,6 +8583,10 @@ function renderRPG(){
   /* milestone moments parked - staging only */
   try{ initFolds(); }catch(e){}
   try{ loadMyTrainings(); }catch(e){}
+  try{ renderTrends(); }catch(e){}
+  try{ loadWhosIn(); }catch(e){}
+  try{ nightRecap(); }catch(e){}
+  try{ gateTune(); }catch(e){}
   const _cav=document.getElementById("csAv");
   if(myProfile.avatar) _cav.innerHTML='<img src="'+myProfile.avatar+'" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">';
   else _cav.textContent=(myProfile.reclub_name||"?").trim().slice(0,1).toUpperCase();
