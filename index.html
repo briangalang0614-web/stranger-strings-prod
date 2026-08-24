@@ -926,6 +926,15 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .wpair b{color:var(--gold)}
 .wmut{color:var(--ok);font-weight:800}
 .whint{font-size:11px;color:var(--muted)}
+/* --- How you're tracking: rows were emitted with no CSS, so they ran together --- */
+.tgrow{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--line)}
+.tgrow:last-of-type{border-bottom:none}
+.tgrow .t{flex:1;min-width:0}
+.tgrow .t b{display:block;font-size:13px;line-height:1.2}
+.tgrow .t span{display:block;font-size:10.5px;color:var(--muted);margin-top:1px}
+.tgrow .d{font-family:Georgia,serif;font-size:19px;min-width:58px;text-align:right;flex:none}
+.tspark{display:flex;align-items:flex-end;gap:2px;height:26px;width:58px;flex:none}
+.tspark i{flex:1;border-radius:2px 2px 0 0;min-height:3px}
 #playerHome{padding-bottom:96px}
 #qStatus{padding:16px 18px;text-align:center}
 #qStatus .qlab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
@@ -1908,7 +1917,15 @@ window.SS_CONFIG = {
   </div>
   </div>
 <div class="ptab on" id="pt-gate">
-<div class="phcard" id="qStatusCard" style="display:none;padding:0;overflow:hidden">
+<div class="phcard" id="joinCard">
+    <h3><span class="htxt">🎟 Enter the Gate — Session Code</span></h3>
+    <div class="joinrow">
+      <input id="joinCode" maxlength="6" placeholder="CODE">
+      <button onclick="playerJoin()">Join</button>
+    </div>
+    <p class="autherr" id="joinMsg"></p>
+    <p class="soon" id="gateHint" style="margin-top:8px;font-size:12.5px">📱 Scan the session QR at the front desk, or ask the Party Leader for tonight's 6-character code.</p>
+  </div><div class="phcard" id="qStatusCard" style="display:none;padding:0;overflow:hidden">
     <div id="qStatus"></div>
   </div><div class="phcard" id="recapCard" style="display:none">
   <h3><span class="htxt">🌙 Your night</span></h3>
@@ -1929,14 +1946,6 @@ window.SS_CONFIG = {
 <div class="phcard" id="payCard" style="display:none">
     <h3>💳 Session Fee</h3>
     <div id="payBody"></div>
-  </div><div class="phcard" id="joinCard">
-    <h3><span class="htxt">🎟 Enter the Gate — Session Code</span></h3>
-    <div class="joinrow">
-      <input id="joinCode" maxlength="6" placeholder="CODE">
-      <button onclick="playerJoin()">Join</button>
-    </div>
-    <p class="autherr" id="joinMsg"></p>
-    <p class="soon" id="gateHint" style="margin-top:8px;font-size:12.5px">📱 Scan the session QR at the front desk, or ask the Party Leader for tonight's 6-character code.</p>
   </div><div class="phcard" id="benchCard" style="display:none">
     <h3>🪑 Bench &amp; Partner</h3>
     <div id="benchState" class="benchstate"></div>
@@ -7984,6 +7993,8 @@ function renderBench(){
 }
 async function loadBench(sessionId){
   window.__benchSession=sessionId;
+  window.__mySessionId=sessionId;      // Who's in tonight + milestones key off this
+  try{ loadWhosIn(); }catch(e){}
   const hadPref=window.__myPref||"";
   const q="/rest/v1/session_players?session_id=eq."+sessionId+"&profile_id=eq."+auth.uid;
   let r=await sFetch(q+"&select=active,pref_partner").catch(()=>null);
