@@ -934,7 +934,7 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
   font-size:12.5px;line-height:1;cursor:pointer;max-width:100%}
 .wchip.me{border-color:var(--ok);background:rgba(78,154,99,.12);cursor:default}
 .wchip.req{border-color:rgba(202,166,78,.75);background:rgba(202,166,78,.12)}
-.wchip.more{padding:6px 11px;color:var(--muted);cursor:default}
+.wchip.more{padding:6px 11px;color:var(--gold);cursor:pointer;font-weight:700}
 .wav{width:23px;height:23px;border-radius:50%;background:#1c3324;flex:none;overflow:hidden;
   border:1.5px solid rgba(202,166,78,.35);display:flex;align-items:center;justify-content:center;
   font-family:Georgia,serif;font-size:10.5px;color:var(--ink)}
@@ -4695,14 +4695,14 @@ async function loadWhosIn(){
   await ensureAvatars(rows.slice(0,24).map(x=>x.profile_id));
   const face=(id,name)=>{ const u=(window.__avCache||{})[id];
     return '<span class="wav">'+(u? '<img src="'+u+'">':esc((name||"?").trim().slice(0,1).toUpperCase()))+'</span>'; };
-  const SHOW=14;
+  const CAP=14, showAll=!!window.__whosInShowAll, SHOW=showAll?rows.length:CAP;
   const chips=rows.slice(0,SHOW).map(x=>{
     const isMe=x.profile_id===me, isPref=myPref&&x.profile_id===myPref;
     return '<span class="wchip'+(isMe?" me":(isPref?" req":""))+'" '+
       (isMe?'':'onclick="whosInPick(\''+x.profile_id+'\',\''+esc(nm(x)).replace(/'/g,"")+'\')"')+'>'+
       face(x.profile_id,nm(x))+esc(nm(x))+
       (isMe?'<span class="wtag">YOU</span>':(isPref?'<span class="wtag">ASKED</span>':''))+'</span>';
-  }).join("")+(rows.length>SHOW? '<span class="wchip more">+'+(rows.length-SHOW)+'</span>':'');
+  }).join("")+(rows.length>CAP? '<span class="wchip more" onclick="whosInToggleAll()">'+(showAll?'\u2013 show less':'+'+(rows.length-CAP))+'</span>':'');
   document.getElementById("whosInN").textContent=rows.length+" joined";
   document.getElementById("whosInBody").innerHTML=chips+
     '<div class="wpair">'+(myPref
@@ -4713,6 +4713,11 @@ async function loadWhosIn(){
   card.style.display="block";
   try{ chRenderPrompt(rows.map(x=>x.profile_id), byId); }catch(e){}
   try{ initFolds(); }catch(e){}
+}
+/* the "+N" / "show less" chip in the who's-in list toggles the full roster */
+function whosInToggleAll(){
+  window.__whosInShowAll=!window.__whosInShowAll;
+  try{ loadWhosIn(); }catch(e){}
 }
 
 /* ================= Nemesis challenges =================
@@ -4798,7 +4803,12 @@ function nightRecap(){
   if(!rows.length||!auth){ card.style.display="none"; return; }
   const uid=auth.uid;
   let w=0,scored=0,conceded=0,best=null,worst=null,streak=0,cur=0,xpTot=0;
-  const dblR=!!(window.__dblSess&&window.__dblSess.has(sid));
+  // Double-XP for the recap: prefer __sessionDouble (set from the session's own
+  // settings when the Gate mounts, independent of a Profile visit); fall back to
+  // the __dblSess map only if that hasn't loaded.
+  const dblR=(typeof window.__sessionDouble==="boolean")
+    ? window.__sessionDouble
+    : !!(window.__dblSess&&window.__dblSess.has(sid));
   const partners={};
   const ordered=rows.slice().sort((a,b)=>new Date(a.ended_at)-new Date(b.ended_at));
   ordered.forEach(m=>{
@@ -7907,7 +7917,8 @@ async function mountPlayerBoard(sessionId){
   sFetch("/rest/v1/sessions?id=eq."+sessionId+"&select=settings")
     .then(r=>r.ok?r.json():[]).then(rows=>{
       window.__sessionDouble=!!(rows[0]&&rows[0].settings&&rows[0].settings.doubleXp);
-      if(window.__sessionDouble && window.__lastBoardState) renderQueueStatus(window.__lastBoardState); })
+      if(window.__sessionDouble && window.__lastBoardState) renderQueueStatus(window.__lastBoardState);
+      try{ nightRecap(); }catch(e){} })   // now that the double-XP flag is known, refresh the recap
     .catch(()=>{});
   pbSession=sessionId;
   const wrap=document.getElementById("pboardWrap");
