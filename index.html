@@ -548,6 +548,15 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .rp .e{font-size:22px;margin-top:2px}
 .rp .v{font-family:Georgia,serif;font-size:17px}
 .rp .s{font-size:11px;color:var(--gold);font-weight:700}
+.nem3list{display:flex;flex-direction:column}
+.nem3row{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line)}
+.nem3row:last-child{border-bottom:none}
+.nem3row .nr{font-family:Georgia,serif;font-size:15px;color:var(--red);width:16px;text-align:center}
+.nem3row .nn{flex:1;display:flex;flex-direction:column;line-height:1.25}
+.nem3row .nn b{font-size:14px}
+.nem3row .nn small{font-size:11px;color:var(--muted)}
+.nem3row .ne{display:flex;flex-direction:column;align-items:flex-end;font-family:Georgia,serif;font-size:16px;color:var(--red)}
+.nem3row .ne small{font-family:inherit;font-size:9px;color:var(--muted);font-weight:600}
 .rrel{display:flex;gap:6px;flex-wrap:wrap}
 .rrel span{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
   font-size:18px;background:rgba(202,166,78,.12);border:1.5px solid rgba(202,166,78,.5)}
@@ -875,6 +884,9 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .qpill.req{border-color:rgba(202,166,78,.55)} .qpill.req b{color:var(--gold)}
 .qpill.ben{border-color:rgba(224,166,60,.5)}  .qpill.ben b{color:var(--warn)}
 .qpill.zero{opacity:.45} .qpill.zero b{color:var(--muted)}
+.qpill.chal{border-color:var(--red);border-width:2px;background:rgba(207,107,88,.14);animation:chalpulse 2s ease-in-out infinite}
+.qpill.chal b{color:var(--red)} .qpill.chal .t{color:var(--red);opacity:.85}
+@keyframes chalpulse{0%,100%{box-shadow:0 0 0 0 rgba(207,107,88,.0)}50%{box-shadow:0 0 12px 1px rgba(207,107,88,.45)}}
 .qprow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:13px}
 .qprow:last-of-type{border-bottom:none}
 .qpav{width:30px;height:30px;border-radius:50%;background:#1c3324;border:1.5px solid rgba(202,166,78,.4);
@@ -908,6 +920,15 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 #qStatusCard .brfhelp:hover{opacity:1}
 /* --- Who's in tonight: chips were emitted with no CSS, so they rendered as one run of text --- */
 #whosInBody{display:flex;flex-wrap:wrap;gap:6px}
+#chPrompt{margin-top:10px;display:flex;flex-direction:column;gap:7px}
+.chrow{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;
+  background:rgba(207,107,88,.12);border:1.5px solid rgba(207,107,88,.4);border-radius:11px;padding:9px 11px}
+.chrow.chin{background:rgba(202,166,78,.12);border-color:rgba(202,166,78,.45)}
+.chrow .chbtns{display:flex;gap:6px;flex-shrink:0}
+.chrow button{font-size:12px;font-weight:800;border-radius:9px;padding:6px 12px;border:none;cursor:pointer}
+.chrow .chy{background:var(--red);color:#1a0f0c}
+.chrow .chn{background:var(--chipbg);color:var(--ink);border:1px solid var(--line)}
+.chnote{font-size:12px;color:var(--gold);font-weight:700;padding:2px 2px}
 .wchip{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);
   border:1.5px solid var(--line);border-radius:999px;padding:4px 11px 4px 4px;
   font-size:12.5px;line-height:1;cursor:pointer;max-width:100%}
@@ -1177,6 +1198,8 @@ window.SS_CONFIG = {
         <b id="qpReqN">0</b><span class="t">Partner<br>requests</span><span class="go">›</span></span>
       <span class="qpill ben" id="qpBen" onclick="qpOpen('ben')" title="Who is sitting this one out">
         <b id="qpBenN">0</b><span class="t">Sat<br>out</span><span class="go">›</span></span>
+      <span class="qpill chal" id="qpChal" onclick="qpOpenChal()" style="display:none" title="Nemesis challenges waiting to be set up on a court">
+        <b id="qpChalN">0</b><span class="t">😤 Challenges<br>to set up</span><span class="go">›</span></span>
       <button class="small ghost" onclick="adminRepairNames()" title="Backfill player names on old database matches from this device's local record">🩹 Fix names</button>
       <span class="hint" id="sessInfo"></span>
     </div>
@@ -1835,7 +1858,7 @@ window.SS_CONFIG = {
 <section id="playerHome">
 <div class="ptab" id="pt-profile">
 <div class="phcard">
-    <h3><span class="htxt">🎮 Character Sheet</span><button class="small ghost" onclick="briefShow(1)" title="How the app works">❔</button><button class="small ghost" onclick="toggleProfileEdit()">✏️ Edit</button><button class="small ghost" onclick="shareMyCard()">📸 Share</button></h3>
+    <h3><span class="htxt">⚔️ Character Sheet</span><button class="small ghost" onclick="briefShow(1)" title="How the app works">❔</button><button class="small ghost" onclick="toggleProfileEdit()">✏️ Edit</button><button class="small ghost" onclick="shareCareerCard()">📸 Share</button></h3>
     <div class="csheet">
       <div class="cav" id="csAv">?</div>
       <div class="cinfo">
@@ -1846,6 +1869,7 @@ window.SS_CONFIG = {
       </div>
     </div>
     <div class="mystats" id="csChips"></div>
+    <div id="careerBox"></div>
     <div class="phrow"><span>Full name</span><b id="phFull">—</b></div>
     <div class="phrow"><span>Skill level</span><b id="phLevel">—</b></div>
     <div class="phrow"><span>Username</span><b id="phUser">—</b></div>
@@ -4062,13 +4086,12 @@ function liveData(){
       return (q.length? q : all)
         .sort((a,b)=>b.st.winRate-a.st.winRate||b.st.w-a.st.w||b.st.diff-a.st.diff).slice(0,5)
         .map(x=>({n:x.p.name,pid:x.p.id,w:x.st.w,g:x.st.g,wr:Math.round(x.st.winRate),d:x.st.diff,min:minG,
-          xp:(x.st.w*30+(x.st.g-x.st.w)*10)*(sessionIsDouble()?2:1)}));
+          xp:xpAccumulate(S.matches,x.p.id,{endKey:"end",playDate:mDate(Date.now()),dbl:sessionIsDouble()})}));
     })(),
     doubleXp:sessionIsDouble(),
     totalXp:(function(){
-      const mult=sessionIsDouble()?2:1;
-      return S.players.map(p=>statsFor(p.id)).filter(s=>s.g>0)
-        .reduce((a,s)=>a+(s.w*30+(s.g-s.w)*10)*mult,0);
+      return S.players.filter(p=>statsFor(p.id).g>0)
+        .reduce((a,p)=>a+xpAccumulate(S.matches,p.id,{endKey:"end",playDate:mDate(Date.now()),dbl:sessionIsDouble()}),0);
     })(),
     boardMin:(function(){
       const all=S.players.map(p=>({p,st:statsFor(p.id)})).filter(x=>x.st.g>0);
@@ -4513,8 +4536,9 @@ function briefShow(step,sessionTitle){
         '<h2>How you level up</h2>'+
         '<p>Every match you play counts. Automatically.</p></div>'+
       '<div class="brfxp">'+
-        '<div class="r">\uD83C\uDFF8 <b>Win a match</b><span class="v">+30 XP</span></div>'+
+        '<div class="r">\uD83C\uDFF8 <b>Win a match</b><span class="v">+50 XP</span></div>'+
         '<div class="r">\uD83D\uDCAA <b>Lose a match</b><span class="v">+10 XP</span></div>'+
+        '<div class="r">\uD83D\uDD25 <b>Win streak</b><span class="v dim">3 in a row 1.25\u00D7 \u00b7 5 in a row 1.5\u00D7</span></div>'+
         '<div class="r" style="border-top:1px solid rgba(255,255,255,.1);margin-top:4px;padding-top:8px">'+
           '\u26A1 <b>2\u00D7 XP nights</b><span class="v dim">everything doubled</span></div>'+
       '</div>'+
@@ -4687,7 +4711,73 @@ async function loadWhosIn(){
         '<br><span class="whint">A hint, not a reservation — fair rotation still comes first.</span>'
       : '<span class="whint">Tap anyone above to ask to play with them.</span>')+'</div>';
   card.style.display="block";
+  try{ chRenderPrompt(rows.map(x=>x.profile_id), byId); }catch(e){}
   try{ initFolds(); }catch(e){}
+}
+
+/* ================= Nemesis challenges =================
+   Player issues a challenge to a top-3 nemesis who's in tonight; target accepts;
+   the Party Leader is guided to set the match; it auto-resolves when that match
+   is recorded, and the SQL challenge_award_dated view applies +20 / -10. */
+async function chIssue(pid){
+  if(!window.__mySessionId||!auth) return;
+  try{
+    const r=await sFetch("/rest/v1/challenges",{method:"POST",headers:{Prefer:"return=minimal"},
+      body:{session_id:window.__mySessionId, challenger:auth.uid, target:pid, status:"pending"}});
+    if(r&&r.ok){ toast("\uD83D\uDE24 Challenge sent"); loadWhosIn(); }
+    else toast("\u26A0\uFE0F Could not send challenge");
+  }catch(e){ toast("\u26A0\uFE0F Could not send challenge"); }
+}
+async function chRespond(id,accept){
+  try{
+    const r=await sFetch("/rest/v1/challenges?id=eq."+id,{method:"PATCH",
+      body:{status:accept?"accepted":"declined", accepted_at:accept?new Date().toISOString():null}});
+    if(r&&r.ok){ toast(accept?"\u2694\uFE0F Challenge accepted":"Declined"); loadWhosIn(); }
+  }catch(e){}
+}
+async function chRenderPrompt(rosterIds, byId){
+  const card=document.getElementById("whosInCard"); if(!card) return;
+  let box=document.getElementById("chPrompt");
+  if(!box){ box=document.createElement("div"); box.id="chPrompt"; card.appendChild(box); }
+  if(!window.__mySessionId||!auth){ box.innerHTML=""; return; }
+  let mine=[];
+  try{
+    const r=await sFetch("/rest/v1/challenges?session_id=eq."+window.__mySessionId+
+      "&or=(challenger.eq."+auth.uid+",target.eq."+auth.uid+")&select=id,challenger,target,status");
+    if(r&&r.ok) mine=await r.json();
+  }catch(e){}
+  const active=c=>c.status==="pending"||c.status==="accepted"||c.status==="placed";
+  const nmeHere=(window.__nemeses3||[]).filter(n=>rosterIds.indexOf(n.id)>=0
+     && !mine.some(c=>(c.target===n.id||c.challenger===n.id)&&active(c)));
+  const incoming=mine.filter(c=>c.target===auth.uid&&c.status==="pending");
+  let html="";
+  incoming.forEach(c=>{ html+='<div class="chrow chin"><span>\uD83D\uDE24 <b>'+esc(byId[c.challenger]||"A rival")+
+    '</b> challenged you</span><span class="chbtns">'+
+    '<button class="chy" onclick="chRespond(\''+c.id+'\',true)">Accept</button>'+
+    '<button class="chn" onclick="chRespond(\''+c.id+'\',false)">Decline</button></span></div>'; });
+  nmeHere.forEach(n=>{ html+='<div class="chrow"><span>\uD83D\uDE24 Nemesis <b>'+esc(byId[n.id]||n.n)+
+    '</b> is in tonight</span><button class="chy" onclick="chIssue(\''+n.id+'\')">Challenge</button></div>'; });
+  const acc=mine.filter(c=>c.status==="accepted"||c.status==="placed");
+  if(acc.length) html+='<div class="chnote">\u2694\uFE0F '+acc.length+' challenge'+(acc.length>1?"s":"")+
+    ' locked in \u00b7 the Party Leader sets it up \u00b7 +20 to win, \u221210 to lose</div>';
+  box.innerHTML=html;
+}
+/* auto-resolve any accepted challenge whose two principals met (opposite sides) in this match */
+async function chResolveMatch(matchId,m){
+  if(!matchId||!S.db||!S.db.sessionId) return;
+  try{
+    const r=await sFetch("/rest/v1/challenges?session_id=eq."+S.db.sessionId+
+      "&status=in.(accepted,placed)&select=id,challenger,target");
+    if(!r||!r.ok) return;
+    const list=await r.json();
+    const opp=(a,b)=>(m.t1.includes(a)&&m.t2.includes(b))||(m.t2.includes(a)&&m.t1.includes(b));
+    for(const c of list){
+      if(opp(c.challenger,c.target)){
+        await sFetch("/rest/v1/challenges?id=eq."+c.id,{method:"PATCH",
+          body:{status:"resolved",match_id:matchId,resolved_at:new Date().toISOString()}});
+      }
+    }
+  }catch(e){}
 }
 async function whosInPick(pid,name){
   if(!window.__mySessionId||!auth) return;
@@ -4707,7 +4797,8 @@ function nightRecap(){
   const rows=(myMatches||[]).filter(m=>m.session_id===sid);
   if(!rows.length||!auth){ card.style.display="none"; return; }
   const uid=auth.uid;
-  let w=0,scored=0,conceded=0,best=null,worst=null,streak=0,cur=0;
+  let w=0,scored=0,conceded=0,best=null,worst=null,streak=0,cur=0,xpTot=0;
+  const dblR=!!(window.__dblSess&&window.__dblSess.has(sid));
   const partners={};
   const ordered=rows.slice().sort((a,b)=>new Date(a.ended_at)-new Date(b.ended_at));
   ordered.forEach(m=>{
@@ -4716,6 +4807,7 @@ function nightRecap(){
     scored+=mine; conceded+=th;
     const won=mine>th;
     if(won){ w++; cur++; streak=Math.max(streak,cur); } else cur=0;
+    xpTot+=matchXp(won,cur,pdOf(m),dblR);
     const ids=onT1?(m.t1||[]):(m.t2||[]), names=onT1?(m.t1n||[]):(m.t2n||[]);
     ids.forEach((id,k)=>{ if(id&&id!==uid&&names[k]) partners[names[k]]=(partners[names[k]]||0)+(won?1.001:1); });
     const thN=(onT1?(m.t2n||[]):(m.t1n||[])).filter(Boolean).join(" & ");
@@ -4727,7 +4819,7 @@ function nightRecap(){
   const top=Object.keys(partners).sort((a,b)=>partners[b]-partners[a])[0];
   const topN=top? Math.floor(partners[top]) : 0;
   const topW=top? Math.round((partners[top]-topN)*1000) : 0;
-  const xp=w*30+(g-w)*10;
+  const xp=xpTot;
   const waits=[]; rows.forEach(m=>{ const v=(m.waits||{})[uid]; if(v!=null) waits.push(+v); });
   const avgWait=waits.length? Math.round(waits.reduce((a,b)=>a+b,0)/waits.length) : null;
   const mom=[];
@@ -4803,6 +4895,40 @@ function qpRefresh(){
     const pill=document.getElementById(zero); if(pill) pill.classList.toggle("zero",n===0); };
   set("qpReqN",d.req.length,"qpReq");
   set("qpBenN",d.out.length,"qpBen");
+  const cg=(window.__chalGuide||[]).length;
+  const cp=document.getElementById("qpChal"); if(cp) cp.style.display=cg?"inline-flex":"none";
+  const cn=document.getElementById("qpChalN"); if(cn) cn.textContent=cg;
+  if(Date.now()-(window.__chalGuideAt||0)>20000){ window.__chalGuideAt=Date.now(); chGuideRefresh(); }
+}
+/* Party-Leader guide: accepted challenges waiting to be set up on a court */
+async function chGuideRefresh(){
+  if(!S.db||!S.db.sessionId||!myProfile||!myProfile.is_admin) return;
+  try{
+    const r=await sFetch("/rest/v1/challenges?session_id=eq."+S.db.sessionId+
+      "&status=in.(accepted,placed)&select=id,challenger,target");
+    if(!r||!r.ok) return;
+    const list=await r.json();
+    const ids=[...new Set(list.flatMap(c=>[c.challenger,c.target]))];
+    const names={};
+    if(ids.length){
+      const pr=await sFetch("/rest/v1/profiles?id=in.("+ids.join(",")+")&select=id,reclub_name,full_name");
+      if(pr&&pr.ok)(await pr.json()).forEach(p=>names[p.id]=p.reclub_name||p.full_name||"Player");
+    }
+    window.__chalGuide=list.map(c=>({id:c.id,a:names[c.challenger]||"Player",b:names[c.target]||"Player"}));
+  }catch(e){}
+  qpRefresh();
+}
+function qpOpenChal(){
+  const T=document.getElementById("qpTitle"),S2=document.getElementById("qpSub"),B=document.getElementById("qpBody");
+  if(!T) return;
+  const g=window.__chalGuide||[];
+  T.textContent="\uD83D\uDE24 Nemesis challenges";
+  S2.textContent="Put each pair on opposite sides of a match \u2014 it scores itself when you record it.";
+  B.innerHTML=g.length? g.map(c=>'<div class="qprow"><div class="t"><b>'+esc(c.a)+'</b> vs <b>'+esc(c.b)+
+      '</b><span>+20 to the winner \u00b7 \u221210 to the loser</span></div></div>').join("")+
+      '<p class="hint" style="margin-top:10px">Partners are assigned normally \u2014 only these two carry the stakes.</p>'
+    : '<p class="hint">No challenges waiting to be set up.</p>';
+  openModal("qpModal");
 }
 function qpOpen(kind){
   const d=qpData();
@@ -6454,7 +6580,7 @@ async function loadSessionAnalytics(){
     summary:{players:(roster.length||arr.length), matches:ms.length, avgMs:avgDur*60000},
     board:board.map(x=>({n:x.n,pid:x.pid,g:x.g,w:x.w,
       wr:Math.round(100*x.w/x.g), d:x.d,
-      xp:x.w*30+(x.g-x.w)*10}))};
+      xp:xpAccumulate(ms,x.pid,{endKey:"ended_at",playDate:(s.session_date||""),dbl:!!(s.settings&&s.settings.doubleXp)})}))};
   const dl=document.getElementById("saDl"); if(dl) dl.disabled=false;
   bc.style.display="block";
   document.getElementById("saBoard").innerHTML='<table class="satable">'+
@@ -7150,6 +7276,8 @@ async function enterApp(cachedProfile){
   const p=cachedProfile||await fetchMyProfile();
   if(!p){ throw new Error("Profile not found — did you run schema.sql?"); }
   try{ localStorage.setItem("ss_profile",JSON.stringify(p)); }catch(e){}
+  try{ const _er=await sFetch("/rest/v1/club_settings?id=eq.1&select=xp_epoch");
+       if(_er&&_er.ok){ const _ej=await _er.json(); window.__xpEpoch=(_ej[0]&&_ej[0].xp_epoch)||null; } }catch(e){}
   document.getElementById("authScreen").classList.remove("on");
   document.getElementById("userBadge").style.display="";
   document.getElementById("userBadge").textContent=(p.reclub_name||p.name||"")+(p.is_admin?" · admin":"");
@@ -7524,8 +7652,10 @@ async function dbRecordMatch(m){
     t1:m.t1, t2:m.t2, t1n:m.t1n||[], t2n:m.t2n||[], s1:m.s1, s2:m.s2,
     started_at:new Date(m.start).toISOString(), ended_at:new Date(m.end).toISOString(),
     waits:m.waits||{}};
-  const r=await sFetch("/rest/v1/matches",{method:"POST",body}).catch(()=>null);
-  if(!r || !r.ok) toast("⚠️ Match saved locally but not to the database");
+  const r=await sFetch("/rest/v1/matches",{method:"POST",body,headers:{Prefer:"return=representation"}}).catch(()=>null);
+  if(!r || !r.ok){ toast("⚠️ Match saved locally but not to the database"); return; }
+  try{ const saved=await r.json(); const mid=saved&&saved[0]&&saved[0].id;
+       if(mid) chResolveMatch(mid,m); }catch(e){}   // fire-and-forget; never blocks match save
 }
 /* ---- queue_state upsert on every save ---- */
 let dbPushTimer=null;
@@ -7668,6 +7798,7 @@ async function loadMyHistory(manual){
   const sr=await sFetch("/rest/v1/sessions?id=in.("+[...sidSet].join(",")+")&select=id,title,session_date,settings").catch(()=>null);
   if(sr&&sr.ok){ const srows=await sr.json();
     window.__dblSess=new Set(srows.filter(s=>s.settings&&s.settings.doubleXp).map(s=>s.id));
+    window.__sessDate={}; srows.forEach(s=>{ window.__sessDate[s.id]=s.session_date; });
     srows.forEach(s=>sess[s.id]=s); }
   const nm=(id,i,stored)=>esc(names[id]||(stored&&stored[i])||"Guest");
   window.__histNames=names;
@@ -8116,6 +8247,7 @@ async function renderCareer(){
   if(!rows.length){ box.innerHTML='<p class="soon">Play a few matches and your character sheet appears here.</p>'; return; }
   const {st,ex}=careerStatsFrom(rows,uid);
   const R=relationStats(rows,uid);
+  window.__nemeses3=R.nemeses3||[];
   const nSess=new Set(rows.map(m=>m.session_id)).size;
   const A=rpgAttrs(rows,uid,nSess);
   const xp=xpOf(st), lv=levelOf(xp);
@@ -8165,6 +8297,12 @@ async function renderCareer(){
         ' · '+Math.round(100*R.nemesis.w/R.nemesis.g)+'%</div></div>'
        :'<div class="rp"><div class="k">NEMESIS</div><div class="e">😤</div><div class="v">none yet</div><div class="s">nobody has your number</div></div>')+
       '</div></div>'+
+    ((R.nemeses3&&R.nemeses3.length)?'<div class="rsec" data-k="nem3"><b>TOP 3 NEMESIS \uD83D\uDE24</b><i></i><span class="chev">\u25BE</span></div>'+
+      '<div class="rgrp"><div class="nem3list">'+
+      R.nemeses3.map((x,i)=>'<div class="nem3row"><span class="nr">'+(i+1)+'</span>'+
+        '<span class="nn"><b>'+esc(x.n)+'</b><small>you '+x.w+'\u2013'+(x.g-x.w)+' \u00b7 '+x.g+' played</small></span>'+
+        '<span class="ne">'+Math.round(100*(x.g-x.w)/x.g)+'%<small>their edge</small></span></div>').join("")+
+      '</div></div>':'')+
     (relics?'<div class="rsec" data-k="relic"><b>RELICS · '+earned.length+' / '+all.length+
       '</b><i></i><span class="chev">\u25BE</span></div><div class="rgrp"><div class="rrel">'+relics+'</div></div>':'')+
     '<div class="rsec" data-k="log"><b>COMBAT LOG · LAST '+form.length+'</b><i></i><span class="chev">\u25BE</span></div>'+
@@ -8519,7 +8657,7 @@ function relationStats(rows,uid){
       partner[id]=partner[id]||{n:mineN[i]||"Partner",g:0,w:0};
       partner[id].g++; if(won) partner[id].w++; });
     (theirs||[]).forEach((id,i)=>{ if(!id) return;
-      rival[id]=rival[id]||{n:theirN[i]||"Rival",g:0,w:0};
+      rival[id]=rival[id]||{id:id,n:theirN[i]||"Rival",g:0,w:0};
       rival[id].g++; if(won) rival[id].w++; });   // w = MY wins over them
   });
   const pick=(obj,cmp,min)=>{
@@ -8534,6 +8672,9 @@ function relationStats(rows,uid){
     // a nemesis has to actually beat you; a favourite matchup has to actually lose to you
     nemesis:(function(){ const n=pick(rival,(a,b)=>(a.w/a.g)-(b.w/b.g)||b.g-a.g,3);
       return (n && n.w/n.g < 0.5)? n : null; })(),
+    // top 3 nemeses: min 3 games, they beat you (>50%), ranked by their edge over you
+    nemeses3:Object.values(rival).filter(x=>x.g>=3 && x.w/x.g < 0.5)
+      .sort((a,b)=>(a.w/a.g)-(b.w/b.g)||b.g-a.g).slice(0,3),
     favouriteFoe:(function(){ const f=pick(rival,(a,b)=>(b.w/b.g)-(a.w/a.g)||b.g-a.g,3);
       return (f && f.w/f.g > 0.5)? f : null; })()
   };
@@ -8563,6 +8704,7 @@ function careerStatsFrom(rows,uid){
   let w=0,diff=0,playMs=0,waitMin=0,waitN=0,xpTotal=0,dblGames=0;
   const ordered=[...rows].sort((a,b)=>new Date(a.ended_at)-new Date(b.ended_at));
   let streak=0,best=0,clutch=0,bestWin=null;
+  let xpStreak=0,lastSid=null;   // XP streak resets per session; `streak`/`best` stay career-wide
   ordered.forEach(m=>{
     const onT1=m.t1.includes(uid), won=onT1===(m.s1>m.s2), margin=Math.abs(m.s1-m.s2);
     if(won)w++; diff+= onT1? m.s1-m.s2 : m.s2-m.s1;
@@ -8571,9 +8713,11 @@ function careerStatsFrom(rows,uid){
     streak=won?streak+1:0; best=Math.max(best,streak);
     if(won&&margin<=2) clutch++;
     if(won&&(!bestWin||margin>Math.abs(bestWin.s1-bestWin.s2))) bestWin=m;
-    const mult=(window.__dblSess&&window.__dblSess.has(m.session_id))?2:1;
-    xpTotal+=(won?30:10)*mult;
-    if(mult===2) dblGames++;
+    if(m.session_id!==lastSid){ xpStreak=0; lastSid=m.session_id; }
+    xpStreak=won?xpStreak+1:0;
+    const dbl=!!(window.__dblSess&&window.__dblSess.has(m.session_id));
+    xpTotal+=matchXp(won,xpStreak,pdOf(m),dbl);
+    if(dbl) dblGames++;
   });
   const g=rows.length;
   let nights=0;
@@ -8586,7 +8730,55 @@ function careerStatsFrom(rows,uid){
      ((bestWin.t1.includes(uid)? bestWin.t2n : bestWin.t1n)||[]).map(n=>n||"Guest").join("/")):"";
   return {st, ex:{streak:best,clutch,bestWin,bestWinText,curStreak:streak,nights}};
 }
-function xpOf(st){ return (st && st.xp!=null)? st.xp : (st.w*30+(st.l)*10); }
+/* ---- XP economy: per-match scorer — mirrors the player_match_xp SQL view.
+   Post-epoch: 50 win / 10 loss, times a PER-SESSION win-streak ramp
+   (>=5 -> 1.5x, >=3 -> 1.25x), times the doubleXp session flag.
+   Pre-epoch (or epoch unset): unchanged 30/10. Keep in lockstep with the SQL. ---- */
+function mDate(ms){ return new Date(ms+8*3600e3).toISOString().slice(0,10); }   // Manila date
+/* Epoch date for a match — MUST match the SQL, which gates on
+   play_date = coalesce(session_date, ended_at::date). So prefer the session's
+   date; only fall back to the record time when the session date is unknown. */
+function pdOf(m){
+  const sid = m && m.session_id;
+  if(sid && window.__sessDate && window.__sessDate[sid]) return window.__sessDate[sid];
+  if(m && m.session_date) return m.session_date;
+  if(m && m.ended_at) return mDate(new Date(m.ended_at).getTime());
+  return mDate(Date.now());
+}
+function matchXp(won, streak, playDate, dbl){
+  const on = window.__xpEpoch && playDate && playDate >= window.__xpEpoch;
+  const base = on
+    ? (won ? Math.round(50*(streak>=5?1.5:streak>=3?1.25:1)) : 10)
+    : (won ? 30 : 10);
+  return base * (dbl ? 2 : 1);
+}
+/* Sum a player's XP across matches. Streak resets per session (opts.sessionKey);
+   opts.endKey picks the timestamp field ('end' for live S.matches, else ended_at). */
+function xpAccumulate(matches, uid, opts){
+  opts = opts || {};
+  const endMs = m => opts.endKey==='end' ? m.end : new Date(m.ended_at).getTime();
+  const groups = {};
+  (matches||[]).forEach(m=>{
+    if(!(m.t1||[]).includes(uid) && !(m.t2||[]).includes(uid)) return;
+    const sid = opts.sessionKey ? m[opts.sessionKey] : '_';
+    (groups[sid] = groups[sid]||[]).push(m);
+  });
+  let total = 0;
+  for(const sid in groups){
+    groups[sid].sort((a,b)=>endMs(a)-endMs(b));
+    let streak = 0;
+    for(const m of groups[sid]){
+      const won = (m.t1||[]).includes(uid) ? m.s1>m.s2 : m.s2>m.s1;
+      streak = won ? streak+1 : 0;
+      const pd  = typeof opts.playDate==='function' ? opts.playDate(m)
+                : (opts.playDate || pdOf(m));
+      const dbl = typeof opts.dbl==='function' ? opts.dbl(sid) : !!opts.dbl;
+      total += matchXp(won, streak, pd, dbl);
+    }
+  }
+  return total;
+}
+function xpOf(st){ return (st && st.xp!=null)? st.xp : (st.w*50+(st.l)*10); }
 function levelOf(xp){ let lv=1; while(xp>=25*lv*lv) lv++; return lv; }
 const BADGES=[
  {id:"first",  em:"🩸", name:"First Blood",            d:"Win your first match",              f:(st,ex)=>st.w>=1},
@@ -8611,7 +8803,7 @@ function renderRPG(){
   const nSessions=new Set(myMatches.map(m=>m.session_id)).size;
   window.__myShare={st,ex,name:(myProfile.reclub_name||myProfile.full_name||"Player")};
   try{ renderCareer(); }catch(e){}
-  /* milestone moments parked - staging only */
+  setTimeout(()=>{ try{ msCheck(); }catch(e){} },900);
   try{ initFolds(); }catch(e){}
   try{ loadMyTrainings(); }catch(e){}
   try{ renderTrends(); }catch(e){}
@@ -8623,11 +8815,14 @@ function renderRPG(){
   else _cav.textContent=(myProfile.reclub_name||"?").trim().slice(0,1).toUpperCase();
   document.getElementById("csClass").textContent= st.g? epithetFor(st,ex) : "Unranked Wanderer";
   const qxp=window.__questXp||0;
-  const xp=xpOf(st)+qxp, lv=levelOf(xp);
+  const cxp=window.__challengeXp||0;
+  const xp=xpOf(st)+qxp+cxp, lv=levelOf(xp);
   const prev=25*(lv-1)*(lv-1), next=25*lv*lv;
   document.getElementById("csLvl").textContent=lv;
-  document.getElementById("csXp").textContent=tierOf(lv)+" · "+xp+" XP"+(qxp?" ("+qxp+" from quests)":"")+" · "+(next-xp)+" to LV "+(lv+1);
-  document.getElementById("xpFill").style.width=Math.min(100,100*(xp-prev)/(next-prev))+"%";
+  const extra=[]; if(qxp) extra.push(qxp+" from quests");
+  if(cxp) extra.push((cxp>0?"+":"")+cxp+" from challenges");
+  document.getElementById("csXp").textContent=tierOf(lv)+" · "+xp+" XP"+(extra.length?" ("+extra.join(", ")+")":"")+" · "+(next-xp)+" to LV "+(lv+1);
+  document.getElementById("xpFill").style.width=Math.min(100,Math.max(0,100*(xp-prev)/(next-prev)))+"%";
   document.getElementById("csChips").innerHTML=
     [["Wins",st.w],["Losses",st.l],["Win rate",st.g?Math.round(st.winRate)+"%":"—"],
      ["+/-",(st.diff>0?"+":"")+st.diff],["Best streak",ex.streak],["Side quests",window.__questCount||0]]
@@ -8812,7 +9007,7 @@ function buildHallPoster(rows, done){
   const RING=["#eac25f","#cfd6cf","#c98d54"];
   const TITLES=["Ruler of the Upside Down","Demogorgon Slayer","Gatekeeper of Greenfield"];
   const L=hofPeriodLabel();
-  const xpOf=r=>(r.xp!=null? r.xp : r.wins*30+(r.games-r.wins)*10);
+  const xpOf=r=>(r.xp!=null? r.xp : r.wins*50+(r.games-r.wins)*10);
   // ---- backdrop ----
   let g=x.createLinearGradient(0,0,0,H);
   g.addColorStop(0,"#101f16"); g.addColorStop(.55,"#070f0a"); g.addColorStop(1,"#03100a");
@@ -9003,7 +9198,7 @@ async function loadHall(manual){
     paintAll('<p class="soon">No battles logged in this window yet — the throne is up for grabs.</p>');
     return;
   }
-  const xpOfRow=x=>(x.xp!=null? x.xp : x.wins*30+(x.games-x.wins)*10);
+  const xpOfRow=x=>(x.xp!=null? x.xp : x.wins*50+(x.games-x.wins)*10);
   rows.sort((a,b)=>xpOfRow(b)-xpOfRow(a)||b.wins-a.wins||b.diff-a.diff);
   const medals=["🥇","🥈","🥉"];
   const myIdxPre=auth? rows.findIndex(x=>x.profile_id===auth.uid) : -1;
@@ -9146,11 +9341,14 @@ async function resetHall(){
 /* ======================= SIDE QUESTS ======================= */
 async function loadMyQuests(){
   if(!auth) return;
-  window.__questXp=0; window.__questCount=0;
+  window.__questXp=0; window.__questCount=0; window.__challengeXp=0;
   const r=await sFetch("/rest/v1/quest_awards?profile_id=eq."+auth.uid+"&select=xp").catch(()=>null);
   if(r&&r.ok){ const rows=await r.json();
     window.__questXp=rows.reduce((a,x)=>a+(+x.xp||0),0);
     window.__questCount=rows.length; }
+  // challenge XP folds into the sheet total exactly like quest XP (may be negative)
+  try{ const rc=await sFetch("/rest/v1/challenge_award_dated?profile_id=eq."+auth.uid+"&select=xp");
+       if(rc&&rc.ok){ const cr=await rc.json(); window.__challengeXp=cr.reduce((a,x)=>a+(+x.xp||0),0); } }catch(e){}
 }
 async function fillQuestPlayers(){
   const sel=document.getElementById("sqPlayer"); if(!sel) return;
