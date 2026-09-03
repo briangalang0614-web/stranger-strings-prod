@@ -373,12 +373,53 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .paydot.unpaid{background:#cf6b58;box-shadow:0 0 8px rgba(207,107,88,.55)}
 .paydot.sent{background:#e0a63c;box-shadow:0 0 8px rgba(224,166,60,.6)}
 .paydot.ok{background:#4e9a63;box-shadow:0 0 8px rgba(78,154,99,.6)}
+.paydot.waived{background:var(--gold);box-shadow:0 0 8px rgba(200,168,96,.5)}
+.waivebtn{flex:none;font-size:11px;font-weight:700;color:var(--muted);background:transparent;border:1px solid var(--line);
+  border-radius:16px;padding:5px 12px;cursor:pointer}
+.waivebtn:hover{color:var(--gold);border-color:var(--gold)}
+/* session close-out summary */
+.cobar{height:10px;border-radius:99px;background:var(--panel2);overflow:hidden;margin:2px 0 7px}
+.cobar i{display:block;height:100%;background:#7cb08a;border-radius:99px;transition:width .4s}
+.corow{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;margin-bottom:12px}
+.corow .dim,.cowaived .dim{color:var(--muted)}
+.cotiles{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.cotiles div{background:var(--panel2);padding:11px;text-align:center}
+.cotiles b{display:block;font-size:22px} .cotiles span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cowaived{font-size:12.5px;color:var(--gold);margin-bottom:10px}
+.colabel{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.cochips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.cochip{font-size:13px;background:rgba(207,107,88,.12);border:1px solid rgba(207,107,88,.35);color:#e0a08f;border-radius:20px;padding:5px 12px}
+.cobanner{font-size:12.5px;line-height:1.45;border-radius:12px;padding:12px 14px}
+.cobanner.warn{background:rgba(202,166,78,.08);border:1px solid rgba(202,166,78,.28);color:#d9c48c}
+.cobanner.ok{background:rgba(124,176,138,.1);border:1px solid rgba(124,176,138,.35);color:#9fd6a6}
+.cobanner b{color:inherit}
 .payrow{display:flex;align-items:center;gap:11px;padding:10px 4px;border-bottom:1px solid var(--line)}
 .payrow:last-child{border-bottom:none}
 .payrow .pm{flex:1;min-width:0}
 .payrow .pm b{display:block;font-size:14px}
 .payrow .pm span{font-size:11.5px;color:var(--muted)}
 .paysum{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px}
+.cpstep{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:10px}
+.cpnav{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:20px;cursor:pointer;line-height:1}
+.cpnav:disabled{opacity:.3;cursor:default}
+.cpmonth{font-family:Georgia,serif;font-size:17px;min-width:150px;text-align:center}
+.cphero{text-align:center;padding:6px 0 4px}
+.cphero .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.cphero .big{font-size:42px;font-weight:700;line-height:1.05;margin-top:3px}
+.cphero .big.pos{color:#7cb08a}.cphero .big.neg{color:#cf6b58}
+.cphero .meta{font-size:13px;color:var(--muted);margin-top:4px}
+.cphero .meta .pos{color:#7cb08a}.cphero .meta .neg{color:#cf6b58}
+.cpdelta{display:inline-block;margin-top:9px;font-size:12.5px;border-radius:20px;padding:4px 13px}
+.cpdelta.up{background:rgba(124,176,138,.12);border:1px solid rgba(124,176,138,.35);color:#9fd6a6}
+.cpdelta.down{background:rgba(207,107,88,.12);border:1px solid rgba(207,107,88,.35);color:#e0a08f}
+.cptiles{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:14px}
+.cptiles div{background:var(--panel2);padding:12px;text-align:center}
+.cptiles b{display:block;font-size:20px} .cptiles span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cpstream{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.cpstream .nm{flex:0 0 118px;font-size:14px}
+.cpstream .bar{flex:1;height:8px;border-radius:99px;background:var(--panel2);overflow:hidden}
+.cpstream .bar i{display:block;height:100%;border-radius:99px}
+.cpstream .amt{flex:0 0 76px;text-align:right;font-family:ui-monospace,monospace;font-size:13px}
 .paysum div{flex:1;min-width:110px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .paysum b{display:block;font-size:20px}.paysum span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 #payQRimg{max-width:230px;width:100%;border-radius:14px;border:2px solid var(--line);background:#fff}
@@ -412,6 +453,24 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .duerow .dm span{font-size:11.5px;color:var(--muted)}
 .duerow .damt{font-family:"Courier New",monospace;font-weight:800;color:var(--red)}
 .balrow{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line)}
+.balrow.tap{cursor:pointer;border-radius:8px;padding-left:6px;padding-right:8px;transition:background .15s}
+.balrow.tap:hover{background:rgba(124,176,138,.06)}
+.balrow.tap .bval::after{content:"›";margin-left:8px;color:var(--muted);font-size:20px;line-height:1}
+/* SOA (statement of account) ledger */
+.soahead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:2px 0 12px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.soahead .who{font-family:Georgia,serif;font-size:19px;color:var(--ink)}
+.soahead .bal{text-align:right}
+.soahead .bal b{font-size:22px} .soahead .bal span{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.soarow{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--line)}
+.soarow:last-child{border-bottom:none}
+.soarow .dt{font-family:ui-monospace,monospace;font-size:13px;color:var(--muted);flex:none;width:96px}
+.soarow .ti{flex:1;font-size:14.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.soarow .amt{font-family:ui-monospace,monospace;font-size:14px;flex:none}
+.soarow .st{flex:none;font-size:10px;font-weight:800;letter-spacing:.06em;border-radius:20px;padding:3px 9px}
+.soarow .st.unpaid{color:var(--red);background:rgba(207,107,88,.14);border:1px solid rgba(207,107,88,.4)}
+.soarow .st.paid{color:var(--green);background:rgba(124,176,138,.14);border:1px solid rgba(124,176,138,.4)}
+.soafoot{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-size:14px}
+.soafoot b{color:var(--red)}
 .balrow:last-child{border-bottom:none}
 .balrow .bm{flex:1;min-width:0}
 .balrow .bm b{display:block;font-size:14px}
@@ -517,6 +576,18 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .lkbar{max-width:340px;margin:0 auto;height:10px;border-radius:99px;background:var(--panel2);overflow:hidden}
 .lkbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--gold))}
 .shrow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.shstep{display:flex;align-items:center;justify-content:center;gap:14px;margin:2px 0 8px}
+.shflow{display:flex;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line)}
+.shflow .ic{width:38px;height:38px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;font-size:19px}
+.shflow .tx{flex:1;min-width:0}
+.shflow .tx b{display:block;font-size:14.5px}
+.shflow .tx span{font-size:12px;color:var(--muted)}
+.shflow .amt{flex:none;font-size:14px}
+.shmargin{margin-top:14px;padding:14px;text-align:center;border-radius:14px;background:rgba(124,176,138,.1);border:1px solid rgba(124,176,138,.35)}
+.shmargin .lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#9fd6a6}
+.shmargin .big{font-size:30px;font-weight:700;margin-top:3px}
+.shmargin .big.pos{color:#7cb08a}.shmargin .big.neg{color:#cf6b58}
+.shmargin .sub{font-size:11.5px;color:var(--muted);margin-top:2px}
 .shrow:last-child{border-bottom:none}
 .shrow .sn2{flex:1;min-width:0}
 .shrow .sn2 b{display:block;font-size:14px}
@@ -1283,7 +1354,7 @@ window.SS_CONFIG = {
       <select id="anRange" onchange="anRefresh()">
         <option value="30">Last 30 days</option>
         <option value="90">Last 90 days</option>
-        <option value="0">All time</option>
+        <option value="0" selected>All time</option>
       </select>
       <button class="small ghost" style="width:100%;margin-top:7px" onclick="anRefresh()">⟳ Refresh</button>
       <button class="small" style="width:100%;margin-top:7px" onclick="exportAnalytics()">⬇ Export Excel</button>
@@ -1505,6 +1576,8 @@ window.SS_CONFIG = {
   <div class="card" id="fnCollectCard" style="max-width:820px;margin:0 auto 14px;display:none">
     <h3>💳 Collection <span class="hint" style="font-weight:400">tick each player once paid</span></h3>
     <div id="ptSummary"></div>
+    <input id="ptSearch" placeholder="🔍 Type a name to find them fast…" autocomplete="off"
+      style="width:100%;margin:8px 0 4px" oninput="ptFilter()">
     <div id="ptList"></div>
     <div class="controls" id="ptPager" style="justify-content:space-between;display:none">
       <button class="small ghost" id="ptPrev" onclick="ptPage(-1)">◀ Prev</button>
@@ -1565,6 +1638,11 @@ window.SS_CONFIG = {
         <button class="small ghost" id="cpM" onclick="loadClubPnl('month')">This month</button>
         <button class="small ghost" id="cpA" onclick="loadClubPnl('all')">All time</button>
       </div>
+      <div id="cpStepper" class="cpstep" style="display:none">
+        <button class="cpnav" onclick="cpStepMonth(-1)" aria-label="Previous month">‹</button>
+        <div class="cpmonth" id="cpMonthLbl">—</div>
+        <button class="cpnav" id="cpNextBtn" onclick="cpStepMonth(1)" aria-label="Next month">›</button>
+      </div>
       <div id="cpKpis" style="margin-top:10px"></div>
     </div>
     <div class="card"><h3>💵 Revenue</h3><div id="cpRev"></div></div>
@@ -1612,7 +1690,7 @@ window.SS_CONFIG = {
       <button class="small ghost" id="shTabSale"  onclick="shTab('sale')">🧾 Record sale</button>
       <button class="small ghost" id="shTabBuy"   onclick="shTab('buy')">➕ Add batch</button>
       <button class="small ghost" id="shTabPrice" onclick="shTab('price')">🏷 Prices</button>
-      <button class="small ghost" id="shTabPnl"   onclick="shTab('pnl')">💰 Channels</button>
+      <button class="small ghost" id="shTabPnl"   onclick="shTab('pnl')">📈 Monthly</button>
       <button class="small ghost" id="shTabUsed"  onclick="shTab('used')">♻️ Used</button>
       <button class="small ghost" id="shTabManage" onclick="shTab('manage')">⚙️ Manage</button>
     </div>
@@ -3065,7 +3143,7 @@ async function loadAnalytics(){
     sFetch("/rest/v1/session_players?session_id=in.("+ids.join(",")+
       ")&select=session_id,profile_id,profiles!session_players_profile_id_fkey(reclub_name,full_name)").catch(()=>null),
     sFetch("/rest/v1/matches?session_id=in.("+ids.join(",")+
-      ")&select=session_id,t1,t2,s1,s2,started_at,ended_at&limit=4000").catch(()=>null)]);
+      ")&select=session_id,t1,t2,s1,s2,started_at,ended_at&limit=100000").catch(()=>null)]);
   const roster=(rr&&rr.ok)? await rr.json():[];
   const matches=(mr&&mr.ok)? await mr.json():[];
   const byDate={}; sess.forEach(s=>byDate[s.id]=s.session_date);
@@ -5484,107 +5562,144 @@ async function shSaleDel(id){
   toast("Sale removed"); loadShuttles();
 }
 /* ---------- consolidated club P&L: accrual first, cash as a sub-module ---------- */
-async function loadClubPnl(range){
-  if(range) window.__cpRange=range;
-  const rg=window.__cpRange||"month";
-  ["W","M","A"].forEach(k=>{ const b=document.getElementById("cp"+k);
-    if(b) b.className="small"+((k==="W"&&rg==="week")||(k==="M"&&rg==="month")||(k==="A"&&rg==="all")?"":" ghost"); });
-  const K=document.getElementById("cpKpis"); if(!K) return;
-  K.innerHTML='<p class="hint">Loading\u2026</p>';
-  let from=null;
-  if(rg!=="all"){ const d=new Date();
-    if(rg==="week"){ const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); } else d.setDate(1);
-    from=d.toISOString().slice(0,10); }
-  if(!window.__allSessions) await fillFinanceSessions();
-  if(!window.__shMissing && !SH.brands.length) await loadShuttles();
-  const sess=(window.__allSessions||[]).filter(s=>!from||s.session_date>=from);
-  const sids=sess.map(s=>s.id);
-  // ---- queue ----
+/* Local Y-M-D — never use toISOString() for a window boundary: in UTC+8 that
+   shifts local midnight back into the previous day, dragging the wrong sessions in. */
+function localYMD(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+/* Pure P&L computation for a date window [from,to) (ISO dates or null=open).
+   Returns all the figures both the summary and the detail panes need. */
+function computePnl(from,to){
+  const inRange=d=> (!from||d>=from) && (!to||d<to);
+  const sess=(window.__allSessions||[]).filter(s=>inRange(s.session_date));
   let qFees=0,qCourt=0,qShutSell=0,qOther=0,qTubes=0,qCogs=0;
   sess.forEach(s=>{ const e=expensesOf(s);
     qCourt+=e.rate*e.hours*e.courts; qShutSell+=e.tube*e.tubes; qOther+=e.other; qTubes+=e.tubes;
     const b=(SH.brands||[]).find(y=>y.name===e.brand);
     qCogs+=e.tubes*(b? +b.wac||0 : 0); });
-  if(sids.length){
-    const pr=await sFetch("/rest/v1/payments?session_id=in.("+sids.join(",")+")&select=amount,verified").catch(()=>null);
-    if(pr&&pr.ok) (await pr.json()).forEach(p=>{ if(p.verified!==false) qFees+=+p.amount||0; });
-  }
-  // ---- shuttles ----
+  qFees = (window.__cpPayByS||{}) && sess.reduce((a,s)=>a+((window.__cpPayByS||{})[s.id]||0),0);
   let shOutRev=0,shOutCogs=0,shOutTubes=0,shBuy=0,usedRev=0,usedTubes=0;
   if(!window.__shMissing){
-    (SH.sales||[]).forEach(x=>{ if(from&&x.sold_on&&x.sold_on<from) return;
+    (SH.sales||[]).forEach(x=>{ if(!inRange(x.sold_on)) return;
       shOutRev+=x.tubes*(+x.price_per_tube); shOutCogs+=x.tubes*(+x.cost_per_tube||0); shOutTubes+=x.tubes; });
-    (SH.batches||[]).forEach(x=>{ if(from&&x.received_on&&x.received_on<from) return;
-      shBuy+=x.tubes_in*(+x.cost_per_tube); });
-    (window.__usedSales||[]).forEach(x=>{ if(from&&x.sold_on&&x.sold_on<from) return;
-      usedRev+=x.tubes*(+x.price_per_tube); usedTubes+=x.tubes; });
+    (SH.batches||[]).forEach(x=>{ if(!inRange(x.received_on)) return; shBuy+=x.tubes_in*(+x.cost_per_tube); });
+    (window.__usedSales||[]).forEach(x=>{ if(!inRange(x.sold_on)) return; usedRev+=x.tubes*(+x.price_per_tube); usedTubes+=x.tubes; });
   }
-  // ---- trainings ----
   let trRev=0,trCoach=0,trCourt=0,trOther=0,trCount=0;
   if(!window.__trMissing){
-    if(!window.__trLoaded) await loadTrainings();
-    (TR.list||[]).forEach(t=>{ if(from&&t.training_date<from) return;
-      trCount++; trRev+=+t.collected||0; trCoach+=+t.coach_total||0;
-      trCourt+=+t.court_total||0; trOther+=+t.other_cost||0; });
+    (TR.list||[]).forEach(t=>{ if(!inRange(t.training_date)) return;
+      trCount++; trRev+=+t.collected||0; trCoach+=+t.coach_total||0; trCourt+=+t.court_total||0; trOther+=+t.other_cost||0; });
   }
-  // ---- P&L (accrual). The queue's shuttle charge is an internal transfer and cancels. ----
   const REV=[["Queue session fees",qFees],["Shuttle sales (outside)",shOutRev],
              ["Used shuttle sales",usedRev],["Training fees",trRev]].filter(x=>x[1]>0);
   const COGS=[["Tubes burned by queue"+(qTubes?" ("+qTubes+")":""),qCogs],
               ["Tubes sold outside"+(shOutTubes?" ("+shOutTubes+")":""),shOutCogs],
               ["Used tubes"+(usedTubes?" ("+usedTubes+")":"")+" \u2014 no cost",0]].filter(x=>x[1]>0||x[0].indexOf("no cost")>=0);
   const OPEX=[["Court rental (queue)",qCourt],["Other (queue)",qOther],
-              ["Coach fees",trCoach],["Court rental (training)",trCourt],
-              ["Other (training)",trOther]].filter(x=>x[1]>0);
-  const rev=REV.reduce((a,b)=>a+b[1],0);
-  const cogs=qCogs+shOutCogs;
-  const opex=OPEX.reduce((a,b)=>a+b[1],0);
+              ["Coach fees",trCoach],["Court rental (training)",trCourt],["Other (training)",trOther]].filter(x=>x[1]>0);
+  const rev=REV.reduce((a,b)=>a+b[1],0), cogs=qCogs+shOutCogs, opex=OPEX.reduce((a,b)=>a+b[1],0);
   const gross=rev-cogs, net=gross-opex;
-  K.innerHTML='<div class="paysum">'+
-    '<div><b class="pos">'+pesos(rev)+'</b><span>revenue</span></div>'+
-    '<div><b class="neg">'+pesos(cogs)+'</b><span>cost of goods sold</span></div>'+
-    '<div><b class="'+(gross>=0?"pos":"neg")+'">'+pesos(gross)+'</b><span>gross profit</span></div>'+
-    '<div><b class="neg">'+pesos(opex)+'</b><span>operating expenses</span></div>'+
-    '<div><b class="'+(net>=0?"pos":"neg")+'">'+pesos(net)+'</b><span>net profit</span></div></div>'+
-    '<p class="hint" style="margin-top:6px">'+sess.length+' session'+(sess.length===1?"":"s")+
-    ' \u00b7 '+trCount+' training'+(trCount===1?"":"s")+
-    (rev?' \u00b7 margin '+Math.round(1000*net/rev)/10+'%':'')+'</p>';
-  const line=(k,v,tot,col)=>'<div class="shrow"><div class="sn2" style="flex:1"><b>'+esc(k)+'</b></div>'+
-    '<span class="shbar" style="flex:0 0 100px"><i style="width:'+
-      Math.min(100,Math.max(2,Math.round(100*v/Math.max(1,tot))))+'%;background:'+col+'"></i></span>'+
-    '<b class="mono" style="min-width:84px;text-align:right;color:'+col+'">'+pesos(v)+'</b></div>';
-  const tail=(label,v,col)=>'<div class="shrow" style="border-top:2px solid var(--line)">'+
-    '<div class="sn2" style="flex:1"><b>'+label+'</b></div>'+
-    '<b class="mono" style="min-width:84px;text-align:right;color:'+col+'">'+pesos(v)+'</b></div>';
-  document.getElementById("cpRev").innerHTML= REV.length
-    ? REV.sort((a,b)=>b[1]-a[1]).map(x=>line(x[0],x[1],rev,"var(--ok)")).join("")+tail("Total revenue",rev,"var(--ok)")
-    : '<p class="hint">No revenue in this period.</p>';
-  document.getElementById("cpCogs").innerHTML= cogs
-    ? COGS.map(x=>line(x[0],x[1],cogs,"var(--red)")).join("")+tail("Total COGS",cogs,"var(--red)")
-    : '<p class="hint">No tubes consumed in this period.</p>';
-  document.getElementById("cpOpex").innerHTML= OPEX.length
-    ? OPEX.sort((a,b)=>b[1]-a[1]).map(x=>line(x[0],x[1],opex,"var(--red)")).join("")+tail("Total opex",opex,"var(--red)")
-    : '<p class="hint">No operating costs in this period.</p>';
-  // ---- profit by stream ----
-  const qNet=qFees-qCourt-qShutSell-qOther;
-  const trNet=trRev-trCoach-trCourt-trOther;
+  const qNet=qFees-qCourt-qShutSell-qOther, trNet=trRev-trCoach-trCourt-trOther;
   const shNet=(qShutSell-qCogs)+(shOutRev-shOutCogs)+usedRev;
-  renderClubWaterfall([["Queue sessions",qNet],["Shuttle business",shNet],["Trainings",trNet]]);
-  // ---- funds flow (cash) ----
-  const cashIn=rev;
-  const cashOut=shBuy+opex;
-  const cash=cashIn-cashOut;
-  const stockDelta=shBuy-cogs;
+  return {sess:sess.length,trCount,REV,COGS,OPEX,rev,cogs,opex,gross,net,
+    streams:[["Queue sessions",qNet],["Trainings",trNet],["Shuttle business",shNet]],
+    shBuy,opexTot:opex};
+}
+async function loadClubPnl(range){
+  if(range){ window.__cpRange=range; if(range==="month" && !window.__cpMonth) window.__cpMonth=localYMD(new Date()).slice(0,7); }
+  const rg=window.__cpRange||"month";
+  ["W","M","A"].forEach(k=>{ const b=document.getElementById("cp"+k);
+    if(b) b.className="small"+((k==="W"&&rg==="week")||(k==="M"&&rg==="month")||(k==="A"&&rg==="all")?"":" ghost"); });
+  const K=document.getElementById("cpKpis"); if(!K) return;
+  K.innerHTML='<p class="hint">Loading\u2026</p>';
+  if(!window.__allSessions) await fillFinanceSessions();
+  if(!window.__shMissing && !SH.brands.length) await loadShuttles();
+  if(!window.__trMissing && !window.__trLoaded) await loadTrainings();
+  // cache verified payments per session once (so month-stepping doesn't refetch)
+  if(!window.__cpPayByS){
+    const sids=(window.__allSessions||[]).map(s=>s.id);
+    const map={};
+    if(sids.length){ const pr=await sFetch("/rest/v1/payments?session_id=in.("+sids.join(",")+")&select=session_id,amount,verified").catch(()=>null);
+      if(pr&&pr.ok)(await pr.json()).forEach(p=>{ if(p.verified!==false) map[p.session_id]=(map[p.session_id]||0)+(+p.amount||0); }); }
+    window.__cpPayByS=map;
+  }
+  // resolve the window + optional prior window for the delta
+  const step=document.getElementById("cpStepper");
+  let from=null,to=null,prevFrom=null,prevTo=null,label="All time";
+  if(rg==="week"){ const d=new Date(); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day);
+    from=localYMD(d); label="This week"; if(step) step.style.display="none"; }
+  else if(rg==="month"){
+    if(step) step.style.display="flex";
+    const ym=window.__cpMonth||localYMD(new Date()).slice(0,7);
+    const [Y,M]=ym.split("-").map(Number);
+    from=ym+"-01"; to=new Date(Date.UTC(Y,M,1)).toISOString().slice(0,10);
+    const pf=new Date(Date.UTC(Y,M-2,1)); prevFrom=pf.toISOString().slice(0,10); prevTo=from;
+    label=new Date(Date.UTC(Y,M-1,1)).toLocaleDateString(undefined,{month:"long",year:"numeric"});
+    const lbl=document.getElementById("cpMonthLbl"); if(lbl) lbl.textContent=label;
+    const nb=document.getElementById("cpNextBtn"); if(nb) nb.disabled = ym>=localYMD(new Date()).slice(0,7);
+  } else { if(step) step.style.display="none"; }
+  const P=computePnl(from,to);
+  const prev = (rg==="month" && prevFrom)? computePnl(prevFrom,prevTo) : null;
+  // ---- headline ----
+  const margin = P.rev? Math.round(1000*P.net/P.rev)/10 : 0;
+  let deltaHtml="";
+  if(prev){ const d=P.net-prev.net; const up=d>=0;
+    deltaHtml='<div class="cpdelta '+(up?"up":"down")+'">'+(up?"▲":"▼")+' '+pesos(Math.abs(d))+
+      ' vs '+new Date(prevFrom+"T00:00:00").toLocaleDateString(undefined,{month:"long"})+'</div>'; }
+  K.innerHTML=
+    '<div class="cphero">'+
+      '<div class="lbl">Net profit'+(rg==="all"?" · all time":rg==="week"?" · this week":"")+'</div>'+
+      '<div class="big '+(P.net>=0?"pos":"neg")+'">'+pesos(P.net)+'</div>'+
+      '<div class="meta"><span class="'+(P.net>=0?"pos":"neg")+'">'+(margin>=0?"▲":"▼")+' '+Math.abs(margin)+'% margin</span>'+
+        ' · '+P.sess+' session'+(P.sess===1?"":"s")+(P.trCount?' · '+P.trCount+' training'+(P.trCount===1?"":"s"):"")+'</div>'+
+      deltaHtml+
+    '</div>'+
+    '<div class="cptiles">'+
+      '<div><b class="pos">'+pesos(P.rev)+'</b><span>revenue</span></div>'+
+      '<div><b class="neg">'+pesos(P.cogs+P.opex)+'</b><span>total costs</span></div></div>';
+  // ---- where profit came from ----
+  const streams=P.streams.filter(x=>Math.abs(x[1])>0.5).sort((a,b)=>b[1]-a[1]);
+  const emoji={"Queue sessions":"🏸","Trainings":"🎓","Shuttle business":"🪶"};
+  const maxAbs=Math.max(1,...streams.map(x=>Math.abs(x[1])));
+  document.getElementById("clubWaterfall").innerHTML= streams.length
+    ? streams.map(x=>{ const pos=x[1]>=0; const col=pos?"#7cb08a":"#cf6b58";
+        return '<div class="cpstream"><span class="nm">'+(emoji[x[0]]||"")+' '+esc(x[0])+'</span>'+
+          '<span class="bar"><i style="width:'+Math.round(100*Math.abs(x[1])/maxAbs)+'%;background:'+col+'"></i></span>'+
+          '<span class="amt" style="color:'+col+'">'+pesos(x[1])+'</span></div>'; }).join("")
+    : '<p class="hint">No activity in this period.</p>';
+  // ---- detail panes (revenue / COGS / opex) ----
+  const line=(k,v,tot,col)=>'<div class="shrow"><div class="sn2" style="flex:1"><b>'+esc(k)+'</b></div>'+
+    '<span class="shbar" style="flex:0 0 100px"><i style="width:'+Math.min(100,Math.max(2,Math.round(100*v/Math.max(1,tot))))+'%;background:'+col+'"></i></span>'+
+    '<b class="mono" style="min-width:84px;text-align:right;color:'+col+'">'+pesos(v)+'</b></div>';
+  const tail=(label,v,col)=>'<div class="shrow" style="border-top:2px solid var(--line)"><div class="sn2" style="flex:1"><b>'+label+'</b></div>'+
+    '<b class="mono" style="min-width:84px;text-align:right;color:'+col+'">'+pesos(v)+'</b></div>';
+  document.getElementById("cpRev").innerHTML= P.REV.length
+    ? P.REV.sort((a,b)=>b[1]-a[1]).map(x=>line(x[0],x[1],P.rev,"var(--ok)")).join("")+tail("Total revenue",P.rev,"var(--ok)")
+    : '<p class="hint">No revenue in this period.</p>';
+  document.getElementById("cpCogs").innerHTML= P.cogs
+    ? P.COGS.map(x=>line(x[0],x[1],P.cogs,"var(--red)")).join("")+tail("Total COGS",P.cogs,"var(--red)")
+    : '<p class="hint">No tubes consumed in this period.</p>';
+  document.getElementById("cpOpex").innerHTML= P.OPEX.length
+    ? P.OPEX.sort((a,b)=>b[1]-a[1]).map(x=>line(x[0],x[1],P.opex,"var(--red)")).join("")+tail("Total opex",P.opex,"var(--red)")
+    : '<p class="hint">No operating costs in this period.</p>';
+  // ---- funds flow ----
+  const cashIn=P.rev, cashOut=P.shBuy+P.opex, cash=cashIn-cashOut, stockDelta=P.shBuy-P.cogs;
   document.getElementById("cpCash").innerHTML=
     '<div class="paysum"><div><b class="pos">'+pesos(cashIn)+'</b><span>money in</span></div>'+
     '<div><b class="neg">'+pesos(cashOut)+'</b><span>money out</span></div>'+
     '<div><b class="'+(cash>=0?"pos":"neg")+'">'+pesos(cash)+'</b><span>net cash</span></div></div>'+
-    line("Stock purchased",shBuy,Math.max(1,cashOut),"var(--red)")+
-    line("Operating expenses",opex,Math.max(1,cashOut),"var(--red)")+
-    '<p class="hint" style="margin-top:8px">Net cash of <b>'+pesos(cash)+'</b> against net profit of <b>'+pesos(net)+
+    line("Stock purchased",P.shBuy,Math.max(1,cashOut),"var(--red)")+
+    line("Operating expenses",P.opex,Math.max(1,cashOut),"var(--red)")+
+    '<p class="hint" style="margin-top:8px">Net cash of <b>'+pesos(cash)+'</b> against net profit of <b>'+pesos(P.net)+
     '</b>. The '+pesos(Math.abs(stockDelta))+' difference is stock '+
     (stockDelta>=0? 'bought but not yet sold \u2014 it sits on the shelf as value, not a loss.'
                   : 'sold from earlier purchases, so profit lands without cash going out.')+'</p>';
+}
+function cpStepMonth(dir){
+  const ym=window.__cpMonth||localYMD(new Date()).slice(0,7);
+  const [Y,M]=ym.split("-").map(Number);
+  const d=new Date(Date.UTC(Y,M-1+dir,1));
+  const next=d.toISOString().slice(0,7);
+  if(next>localYMD(new Date()).slice(0,7)) return;   // don't go past current month
+  window.__cpMonth=next; window.__cpRange="month"; loadClubPnl();
 }
 /* ================= TRAININGS ================= */
 const TR={list:[],cur:null,att:[]};
@@ -6091,49 +6206,58 @@ async function shAddChan(){
 }
 /* ---------- P&L + waterfall ---------- */
 function shPnl(box){
+  if(!window.__shMonth) window.__shMonth=localYMD(new Date()).slice(0,7);
+  const ym=window.__shMonth;
+  const [Y,M]=ym.split("-").map(Number);
+  const from=ym+"-01", to=new Date(Date.UTC(Y,M,1)).toISOString().slice(0,10);
+  const inM=d=> d && d>=from && d<to;
   const wacOf=id=>{ const b=SH.brands.find(x=>x.brand_id===id); return b? +b.wac||0 : 0; };
-  const rows=[];
-  SH.channels.filter(c=>c.is_internal).forEach(c=>{
-    const t=SH.queue.reduce((a,x)=>a+x.tubes,0);
-    const rev=SH.queue.reduce((a,x)=>a+x.tubes*x.price,0);
-    const cost=SH.queue.reduce((a,x)=>{ const b=SH.brands.find(y=>y.name===x.brand);
-      return a+x.tubes*(b? +b.wac||0 : 0); },0);
-    if(t) rows.push({n:c.name,internal:true,t,rev,margin:rev-cost});
-  });
-  SH.channels.filter(c=>!c.is_internal).forEach(c=>{
-    const s=SH.sales.filter(x=>x.channel_id===c.id);
-    if(!s.length) return;
-    const t=s.reduce((a,x)=>a+x.tubes,0);
-    const rev=s.reduce((a,x)=>a+x.tubes*(+x.price_per_tube),0);
-    const cost=s.reduce((a,x)=>a+x.tubes*(+x.cost_per_tube||wacOf(x.brand_id)),0);
-    rows.push({n:c.name,internal:false,t,rev,margin:rev-cost});
-  });
-  if(!rows.length){ box.innerHTML='<p class="hint">No shuttle movement yet.</p>'; return; }
-  const rev=rows.reduce((a,b)=>a+b.rev,0), marg=rows.reduce((a,b)=>a+b.margin,0);
-  const intM=rows.filter(r=>r.internal).reduce((a,b)=>a+b.margin,0), extM=marg-intM;
-  // club waterfall from real session figures
-  const sess=(window.__allSessions||[]);
-  let fees=0,court=0,shut=0,other=0;
-  sess.forEach(s=>{ const e=expensesOf(s);
-    court+=e.rate*e.hours*e.courts; shut+=e.tube*e.tubes; other+=e.other; });
-  fees=window.__fnFeesAll||0;
-  const steps=[["Fees",fees,"var(--ok)"],["Court",-court,"var(--red)"],["Shuttles",-shut,"var(--red)"],
-               ["Other",-other,"var(--red)"],["Shuttle margin (queue)",intM,"var(--ok)"],
-               ["Shuttle margin (outside)",extM,"var(--ok)"]];
-  let run=0; const bars=[];
-  steps.forEach(([l,v,c])=>{ bars.push([l,v,c,Math.min(run,run+v),Math.max(run,run+v)]); run+=v; });
-  const lo=Math.min(0,...bars.map(b=>b[3])), hi=Math.max(run,...bars.map(b=>b[4]));
-  const span=(hi-lo)||1, px=v=>Math.round(120*v/span);
-  box.innerHTML='<div class="paysum">'+
-    '<div><b>'+pesos(rev)+'</b><span>revenue</span></div>'+
-    '<div><b class="pos">'+pesos(marg)+'</b><span>gross margin</span></div>'+
-    '<div><b class="'+(rev&&marg/rev>=0.1?"pos":"")+'">'+(rev?Math.round(1000*marg/rev)/10:0)+'%</b><span>margin</span></div>'+
-    '<div><b>'+rows.reduce((a,b)=>a+b.t,0)+'</b><span>tubes moved</span></div></div>'+
-    rows.map(r=>'<div class="shrow"><div class="sn2"><b>'+esc(r.n)+'</b><span>'+r.t+' tubes · '+
-      pesos(r.rev)+'</span></div><b class="mono pos">'+pesos(r.margin)+'</b>'+
-      '<span class="shpill '+(r.internal?"int":"ok")+'">'+(r.internal?"queue":"outside")+'</span></div>').join("")+
-    '<p class="hint" style="margin-top:8px">Sessions carry shuttles as a cost; the club earns the margin back. '+
-    'Netting it out here is what stops the same money being counted twice.</p>';
+  const label=new Date(Date.UTC(Y,M-1,1)).toLocaleDateString(undefined,{month:"long",year:"numeric"});
+  const isCur = ym>=localYMD(new Date()).slice(0,7);
+  // ---- monthly flows ----
+  // bought: batches received this month (cash out)
+  const boughtRows=(SH.batches||[]).filter(b=>inM(b.received_on));
+  const boughtTubes=boughtRows.reduce((a,x)=>a+x.tubes_in,0);
+  const boughtCost =boughtRows.reduce((a,x)=>a+x.tubes_in*(+x.cost_per_tube||0),0);
+  // sold outside: sales this month (revenue realized). Margin follows the SALE month.
+  const soldRows=(SH.sales||[]).filter(s=>inM(s.sold_on));
+  const soldTubes=soldRows.reduce((a,x)=>a+x.tubes,0);
+  const soldRev  =soldRows.reduce((a,x)=>a+x.tubes*(+x.price_per_tube),0);
+  const soldCost =soldRows.reduce((a,x)=>a+x.tubes*(+x.cost_per_tube||wacOf(x.brand_id)),0);
+  // burned by queue: sessions dated this month (internal transfer — a quantity + cost basis)
+  const burnRows=(SH.queue||[]).filter(q=>inM(q.date));
+  const burnTubes=burnRows.reduce((a,x)=>a+x.tubes,0);
+  const burnRev  =burnRows.reduce((a,x)=>a+x.tubes*(+x.price||0),0);
+  const burnCost =burnRows.reduce((a,x)=>{ const b=SH.brands.find(y=>y.name===x.brand); return a+x.tubes*(b? +b.wac||0 : 0); },0);
+  // shuttle margin this month = (outside sale margin) + (queue shuttle-fee margin)
+  const margin=(soldRev-soldCost)+(burnRev-burnCost);
+  const marginTubes=soldTubes+burnTubes;
+  const avgCost = marginTubes? Math.round((soldCost+burnCost)/marginTubes) : 0;
+  const anyActivity = boughtTubes||soldTubes||burnTubes;
+  const flow=(ic,bg,ttl,sub,amt,col)=>'<div class="shflow"><span class="ic" style="background:'+bg+'">'+ic+'</span>'+
+    '<div class="tx"><b>'+ttl+'</b><span>'+sub+'</span></div><b class="amt mono" style="color:'+col+'">'+amt+'</b></div>';
+  box.innerHTML=
+    '<div class="shstep"><button class="cpnav" onclick="shStepMonth(-1)" aria-label="Previous month">‹</button>'+
+      '<div class="cpmonth">'+label+'</div>'+
+      '<button class="cpnav" onclick="shStepMonth(1)" aria-label="Next month"'+(isCur?" disabled":"")+'>›</button></div>'+
+    (anyActivity?
+      flow("➕","rgba(207,107,88,.14)","Bought in",boughtTubes+" tubes added to stock",(boughtCost?"−"+pesos(boughtCost):"—"),"#cf6b58")+
+      flow("🧾","rgba(124,176,138,.14)","Sold outside",soldTubes+" tubes sold",(soldRev?"+"+pesos(soldRev):"—"),"#7cb08a")+
+      flow("🏸","rgba(139,148,140,.14)","Burned by queue",burnTubes+" tubes used in sessions",burnTubes+" tubes","#8b948c")
+      : '<p class="hint" style="text-align:center;padding:14px 0">No shuttle activity in '+label+'.</p>')+
+    (marginTubes?
+      '<div class="shmargin"><div class="lbl">Shuttle margin · '+label.split(" ")[0]+'</div>'+
+        '<div class="big '+(margin>=0?"pos":"neg")+'">'+(margin>=0?"+":"")+pesos(margin)+'</div>'+
+        '<div class="sub">on '+soldTubes+' sold + '+burnTubes+' burned'+(avgCost?" · avg cost "+pesos(avgCost)+"/tube":"")+'</div></div>'
+      : '')+
+    '<p class="hint" style="margin-top:10px">Margin follows the month a tube is <b>sold or burned</b> — not when it was bought. Buying stock is cash out, shown separately.</p>';
+}
+function shStepMonth(dir){
+  const ym=window.__shMonth||localYMD(new Date()).slice(0,7);
+  const [Y,M]=ym.split("-").map(Number);
+  const next=new Date(Date.UTC(Y,M-1+dir,1)).toISOString().slice(0,7);
+  if(next>localYMD(new Date()).slice(0,7)) return;
+  window.__shMonth=next; renderShuttles();
 }
 /* ---------- per-player balances ---------- */
 async function loadBalances(keepPage){
@@ -6151,18 +6275,30 @@ async function loadBalances(keepPage){
   const roster=(rr&&rr.ok)? await rr.json():[];
   const pays=(pp&&pp.ok)? await pp.json():[];
   const feeBy={}; feeSess.forEach(s=>feeBy[s.id]=feeOf(s));
+  const dateBy={}, titleBy={}; feeSess.forEach(s=>{ dateBy[s.id]=s.session_date; titleBy[s.id]=s.title||"Session"; });
+  // Classify each profile's fee-sessions: a VERIFIED payment > 0 = paid,
+  // a verified ₱0 payment = waived (comped — not owed, not collected).
+  const paidSess={}, waivedSess={};
+  pays.forEach(p=>{ if(p.verified && p.profile_id){
+    const m = Number(p.amount)>0 ? paidSess : waivedSess;
+    (m[p.profile_id]=m[p.profile_id]||new Set()).add(p.session_id);
+  }});
   const who={};
   roster.forEach(r=>{
     if(!r.profile_id) return;
     const nm=(r.profiles&&(r.profiles.reclub_name||r.profiles.full_name))||"Player";
-    who[r.profile_id]=who[r.profile_id]||{name:nm,owed:0,spent:0,sessions:0,unpaid:0};
-    who[r.profile_id].owed+=feeBy[r.session_id]||0;
+    who[r.profile_id]=who[r.profile_id]||{name:nm,owed:0,spent:0,sessions:0,unpaid:0,ledger:[]};
+    const fee=feeBy[r.session_id]||0;
+    const waived=waivedSess[r.profile_id] && waivedSess[r.profile_id].has(r.session_id);
+    if(!waived) who[r.profile_id].owed+=fee;   // waived players don't owe this session
     who[r.profile_id].sessions++;
+    const covered=paidSess[r.profile_id] && paidSess[r.profile_id].has(r.session_id);
+    who[r.profile_id].ledger.push({sid:r.session_id, date:dateBy[r.session_id]||"", title:titleBy[r.session_id]||"Session", fee, paid:!!covered, waived:!!waived});
   });
   pays.forEach(p=>{
     if(!p.verified) return;
     const key=p.profile_id||("guest:"+(p.guest_name||"Walk-in"));
-    who[key]=who[key]||{name:p.guest_name||"Walk-in",owed:0,spent:0,sessions:0,unpaid:0,guest:!p.profile_id};
+    who[key]=who[key]||{name:p.guest_name||"Walk-in",owed:0,spent:0,sessions:0,unpaid:0,guest:!p.profile_id,ledger:[]};
     who[key].spent+=Number(p.amount||0);
   });
   Object.values(who).forEach(x=>{ x.balance=Math.max(0,x.owed-x.spent);
@@ -6171,6 +6307,41 @@ async function loadBalances(keepPage){
   renderBalances(keepPage!==false);
 }
 const LIST_PAGE=15;
+/* Statement of Account: tap a player in Balances -> dated ledger of their
+   fee-sessions, unpaid on top, newest first. Reads x.ledger built in loadBalances. */
+function openSOA(x){
+  let ov=document.getElementById("soaModal");
+  if(!ov){
+    ov=document.createElement("div"); ov.className="overlay"; ov.id="soaModal";
+    ov.innerHTML='<div class="modal" style="max-width:500px">'+
+      '<h3 style="margin:0 0 4px">📄 Statement of Account</h3>'+
+      '<div id="soaBody"></div>'+
+      '<button class="wide" style="margin-top:14px" onclick="closeModal(\'soaModal\')">Close</button></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener("click",e=>{ if(e.target===ov) closeModal("soaModal"); });
+  }
+  const rows=[...(x.ledger||[])].sort((a,b)=>
+    (a.paid||a.waived?1:0)-(b.paid||b.waived?1:0) ||   // unpaid first
+    String(b.date).localeCompare(String(a.date))       // then newest first
+  );
+  const due=rows.filter(r=>!r.paid && !r.waived).reduce((a,r)=>a+r.fee,0);
+  const fmt=d=>{ if(!d) return "—"; const dt=new Date(d+"T00:00:00");
+    return isNaN(dt)? d : dt.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); };
+  const stLabel=r=> r.waived?"WAIVED" : r.paid?"PAID":"UNPAID";
+  const stCls=r=> r.waived?"waived" : r.paid?"paid":"unpaid";
+  document.getElementById("soaBody").innerHTML=
+    '<div class="soahead"><span class="who">'+esc(x.name)+'</span>'+
+      '<span class="bal"><b class="'+(due>0?"neg":"pos")+'">'+(due>0?pesos(due):"Settled")+'</b>'+
+      '<span>outstanding</span></span></div>'+
+    (rows.length? rows.map(r=>
+      '<div class="soarow"><span class="dt">'+fmt(r.date)+'</span>'+
+      '<span class="ti">'+esc(r.title)+'</span>'+
+      '<span class="amt '+(r.paid&&!r.waived?"":"neg")+'">'+(r.waived?"₱0":pesos(r.fee))+'</span>'+
+      '<span class="st '+stCls(r)+'">'+stLabel(r)+'</span></div>').join("")
+      : '<p class="hint">No fee sessions on record.</p>')+
+    (due>0? '<div class="soafoot"><span>Total unpaid ('+rows.filter(r=>!r.paid&&!r.waived).length+' session'+(rows.filter(r=>!r.paid&&!r.waived).length===1?"":"s")+')</span><b>'+pesos(due)+'</b></div>':'');
+  openModal("soaModal");
+}
 let balPageNo=0;
 function balPage(d){ balPageNo=Math.max(0,balPageNo+d); renderBalances(true); }
 function renderBalances(keepPage){
@@ -6204,6 +6375,10 @@ function renderBalances(keepPage){
   list.innerHTML="";
   all.slice(balPageNo*LIST_PAGE,(balPageNo+1)*LIST_PAGE).forEach(x=>{
     const d=document.createElement("div"); d.className="balrow";
+    if(!x.guest && x.ledger && x.ledger.length){
+      d.classList.add("tap");
+      d.onclick=()=>openSOA(x);
+    }
     const dot=document.createElement("span");
     dot.className="paydot "+(x.balance>0?"unpaid":"ok"); dot.style.cursor="default";
     dot.title=x.balance>0? "Has an outstanding balance":"All settled";
@@ -6976,48 +7151,83 @@ async function loadPaymentTracker(){
   const rows=roster.map(r=>({id:r.profile_id,
       name:(r.profiles&&(r.profiles.reclub_name||r.profiles.full_name))||"Player", pay:byId[r.profile_id]||null}))
     .concat(guests.map(g=>({id:null,name:g.guest_name||"Walk-in",pay:g,guest:true})));
-  const paid=rows.filter(x=>x.pay&&x.pay.verified).length;
-  const collected=rows.filter(x=>x.pay&&x.pay.verified).reduce((a,b)=>a+Number(b.pay.amount||fee),0);
-  window.__fnCollected=collected; window.__fnExpected=rows.length*fee;
+  // classify: paid (verified >0), waived (verified ₱0 = comped), unpaid
+  const paidRows  = rows.filter(x=>payState(x.pay)==="paid");
+  const waivedRows= rows.filter(x=>payState(x.pay)==="waived");
+  const unpaidRows= rows.filter(x=>payState(x.pay)==="unpaid");
+  const collected = paidRows.reduce((a,b)=>a+Number(b.pay.amount||0),0);
+  const billable  = rows.length - waivedRows.length;         // waived comped out
+  const expected  = billable*fee;
+  const outstanding = Math.max(0, expected-collected);
+  const pct = expected>0? Math.round(100*collected/expected) : 100;
+  const done = unpaidRows.length===0;
+  window.__fnCollected=collected; window.__fnExpected=expected;
   if(document.getElementById("exTotal")) calcFinance();
-  sum.innerHTML='<div class="paysum">'+
-    '<div><b style="color:var(--ok)">'+paid+'</b><span>collected</span></div>'+
-    '<div><b style="color:var(--red)">'+(rows.length-paid)+'</b><span>uncollected</span></div>'+
-    '<div><b>'+pesos(collected)+'</b><span>of '+pesos(rows.length*fee)+'</span></div></div>';
-  if(!rows.length){ list.innerHTML='<p class="hint">Nobody has joined this session yet.</p>'; return; }
+  sum.innerHTML=
+    '<div class="cobar"><i style="width:'+Math.min(100,pct)+'%"></i></div>'+
+    '<div class="corow"><span><b class="pos">'+pesos(collected)+'</b> <span class="dim">of '+pesos(expected)+'</span></span>'+
+      '<span class="dim">'+pct+'% · '+paidRows.length+' of '+billable+' paid</span></div>'+
+    '<div class="cotiles">'+
+      '<div><b class="'+(outstanding>0?"neg":"pos")+'">'+pesos(outstanding)+'</b><span>outstanding</span></div>'+
+      '<div><b>'+unpaidRows.length+'</b><span>haven\u2019t paid</span></div></div>'+
+    (waivedRows.length? '<div class="cowaived">🎁 '+waivedRows.length+' waived <span class="dim">· '+waivedRows.map(x=>esc(x.name)).join(", ")+'</span></div>':'')+
+    (unpaidRows.length? '<div class="colabel">Still owe ('+unpaidRows.length+')</div>'+
+      '<div class="cochips">'+unpaidRows.map(x=>'<span class="cochip">'+esc(x.name)+'</span>').join("")+'</div>':'')+
+    '<div class="cobanner '+(done?"ok":"warn")+'">'+(done
+      ? '✅ <b>Fully collected</b> — this session is settled.'
+      : '<b>Not done yet.</b> '+unpaidRows.length+' still owe '+pesos(outstanding)+'. Match their Reclub payments below.')+
+    '</div>';
+  if(!rows.length){ list.innerHTML='<p class="hint">Nobody has joined this session yet.</p>'; sum.innerHTML='<p class="hint">Nobody has joined this session yet.</p>'; return; }
   window.__ptRows=rows.slice();
   renderCollectionPage();
 }
+/* payment state for a session_players/payments pairing */
+function payState(pay){ if(!pay||!pay.verified) return "unpaid"; return Number(pay.amount)>0?"paid":"waived"; }
 let ptPageNo=0;
 function ptPage(d){ ptPageNo=Math.max(0,ptPageNo+d); renderCollectionPage(); }
+function ptFilter(){ renderCollectionPage(); }
 function renderCollectionPage(){
   const list=document.getElementById("ptList"); if(!list) return;
-  const rows=(window.__ptRows||[]).slice();
+  let rows=(window.__ptRows||[]).slice();
   const fee=window.__ptFee||0;
+  const q=((document.getElementById("ptSearch")||{}).value||"").toLowerCase().trim();
   list.innerHTML="";
   rows.sort((a,b)=>{
     const rank=x=> x.pay&&x.pay.verified?1:0;
     return rank(a)-rank(b) || a.name.localeCompare(b.name);
   });
+  if(q) rows=rows.filter(x=>x.name.toLowerCase().includes(q));   // live name search
+  const searching=!!q;
   const pages=Math.max(1,Math.ceil(rows.length/LIST_PAGE));
   if(ptPageNo>=pages) ptPageNo=pages-1;
   const pager=document.getElementById("ptPager");
   if(pager){
-    pager.style.display= rows.length>LIST_PAGE? "flex":"none";
-    document.getElementById("ptPageLbl").textContent="Page "+(ptPageNo+1)+" of "+pages+" · "+rows.length+" players";
-    document.getElementById("ptPrev").disabled=ptPageNo<=0;
-    document.getElementById("ptNext").disabled=ptPageNo>=pages-1;
+    // while searching, show every match (no paging) so the person you want is always visible
+    pager.style.display= (!searching && rows.length>LIST_PAGE)? "flex":"none";
+    if(!searching){
+      document.getElementById("ptPageLbl").textContent="Page "+(ptPageNo+1)+" of "+pages+" · "+rows.length+" players";
+      document.getElementById("ptPrev").disabled=ptPageNo<=0;
+      document.getElementById("ptNext").disabled=ptPageNo>=pages-1;
+    }
   }
-  rows.slice(ptPageNo*LIST_PAGE,(ptPageNo+1)*LIST_PAGE).forEach(x=>{
-    const state = x.pay&&x.pay.verified? "ok":"unpaid";
+  if(!rows.length){ list.innerHTML='<p class="hint">No one matches “'+esc(q)+'”.</p>'; return; }
+  const shown = searching ? rows : rows.slice(ptPageNo*LIST_PAGE,(ptPageNo+1)*LIST_PAGE);
+  shown.forEach(x=>{
+    const st=payState(x.pay);
     const div=document.createElement("div"); div.className="payrow";
-    const dot=document.createElement("span"); dot.className="paydot "+state;
-    dot.title = state==="ok"? "Collected — tap to undo" : "Tap to mark as collected";
-    dot.onclick=()=>togglePaid(x);
+    const dot=document.createElement("span"); dot.className="paydot "+(st==="paid"?"ok":st==="waived"?"waived":"unpaid");
+    dot.title = st==="paid"? "Collected — tap to undo" : st==="waived"? "Waived — tap to restore the fee" : "Tap to mark as collected";
+    dot.onclick = st==="waived"? (()=>unwaivePlayer(x)) : (()=>togglePaid(x));
     const mid=document.createElement("div"); mid.className="pm";
-    mid.innerHTML='<b>'+esc(x.name)+(x.guest?' <span class="hint">· walk-in</span>':'')+'</b><span>'+
-      (state==="ok"? "Collected"+(x.pay.verified_at?" · "+String(x.pay.verified_at).slice(0,10):"") : "Not yet collected")+'</span>';
+    const statusTxt = st==="paid"? ("Collected"+(x.pay.verified_at?" · "+String(x.pay.verified_at).slice(0,10):"")) :
+                      st==="waived"? "Waived · comped this session" : "Not yet collected";
+    mid.innerHTML='<b>'+esc(x.name)+(x.guest?' <span class="hint">· walk-in</span>':'')+'</b><span>'+statusTxt+'</span>';
     div.append(dot,mid);
+    if(st==="unpaid"){
+      const w=document.createElement("button"); w.className="waivebtn"; w.textContent="Waive";
+      w.onclick=(e)=>{ e.stopPropagation(); waivePlayer(x); };
+      div.appendChild(w);
+    }
     list.appendChild(div);
   });
 }
@@ -7049,6 +7259,32 @@ async function togglePaid(x){
   }
   if(!r||!r.ok){ toast("Could not update payment"); return; }
   toast(nowVerified? "✅ "+x.name+" marked collected" : x.name+" set back to uncollected");
+  loadPaymentTracker(); loadBalances(true);
+}
+async function waivePlayer(x){
+  const sid=window.__ptSid, fee=window.__ptFee;
+  if(!await uiConfirm("Waive "+x.name+"\u2019s "+pesos(fee)+" fee for this session?\nThey won\u2019t be counted as owing.",
+      {title:"🎁 Waive fee",ok:"Waive"})) return;
+  let r;
+  if(x.pay){   // existing row -> convert to a ₱0 verified (waived) record
+    r=await sFetch("/rest/v1/payments?id=eq."+x.pay.id,{method:"PATCH",body:{
+      amount:0, verified:true, verified_by:auth.uid, verified_at:new Date().toISOString()}}).catch(()=>null);
+  }else{
+    r=await sFetch("/rest/v1/payments",{method:"POST",body:[{session_id:sid,profile_id:x.id,
+      guest_name:x.guest?x.name:"", amount:0, verified:true, verified_by:auth.uid,
+      verified_at:new Date().toISOString()}]}).catch(()=>null);
+  }
+  if(!r||!r.ok){ toast("Could not waive the fee"); return; }
+  toast("🎁 "+x.name+"\u2019s fee waived");
+  loadPaymentTracker(); loadBalances(true);
+}
+async function unwaivePlayer(x){
+  if(!x.pay) return;
+  if(!await uiConfirm("Remove the waiver for "+x.name+"?\nThey\u2019ll go back to owing the fee.",
+      {title:"Undo waiver",ok:"Undo"})) return;
+  const r=await sFetch("/rest/v1/payments?id=eq."+x.pay.id,{method:"DELETE"}).catch(()=>null);
+  if(!r||!r.ok){ toast("Could not undo the waiver"); return; }
+  toast(x.name+"\u2019s waiver removed");
   loadPaymentTracker(); loadBalances(true);
 }
 async function addGuestPayment(){
