@@ -433,6 +433,12 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .mline.total b{font-size:22px}
 .pos{color:var(--ok)} .neg{color:var(--red)}
 .pdrow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:13.5px}
+.pdrow.attrow{cursor:pointer;border-radius:8px;transition:background .15s}
+.pdrow.attrow:hover{background:rgba(124,176,138,.06)}
+.attgrid{display:flex;flex-wrap:wrap;gap:8px}
+.attchip{font-size:13.5px;background:rgba(124,176,138,.1);border:1px solid rgba(124,176,138,.3);color:var(--ink);border-radius:20px;padding:6px 13px;cursor:pointer;transition:background .15s}
+.attchip:hover{background:rgba(124,176,138,.2)}
+.attchip.guest{color:var(--muted);background:var(--panel2);border-color:var(--line);cursor:default}
 .pdrow:last-child{border-bottom:none}
 .pdrow .pn2{flex:1;min-width:0}
 .pdrow .pn2 b{display:block;font-size:14px}
@@ -1392,8 +1398,23 @@ window.SS_CONFIG = {
      </div>
      <div class="card">
        <h3>🗓 Attendance by session</h3>
+       <div class="controls" style="flex-wrap:wrap;margin-bottom:6px">
+         <button class="small ghost" id="atW" onclick="attRange('week')">This week</button>
+         <button class="small ghost" id="atM" onclick="attRange('month')">This month</button>
+         <button class="small" id="atA" onclick="attRange('all')">All time</button>
+       </div>
+       <div id="atStepper" class="cpstep" style="display:none;margin-bottom:8px">
+         <button class="cpnav" onclick="attStepMonth(-1)" aria-label="Previous month">‹</button>
+         <div class="cpmonth" id="atMonthLbl">—</div>
+         <button class="cpnav" id="atNextBtn" onclick="attStepMonth(1)" aria-label="Next month">›</button>
+       </div>
        <div id="anAttend"></div>
-       <p class="hint">Your demand signal for booking courts.</p>
+       <div class="controls" id="atPager" style="justify-content:space-between;display:none">
+         <button class="small ghost" id="atPrev" onclick="attPage(-1)">◀ Prev</button>
+         <span class="hint" id="atPageLbl"></span>
+         <button class="small ghost" id="atNext" onclick="attPage(1)">Next ▶</button>
+       </div>
+       <p class="hint">Your demand signal for booking courts. Tap a session to see who came.</p>
      </div>
      <div class="card">
        <h3>👥 Player activity</h3>
@@ -3130,7 +3151,7 @@ async function loadAnalytics(){
   kpi.innerHTML='<p class="hint">Loading…</p>';
   const days=+document.getElementById("anRange").value||0;
   let from=null;
-  if(days){ const d=new Date(); d.setDate(d.getDate()-days); from=d.toISOString().slice(0,10); }
+  if(days){ const d=new Date(); d.setDate(d.getDate()-days); from=localYMD(d); }
   const sq="/rest/v1/sessions?select=id,title,session_date,status,settings&order=session_date.desc"+
     (from? "&session_date=gte."+from : "");
   const sr=await sFetch(sq).catch(()=>null);
@@ -3168,7 +3189,8 @@ async function loadAnalytics(){
   const today=new Date().toISOString().slice(0,10);
   const dayGap=(a,b)=>Math.round((new Date(b)-new Date(a))/86400000);
   Object.values(who).forEach(p=>{ p.absent=p.last? dayGap(p.last,today):999; });
-  window.__an={sess,att,mps,matches,who,from};
+  window.__an={sess,att,mps,matches,who,from,roster};
+  window.__attByDate=byDate;
   // KPIs
   const totalMatches=matches.length;
   const uniquePlayers=Object.keys(who).length;
@@ -3187,15 +3209,71 @@ async function loadAnalytics(){
     '<div><b>'+avgLen+'m</b><span>avg match</span></div></div>';
   document.getElementById("anHint").textContent=
     sess.length+" sessions"+(from? " since "+from : " (all time)")+" · "+totalMatches+" matches recorded";
-  // attendance bars
-  const maxA=Math.max(1,...Object.values(att));
-  document.getElementById("anAttend").innerHTML=sess.slice(0,14).map(s=>{
+  // attendance (filterable + paginated + clickable) — see renderAttendance()
+  attPageNo=0; renderAttendance();
+}
+let attPageNo=0;
+function attRange(r){ window.__attRange=r; if(r==="month" && !window.__attMonth) window.__attMonth=localYMD(new Date()).slice(0,7); attPageNo=0; renderAttendance(); }
+function attPage(d){ attPageNo=Math.max(0,attPageNo+d); renderAttendance(); }
+function attStepMonth(dir){
+  const ym=window.__attMonth||localYMD(new Date()).slice(0,7); const [Y,M]=ym.split("-").map(Number);
+  const next=new Date(Date.UTC(Y,M-1+dir,1)).toISOString().slice(0,7);
+  if(next>localYMD(new Date()).slice(0,7)) return;
+  window.__attMonth=next; window.__attRange="month"; attPageNo=0; renderAttendance();
+}
+const ATT_PAGE=12;
+function renderAttendance(){
+  const box=document.getElementById("anAttend"); if(!box||!window.__an) return;
+  const {sess,att}=window.__an; const rg=window.__attRange||"all";
+  ["W","M","A"].forEach(k=>{ const b=document.getElementById("at"+k);
+    if(b) b.className="small"+((k==="W"&&rg==="week")||(k==="M"&&rg==="month")||(k==="A"&&rg==="all")?"":" ghost"); });
+  // window
+  let from=null,to=null; const step=document.getElementById("atStepper");
+  if(rg==="week"){ const d=new Date(); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); from=localYMD(d); if(step) step.style.display="none"; }
+  else if(rg==="month"){
+    if(step) step.style.display="flex";
+    const ym=window.__attMonth||localYMD(new Date()).slice(0,7); const [Y,M]=ym.split("-").map(Number);
+    from=ym+"-01"; to=new Date(Date.UTC(Y,M,1)).toISOString().slice(0,10);
+    const lbl=document.getElementById("atMonthLbl"); if(lbl) lbl.textContent=new Date(Date.UTC(Y,M-1,1)).toLocaleDateString(undefined,{month:"long",year:"numeric"});
+    const nb=document.getElementById("atNextBtn"); if(nb) nb.disabled = ym>=localYMD(new Date()).slice(0,7);
+  } else if(step) step.style.display="none";
+  let rows=sess.filter(s=> (!from||s.session_date>=from) && (!to||s.session_date<to));
+  const maxA=Math.max(1,...rows.map(s=>att[s.id]||0));
+  const pages=Math.max(1,Math.ceil(rows.length/ATT_PAGE));
+  if(attPageNo>=pages) attPageNo=pages-1;
+  const pg=document.getElementById("atPager");
+  if(pg){ pg.style.display= rows.length>ATT_PAGE?"flex":"none";
+    document.getElementById("atPageLbl").textContent="Page "+(attPageNo+1)+" of "+pages+" · "+rows.length+" sessions";
+    document.getElementById("atPrev").disabled=attPageNo<=0; document.getElementById("atNext").disabled=attPageNo>=pages-1; }
+  const shown=rows.slice(attPageNo*ATT_PAGE,(attPageNo+1)*ATT_PAGE);
+  box.innerHTML= shown.length? shown.map(s=>{
     const n=att[s.id]||0, pct=Math.round(100*n/maxA);
-    return '<div class="pdrow"><div class="pn2" style="flex:0 0 190px"><b>'+esc(s.title)+'</b><span>'+s.session_date+'</span></div>'+
+    return '<div class="pdrow attrow" onclick="openAttendees(\''+s.id+'\')"><div class="pn2" style="flex:0 0 190px"><b>'+esc(s.title)+'</b><span>'+s.session_date+'</span></div>'+
       '<div style="flex:1;background:var(--panel2);border-radius:8px;height:16px;overflow:hidden;margin:0 10px">'+
       '<div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,var(--green),var(--gold))"></div></div>'+
-      '<b style="min-width:78px;text-align:right">'+n+' players</b></div>';
-  }).join("");
+      '<b style="min-width:88px;text-align:right">'+n+' players ›</b></div>';
+  }).join("") : '<p class="hint">No sessions in this period.</p>';
+}
+function openAttendees(sid){
+  const an=window.__an; if(!an) return;
+  const s=an.sess.find(x=>x.id===sid); if(!s) return;
+  const people=(an.roster||[]).filter(r=>r.session_id===sid).map(r=>({
+    id:r.profile_id, name:(r.profiles&&(r.profiles.reclub_name||r.profiles.full_name))||"Walk-in", guest:!r.profile_id }))
+    .sort((a,b)=>a.name.localeCompare(b.name));
+  let ov=document.getElementById("attModal");
+  if(!ov){ ov=document.createElement("div"); ov.className="overlay"; ov.id="attModal";
+    ov.innerHTML='<div class="modal" style="max-width:460px"><h3 id="attTitle" style="margin:0 0 2px"></h3>'+
+      '<div class="hint" id="attSub" style="margin-bottom:10px"></div><div id="attBody"></div>'+
+      '<button class="wide" style="margin-top:14px" onclick="closeModal(\'attModal\')">Close</button></div>';
+    document.body.appendChild(ov); ov.addEventListener("click",e=>{ if(e.target===ov) closeModal("attModal"); }); }
+  document.getElementById("attTitle").textContent=s.title;
+  document.getElementById("attSub").textContent=s.session_date+" · "+people.length+" attended";
+  document.getElementById("attBody").innerHTML= people.length
+    ? '<div class="attgrid">'+people.map(p=> p.guest
+        ? '<span class="attchip guest">'+esc(p.name)+'</span>'
+        : '<span class="attchip" onclick="closeModal(\'attModal\');openPlayerCard(\''+p.id+'\')">'+esc(p.name)+'</span>').join("")+'</div>'
+    : '<p class="hint">No attendees recorded.</p>';
+  openModal("attModal");
   // court utilisation
   const perSess=sess.map(s=>mps[s.id]||0);
   const avgMps=perSess.length? Math.round(perSess.reduce((a,b)=>a+b,0)/perSess.length*10)/10 : 0;
@@ -5733,7 +5811,7 @@ async function loadTrainingMetrics(range){
   let from=null;
   if(rg!=="all"){ const d=new Date();
     if(rg==="week"){ const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); } else d.setDate(1);
-    from=d.toISOString().slice(0,10); }
+    from=localYMD(d); }
   const rows=(TR.list||[]).filter(t=>!from||t.training_date>=from);
   if(!rows.length){ K.innerHTML='<p class="hint">No trainings in this period.</p>';
     document.getElementById("tmList").innerHTML=""; renderTrainingQR(); return; }
@@ -6012,7 +6090,7 @@ async function loadShuttlePnl(range){
   let from=null;
   if(rg!=="all"){ const d=new Date();
     if(rg==="week"){ const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); } else d.setDate(1);
-    from=d.toISOString().slice(0,10); }
+    from=localYMD(d); }
   const wacOf=id=>{ const b=SH.brands.find(x=>x.brand_id===id); return b? +b.wac||0 : 0; };
   const nameOf=id=>{ const b=SH.brands.find(x=>x.brand_id===id); return b? b.name : "?"; };
   const per={};                       // brand -> {tubes,rev,cogs}
@@ -6415,7 +6493,7 @@ function anBars(vals,labels,colFn){
 function anRange(){
   const days=+((document.getElementById("anRange")||{}).value)||0;
   if(!days) return null;
-  const d=new Date(); d.setDate(d.getDate()-days); return d.toISOString().slice(0,10);
+  const d=new Date(); d.setDate(d.getDate()-days); return localYMD(d);
 }
 async function anCore(){                       // sessions + matches + roster, cached per refresh
   const from=anRange();
@@ -6669,8 +6747,12 @@ async function loadPlayerInsights(){
   list.innerHTML='<p class="hint">Loading…</p>';
   const days=+((document.getElementById("anRange")||{}).value)||0;
   let from=null;
-  if(days){ const d=new Date(); d.setDate(d.getDate()-days); from=d.toISOString().slice(0,10); }
-  const r=await sFetch("/rest/v1/match_quality?select=*&order=play_date.desc,match_no.desc&limit=1500"+
+  if(days){ const d=new Date(); d.setDate(d.getDate()-days); from=localYMD(d); }
+  // Season-consistent: gate to hof_epoch so player counts here match the nemesis
+  // card, skill rating, and Hall of Fame (all read the epoch-gated data).
+  const ep=await loadEpoch();
+  if(ep && (!from || ep>from)) from=ep;
+  const r=await sFetch("/rest/v1/match_quality?select=*&order=play_date.desc,match_no.desc&limit=100000"+
     (from?"&play_date=gte."+from:"")).catch(()=>null);
   if(!r||!r.ok){ list.innerHTML='<p class="hint">Run skill-model.sql to enable player insights.</p>';
     document.getElementById("piAttention").innerHTML=""; return; }
@@ -6892,7 +6974,7 @@ async function loadQuality(){
   k.innerHTML='<p class="hint">Loading…</p>';
   const days=+((document.getElementById("anRange")||{}).value)||0;
   let from=null;
-  if(days){ const d=new Date(); d.setDate(d.getDate()-days); from=d.toISOString().slice(0,10); }
+  if(days){ const d=new Date(); d.setDate(d.getDate()-days); from=localYMD(d); }
   const r=await sFetch("/rest/v1/match_quality?select=*&order=play_date.desc,match_no.desc&limit=800"+
     (from?"&play_date=gte."+from:"")).catch(()=>null);
   if(!r||!r.ok){ k.innerHTML='<p class="hint">Run skill-model.sql to enable match quality.</p>';
