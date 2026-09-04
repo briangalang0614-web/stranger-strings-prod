@@ -6834,9 +6834,24 @@ function renderPiList(keep){
     '<div style="text-align:right"><b style="color:'+qColor(p.avgQ)+'">'+p.avgQ+'</b>'+
     '<div class="hint" style="font-size:10px">match quality</div></div></div>').join("");
 }
-function openPlayerCard(id){
-  const p=(window.__pi||{})[id]; const box=document.getElementById("piDetail");
-  if(!p||!box) return;
+async function openPlayerCard(id){
+  // __pi is built by the Player Insights pane; if we're opening from elsewhere
+  // (e.g. an attendee chip in Club & Demand) it may be empty — load it first.
+  if(!window.__pi || !window.__pi[id]){
+    try{ await loadPlayerInsights(); }catch(e){}
+  }
+  const p=(window.__pi||{})[id];
+  if(!p){ toast("No scored matches for this player yet"); return; }
+  const html=playerCardHTML(p,id);
+  let ov=document.getElementById("pcModal");
+  if(!ov){ ov=document.createElement("div"); ov.className="overlay"; ov.id="pcModal";
+    ov.innerHTML='<div class="modal" style="max-width:640px"><div id="pcBody"></div>'+
+      '<button class="wide" style="margin-top:12px" onclick="closeModal(\'pcModal\')">Close</button></div>';
+    document.body.appendChild(ov); ov.addEventListener("click",e=>{ if(e.target===ov) closeModal("pcModal"); }); }
+  document.getElementById("pcBody").innerHTML=html;
+  openModal("pcModal");
+}
+function playerCardHTML(p,id){
   const best=Object.values(p.partners).filter(x=>x.g>=3).sort((a,b)=>(b.w/b.g)-(a.w/a.g))[0];
   const most=Object.values(p.partners).sort((a,b)=>b.g-a.g)[0];
   const nem=Object.values(p.rivals).filter(x=>x.g>=3).sort((a,b)=>(a.w/a.g)-(b.w/b.g))[0];
@@ -6845,8 +6860,7 @@ function openPlayerCard(id){
   const line=(ico,t,s,v,col)=>'<div class="crow"><div class="cico">'+ico+'</div><div class="cmain"><b>'+
     esc(t)+'</b><span>'+esc(s)+'</span></div><div class="cval"'+(col?' style="color:'+col+'"':'')+'>'+esc(v)+'</div></div>';
   let html='<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">'+
-    '<h3 style="margin:0;flex:1">'+esc(p.name)+'</h3>'+
-    '<button class="piback" onclick="document.getElementById(\'piDetail\').style.display=\'none\'">✕ Close</button></div>'+
+    '<h3 style="margin:0;flex:1">'+esc(p.name)+'</h3></div>'+
     '<p class="hint">'+p.g+' games across '+p.nSess+' session'+(p.nSess===1?"":"s")+
     (r&&r.games?' · skill '+(r.mu>=0?"+":"")+r.mu.toFixed(2)+' ('+(r.sigma<=0.35?"settled":r.sigma<=0.55?"learning":"new")+')':'')+'</p>';
   if(p.lopPct>=40) html+='<div class="piflag">⚠️ <b>'+p.lopPct+'% of their matches ended lopsided.</b> '+
@@ -6876,8 +6890,7 @@ function openPlayerCard(id){
       '<td class="hint">'+esc(m.vs||"—")+'</td>'+
       '<td class="mono">'+m.s1+'–'+m.s2+'</td><td class="mono">'+(m.wait||0)+'m</td>'+
       '<td class="mono" style="color:'+qColor(m.q)+'">'+m.q+'</td></tr>').join("")+'</table>';
-  box.innerHTML=html; box.style.display="block";
-  box.scrollIntoView({behavior:"smooth",block:"start"});
+  return html;
 }
 /* ---------- Session Analytics ---------- */
 async function fillSessionAnalytics(){
