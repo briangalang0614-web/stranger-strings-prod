@@ -3161,12 +3161,12 @@ async function loadAnalytics(){
     ["anAttend","anPlayers","anCourts"].forEach(i=>document.getElementById(i).innerHTML=""); return; }
   const ids=sess.map(s=>s.id);
   const [rr,mr]=await Promise.all([
-    sFetch("/rest/v1/session_players?session_id=in.("+ids.join(",")+
-      ")&select=session_id,profile_id,profiles!session_players_profile_id_fkey(reclub_name,full_name)").catch(()=>null),
-    sFetch("/rest/v1/matches?session_id=in.("+ids.join(",")+
-      ")&select=session_id,t1,t2,s1,s2,started_at,ended_at&limit=100000").catch(()=>null)]);
-  const roster=(rr&&rr.ok)? await rr.json():[];
-  const matches=(mr&&mr.ok)? await mr.json():[];
+    sFetchAll("/rest/v1/session_players?session_id=in.("+ids.join(",")+
+      ")&select=session_id,profile_id,profiles!session_players_profile_id_fkey(reclub_name,full_name)"),
+    sFetchAll("/rest/v1/matches?session_id=in.("+ids.join(",")+
+      ")&select=session_id,t1,t2,s1,s2,started_at,ended_at")]);
+  const roster=rr.ok? rr.rows:[];
+  const matches=mr.ok? mr.rows:[];
   const byDate={}; sess.forEach(s=>byDate[s.id]=s.session_date);
   // per-session attendance + matches
   const att={}; roster.forEach(r=>{ att[r.session_id]=(att[r.session_id]||0)+1; });
@@ -5250,11 +5250,11 @@ async function predStats(force){
   if(!sess.length){ window.__pred=out; return out; }
   const ids=sess.map(s=>s.id);
   const [mr,rr]=await Promise.all([
-    sFetch("/rest/v1/matches?session_id=in.("+ids.join(",")+
-      ")&select=session_id,court_name,started_at,ended_at&limit=4000").catch(()=>null),
+    sFetchAll("/rest/v1/matches?session_id=in.("+ids.join(",")+
+      ")&select=session_id,court_name,started_at,ended_at"),
     sFetch("/rest/v1/session_players?session_id=in.("+ids.join(",")+
       ")&select=session_id,profile_id").catch(()=>null)]);
-  const ms=(mr&&mr.ok)? await mr.json():[];
+  const ms=mr.ok? mr.rows:[];
   const roster=(rr&&rr.ok)? await rr.json():[];
   if(!ms.length){ window.__pred=out; return out; }
   const heads={}; roster.forEach(r=>heads[r.session_id]=(heads[r.session_id]||0)+1);
@@ -6505,11 +6505,11 @@ async function anCore(){                       // sessions + matches + roster, c
   if(!sess.length) return {sess:[],ms:[],roster:[]};
   const ids=sess.map(s=>s.id);
   const [mr,rr]=await Promise.all([
-    sFetch("/rest/v1/matches?session_id=in.("+ids.join(",")+
-      ")&select=id,session_id,match_no,court_name,t1,t2,t1n,t2n,s1,s2,started_at,ended_at,waits&limit=4000").catch(()=>null),
+    sFetchAll("/rest/v1/matches?session_id=in.("+ids.join(",")+
+      ")&select=id,session_id,match_no,court_name,t1,t2,t1n,t2n,s1,s2,started_at,ended_at,waits"),
     sFetch("/rest/v1/session_players?session_id=in.("+ids.join(",")+
       ")&select=session_id,profile_id,time_in,profiles!session_players_profile_id_fkey(reclub_name,full_name)").catch(()=>null)]);
-  return {sess, ms:(mr&&mr.ok)?await mr.json():[], roster:(rr&&rr.ok)?await rr.json():[]};
+  return {sess, ms:mr.ok?mr.rows:[], roster:(rr&&rr.ok)?await rr.json():[]};
 }
 /* ---------- OPERATIONS ---------- */
 async function loadOps(){
@@ -6667,8 +6667,8 @@ async function loadRetention(){
   }
   lock.style.display="none"; body.style.display="block";
   const dateOf={}; all.forEach(s=>dateOf[s.id]=s.session_date);
-  const rr=await sFetch("/rest/v1/session_players?select=session_id,profile_id&limit=8000").catch(()=>null);
-  const roster=(rr&&rr.ok)? await rr.json():[];
+  const rr=await sFetchAll("/rest/v1/session_players?select=session_id,profile_id");
+  const roster=rr.ok? rr.rows:[];
   const byP={};
   roster.forEach(r=>{ if(!r.profile_id) return;
     (byP[r.profile_id]=byP[r.profile_id]||[]).push(dateOf[r.session_id]); });
@@ -6683,8 +6683,8 @@ async function loadRetention(){
     '<div class="aaxis"><span>1st</span><span>2nd</span><span>3rd</span><span>4th</span><span>5th</span><span>6th</span></div>'+
     '<p class="hint">'+base+' players played a first session. The steepest drop is where a bad first night costs you a member.</p>';
   // quality vs retention
-  const qr=await sFetch("/rest/v1/match_quality?select=session_id,t1,t2,quality&limit=4000").catch(()=>null);
-  const mq=(qr&&qr.ok)? await qr.json():[];
+  const qr=await sFetchAll("/rest/v1/match_quality?select=session_id,t1,t2,quality");
+  const mq=qr.ok? qr.rows:[];
   const early={};
   mq.forEach(m=>{ [...(m.t1||[]),...(m.t2||[])].forEach(id=>{ if(!id) return;
     const dates=byP[id]; if(!dates) return;
@@ -6752,11 +6752,11 @@ async function loadPlayerInsights(){
   // card, skill rating, and Hall of Fame (all read the epoch-gated data).
   const ep=await loadEpoch();
   if(ep && (!from || ep>from)) from=ep;
-  const r=await sFetch("/rest/v1/match_quality?select=*&order=play_date.desc,match_no.desc&limit=100000"+
-    (from?"&play_date=gte."+from:"")).catch(()=>null);
-  if(!r||!r.ok){ list.innerHTML='<p class="hint">Run skill-model.sql to enable player insights.</p>';
+  const r=await sFetchAll("/rest/v1/match_quality?select=*&order=play_date.desc,match_no.desc"+
+    (from?"&play_date=gte."+from:""));
+  if(!r.ok){ list.innerHTML='<p class="hint">Run skill-model.sql to enable player insights.</p>';
     document.getElementById("piAttention").innerHTML=""; return; }
-  const ms=await r.json();
+  const ms=r.rows;
   if(!ms.length){ list.innerHTML='<p class="hint">No scored matches in this range.</p>';
     document.getElementById("piAttention").innerHTML=""; return; }
   // aggregate per player
@@ -6975,11 +6975,11 @@ async function loadQuality(){
   const days=+((document.getElementById("anRange")||{}).value)||0;
   let from=null;
   if(days){ const d=new Date(); d.setDate(d.getDate()-days); from=localYMD(d); }
-  const r=await sFetch("/rest/v1/match_quality?select=*&order=play_date.desc,match_no.desc&limit=800"+
-    (from?"&play_date=gte."+from:"")).catch(()=>null);
-  if(!r||!r.ok){ k.innerHTML='<p class="hint">Run skill-model.sql to enable match quality.</p>';
+  const r=await sFetchAll("/rest/v1/match_quality?select=*&order=play_date.desc,match_no.desc"+
+    (from?"&play_date=gte."+from:""));
+  if(!r.ok){ k.innerHTML='<p class="hint">Run skill-model.sql to enable match quality.</p>';
     document.getElementById("qlBars").innerHTML=""; document.getElementById("qlLists").innerHTML=""; return; }
-  const rows=await r.json();
+  const rows=r.rows;
   if(!rows.length){ k.innerHTML='<p class="hint">No scored matches in this range yet.</p>'; return; }
   const avg=Math.round(rows.reduce((a,b)=>a+b.quality,0)/rows.length);
   const great=rows.filter(x=>x.quality>=70).length, poor=rows.filter(x=>x.quality<45).length;
@@ -7102,8 +7102,8 @@ function rtUpdate(t1,t2,win1,playDate,matchId,out){
   return rows;
 }
 async function rtLoad(){
-  const r=await sFetch("/rest/v1/player_rating?select=profile_id,mu,sigma,games,last_played&limit=2000").catch(()=>null);
-  if(!r||!r.ok){
+  const r=await sFetchAll("/rest/v1/player_rating?select=profile_id,mu,sigma,games,last_played");
+  if(!r.ok){
     window.__rtMissing=true;
     if(r){ const j=await r.json().catch(()=>({})); window.__rtLastError=j.message||("HTTP "+r.status); }
     return false; }
@@ -7169,9 +7169,9 @@ async function rtBackfill(){
   if(!await uiConfirm("Rebuild every player's rating from match history?\nThis replays all recorded matches in order. Nothing is deleted.",
     {title:"\uD83E\uDDE0 Rebuild skill model",ok:"Rebuild"})) return;
   toast("Reading match history\u2026");
-  const r=await sFetch("/rest/v1/matches?select=id,session_id,t1,t2,s1,s2,ended_at&order=ended_at.asc&limit=5000").catch(()=>null);
-  if(!r||!r.ok) return toast("Could not read matches");
-  const ms=await r.json();
+  const r=await sFetchAll("/rest/v1/matches?select=id,session_id,t1,t2,s1,s2,ended_at&order=ended_at.asc");
+  if(!r.ok) return toast("Could not read matches");
+  const ms=r.rows;
   const sr=await sFetch("/rest/v1/sessions?select=id,session_date").catch(()=>null);
   const sd={}; if(sr&&sr.ok) (await sr.json()).forEach(s=>sd[s.id]=s.session_date);
   window.__RT={}; const rows=[]; let used=0;
@@ -7618,6 +7618,25 @@ async function sFetch(path,opts){
     if(await refreshAuth()) return sFetch(path,Object.assign({},opts,{_retried:true}));
   }
   return r;
+}
+/* PostgREST silently caps any response at 1000 rows regardless of &limit=.
+   sFetchAll pages through with offset so we actually get everything.
+   Pass the query WITHOUT a limit; it will append &limit/&offset itself.
+   (This bug truncated Player Insights, the predictor, and Stats — a player's
+    older matches simply never arrived. Verified live: 1445 rows, not 1000.) */
+async function sFetchAll(path){
+  const PAGE=1000; let offset=0, all=[];
+  for(;;){
+    const sep=path.includes("?")?"&":"?";
+    const r=await sFetch(path+sep+"limit="+PAGE+"&offset="+offset).catch(()=>null);
+    if(!r||!r.ok) return {ok:false, rows:all, status:r?r.status:0};
+    const batch=await r.json();
+    all=all.concat(batch);
+    if(batch.length<PAGE) break;      // last (short) page
+    offset+=PAGE;
+    if(offset>200000) break;          // hard safety stop
+  }
+  return {ok:true, rows:all};
 }
 async function refreshAuth(){
   try{
