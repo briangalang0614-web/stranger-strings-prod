@@ -732,6 +732,33 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
   font-family:inherit;cursor:pointer}
 .msshare{background:linear-gradient(90deg,var(--ok),var(--gold));color:#07130b}
 .msok{background:transparent;border:1.5px solid rgba(255,255,255,.25)!important;color:var(--ink)}
+/* ===== challenge popups (reuse milestone overlay, recolored for combat) ===== */
+.chover .chrays{background:conic-gradient(from 0deg,rgba(217,69,58,.20) 0deg 8deg,transparent 8deg 30deg,
+  rgba(234,194,95,.20) 30deg 38deg,transparent 38deg 60deg,rgba(217,69,58,.20) 60deg 68deg,transparent 68deg 90deg,
+  rgba(234,194,95,.20) 90deg 98deg,transparent 98deg 120deg,rgba(217,69,58,.20) 120deg 128deg,transparent 128deg 150deg,
+  rgba(234,194,95,.20) 150deg 158deg,transparent 158deg 180deg,rgba(217,69,58,.20) 180deg 188deg,transparent 188deg 210deg,
+  rgba(234,194,95,.20) 210deg 218deg,transparent 218deg 240deg,rgba(217,69,58,.20) 240deg 248deg,transparent 248deg 270deg,
+  rgba(234,194,95,.20) 270deg 278deg,transparent 278deg 300deg,rgba(217,69,58,.20) 300deg 308deg,transparent 308deg 330deg,
+  rgba(234,194,95,.20) 330deg 338deg,transparent 338deg 360deg)}
+.chover{background:radial-gradient(circle at 50% 42%,rgba(24,14,10,.72),rgba(8,4,3,.97))}
+.chover .msconf i{border-radius:50%}     /* embers, not confetti squares */
+.chwho{font-size:20px;color:#fff;font-weight:700;margin-top:2px;font-family:Georgia,serif}
+.chstakes{margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.chstakes span{font-family:inherit;font-size:13px;font-weight:800;border-radius:999px;padding:7px 16px}
+.chstakes .win{background:rgba(124,176,138,.16);border:1px solid rgba(124,176,138,.45);color:#9fd6a6}
+.chstakes .lose{background:rgba(217,69,58,.16);border:1px solid rgba(217,69,58,.45);color:#e0a08f}
+.chstakes .gold{background:rgba(234,194,95,.14);border:1px solid rgba(234,194,95,.5);color:#e2c266}
+.chy2{background:linear-gradient(90deg,#2b7a44,#7cd18f)!important;color:#07130b!important}
+/* live challenge status strip (challenger side, in the who's-in card) */
+.chstatus{margin-top:9px;padding:10px 12px;border-radius:11px;font-size:13px;display:flex;align-items:center;gap:9px}
+.chstatus.pending{background:rgba(234,194,95,.1);border:1px solid rgba(234,194,95,.35);color:#e2c266}
+.chstatus.accepted{background:rgba(124,176,138,.12);border:1px solid rgba(124,176,138,.4);color:#9fd6a6}
+.chstatus.declined{background:rgba(139,148,140,.1);border:1px solid var(--line);color:var(--muted)}
+.chstatus .dot{width:8px;height:8px;border-radius:50%;flex:none}
+.chstatus.pending .dot{background:#eac25f;animation:chPulse 1.4s ease-in-out infinite}
+.chstatus.accepted .dot{background:#7cb08a}
+.chstatus.declined .dot{background:#8b948c}
+@keyframes chPulse{0%,100%{opacity:1}50%{opacity:.3}}
 /* ===== phone-first sizing for the player view only ===== */
 @media(max-width:640px){
   /* tap targets: nothing under 44px */
@@ -2222,6 +2249,19 @@ window.SS_CONFIG = {
     <button class="msshare" onclick="msShare(event)">📸 Share</button>
     <button class="msok" onclick="msClose(event,true)">Nice</button>
   </div>
+</div>
+<div class="msover chover" id="chOver">
+  <div class="msrays chrays"></div>
+  <div class="msconf" id="chConf"></div>
+  <div class="mswrap">
+    <div class="mskick" id="chKick"></div>
+    <div class="msmedal"><div class="msglow" id="chGlow"></div><div class="msdisc" id="chDisc"><span id="chEmoji">⚔️</span></div></div>
+    <div class="mshead" id="chHead"></div>
+    <div class="chwho" id="chWho"></div>
+    <div class="mssub" id="chSub"></div>
+    <div class="chstakes" id="chStakes"></div>
+  </div>
+  <div class="msbtns" id="chBtns"></div>
 </div>
 <div class="overlay" id="qrModal" onclick="if(event.target===this)closeModal('qrModal')">
   <div class="modal" style="max-width:420px;text-align:center">
@@ -4981,12 +5021,69 @@ async function chIssue(pid){
   }catch(e){ toast("\u26A0\uFE0F Could not send challenge"); }
 }
 async function chRespond(id,accept){
+  chDismiss();   // close the takeover popup once they act
   try{
     const r=await sFetch("/rest/v1/challenges?id=eq."+id,{method:"PATCH",
       body:{status:accept?"accepted":"declined", accepted_at:accept?new Date().toISOString():null}});
     if(r&&r.ok){ toast(accept?"\u2694\uFE0F Challenge accepted":"Declined"); loadWhosIn(); }
   }catch(e){}
 }
+/* ---- challenge popups (reuse the milestone overlay treatment) ---- */
+function chEmbers(el){
+  const cols=["#ff7a3c","#ff5a1c","#eac25f","#ff9a4c"];
+  el.innerHTML=Array.from({length:34},()=>{
+    const l=Math.random()*100, d=(2.4+Math.random()*2.4).toFixed(2), dl=(Math.random()*1.2).toFixed(2);
+    return '<i style="left:'+l.toFixed(1)+'%;top:104%;width:'+(4+Math.round(Math.random()*4))+
+      'px;height:'+(4+Math.round(Math.random()*4))+'px;background:'+cols[Math.floor(Math.random()*4)]+
+      ';box-shadow:0 0 10px currentColor;animation:msFall '+d+'s linear '+dl+'s forwards"></i>';
+  }).join("");
+}
+/* the CHALLENGED player: full takeover, re-shows until they respond */
+function chShowIncoming(c, challengerName){
+  if(!document.getElementById("chOver")) return;
+  if(window.__chCurId===c.id && document.getElementById("chOver").classList.contains("on")) return; // already up
+  window.__chCurId=c.id;
+  document.getElementById("chKick").textContent="\u2694\uFE0F A CHALLENGE APPEARS";
+  document.getElementById("chKick").style.color="#e0857a";
+  document.getElementById("chGlow").style.background="radial-gradient(circle,rgba(217,69,58,.6),transparent 62%)";
+  document.getElementById("chDisc").style.cssText="background:linear-gradient(160deg,#e8776a,#b0402f 46%,#6e2418);border:5px solid #ffd9cf;box-shadow:0 0 48px rgba(217,69,58,.8),inset 0 -12px 26px rgba(0,0,0,.35)";
+  document.getElementById("chEmoji").textContent="\u2694\uFE0F";
+  document.getElementById("chHead").innerHTML="You've been<br>challenged!";
+  document.getElementById("chWho").textContent=(challengerName||"A rival")+" wants a grudge match";
+  document.getElementById("chSub").innerHTML="Your rival is calling you out. Accept, and the Party Leader sets it up on a court.";
+  document.getElementById("chStakes").innerHTML='<span class="win">\uD83C\uDFC6 Win +20 XP</span><span class="lose">\uD83D\uDC80 Lose \u221210 XP</span>';
+  document.getElementById("chBtns").innerHTML=
+    '<button class="msshare chy2" onclick="chRespond(\''+c.id+'\',true)">\u2694\uFE0F Accept the duel</button>'+
+    '<button class="msok" onclick="chRespond(\''+c.id+'\',false)">Not tonight</button>';
+  chEmbers(document.getElementById("chConf"));
+  document.getElementById("chOver").classList.add("on");
+  try{ if(navigator.vibrate) navigator.vibrate([25,70,25,70,25]); }catch(e){}
+}
+/* the CHALLENGER: verdict popup when their challenge is accepted / declined */
+function chShowVerdict(accepted, targetName){
+  if(!document.getElementById("chOver")) return;
+  window.__chCurId=null;
+  const green=accepted;
+  document.getElementById("chKick").textContent=green?"\uD83D\uDD25 CHALLENGE ACCEPTED":"CHALLENGE DECLINED";
+  document.getElementById("chKick").style.color=green?"#8fd6a0":"#8b948c";
+  document.getElementById("chGlow").style.background=green?"radial-gradient(circle,rgba(234,194,95,.55),transparent 62%)":"radial-gradient(circle,rgba(139,148,140,.4),transparent 62%)";
+  document.getElementById("chDisc").style.cssText=green
+    ?"background:linear-gradient(160deg,#f7dc8a,#caa64e 46%,#8a6b25);border:5px solid #fff4cf;box-shadow:0 0 46px rgba(234,194,95,.78),inset 0 -12px 26px rgba(0,0,0,.32)"
+    :"background:linear-gradient(160deg,#5a5f5a,#3a3f3a);border:5px solid #6b6b66;box-shadow:inset 0 -12px 26px rgba(0,0,0,.4)";
+  document.getElementById("chEmoji").textContent=green?"\u2694\uFE0F":"\uD83D\uDEE1\uFE0F";
+  document.getElementById("chHead").innerHTML=green?"It's on.":"Not this time.";
+  document.getElementById("chWho").textContent=(targetName||"They")+(green?" accepted your challenge":" declined for now");
+  document.getElementById("chSub").innerHTML=green
+    ?"The grudge match is locked in. The Party Leader will call you both to a court. <b>Bring it.</b> \uD83D\uDD25"
+    :"No duel tonight \u2014 catch them another session.";
+  document.getElementById("chStakes").innerHTML=green
+    ?'<span class="gold">vs '+esc(targetName||"them")+' \u00b7 winner takes +20</span>':"";
+  document.getElementById("chBtns").innerHTML='<button class="msshare '+(green?"chy2":"msok")+'" onclick="chDismiss()">'+(green?"Let's go \u2694\uFE0F":"Okay")+'</button>';
+  if(green) chEmbers(document.getElementById("chConf")); else document.getElementById("chConf").innerHTML="";
+  document.getElementById("chOver").classList.add("on");
+  try{ if(navigator.vibrate) navigator.vibrate(green?[25,70,25]:[40]); }catch(e){}
+}
+function chDismiss(){ const o=document.getElementById("chOver"); if(o) o.classList.remove("on"); }
 async function chRenderPrompt(rosterIds, byId){
   const card=document.getElementById("whosInCard"); if(!card) return;
   let box=document.getElementById("chPrompt");
@@ -5002,6 +5099,23 @@ async function chRenderPrompt(rosterIds, byId){
   const nmeHere=(window.__nemeses3||[]).filter(n=>rosterIds.indexOf(n.id)>=0
      && !mine.some(c=>(c.target===n.id||c.challenger===n.id)&&active(c)));
   const incoming=mine.filter(c=>c.target===auth.uid&&c.status==="pending");
+
+  // ---- POPUPS ----
+  // (a) challenged player: a pending challenge aimed at me → full takeover (re-shows until answered)
+  if(incoming.length){ chShowIncoming(incoming[0], byId[incoming[0].challenger]); }
+  else if(window.__chCurId){ chDismiss(); window.__chCurId=null; }   // it was answered/withdrawn
+  // (b) challenger: my own challenge changed status since last poll → verdict popup (once)
+  const prev=window.__chPrevStatus||{};
+  const now={};
+  mine.filter(c=>c.challenger===auth.uid).forEach(c=>{
+    now[c.id]=c.status;
+    const was=prev[c.id];
+    if(was==="pending" && (c.status==="accepted"||c.status==="declined")){
+      chShowVerdict(c.status==="accepted", byId[c.target]);
+    }
+  });
+  window.__chPrevStatus=now;
+
   let html="";
   incoming.forEach(c=>{ html+='<div class="chrow chin"><span>\uD83D\uDE24 <b>'+esc(byId[c.challenger]||"A rival")+
     '</b> challenged you</span><span class="chbtns">'+
@@ -5009,9 +5123,13 @@ async function chRenderPrompt(rosterIds, byId){
     '<button class="chn" onclick="chRespond(\''+c.id+'\',false)">Decline</button></span></div>'; });
   nmeHere.forEach(n=>{ html+='<div class="chrow"><span>\uD83D\uDE24 Nemesis <b>'+esc(byId[n.id]||n.n)+
     '</b> is in tonight</span><button class="chy" onclick="chIssue(\''+n.id+'\')">Challenge</button></div>'; });
-  const acc=mine.filter(c=>c.status==="accepted"||c.status==="placed");
-  if(acc.length) html+='<div class="chnote">\u2694\uFE0F '+acc.length+' challenge'+(acc.length>1?"s":"")+
-    ' locked in \u00b7 the Party Leader sets it up \u00b7 +20 to win, \u221210 to lose</div>';
+  // ---- live status strip for challenges I SENT ----
+  mine.filter(c=>c.challenger===auth.uid && ["pending","accepted","declined","placed"].includes(c.status)).forEach(c=>{
+    const nm=esc(byId[c.target]||"your rival");
+    if(c.status==="pending") html+='<div class="chstatus pending"><span class="dot"></span>\u2694\uFE0F Challenge to <b>'+nm+'</b> \u00b7 waiting for them to accept\u2026</div>';
+    else if(c.status==="declined") html+='<div class="chstatus declined"><span class="dot"></span>'+nm+' declined your challenge</div>';
+    else html+='<div class="chstatus accepted"><span class="dot"></span>\uD83D\uDD25 <b>'+nm+'</b> accepted \u00b7 the Party Leader will set it up</div>';
+  });
   box.innerHTML=html;
 }
 /* auto-resolve any accepted challenge whose two principals met (opposite sides) in this match */
@@ -5252,10 +5370,10 @@ async function predStats(force){
   const [mr,rr]=await Promise.all([
     sFetchAll("/rest/v1/matches?session_id=in.("+ids.join(",")+
       ")&select=session_id,court_name,started_at,ended_at"),
-    sFetch("/rest/v1/session_players?session_id=in.("+ids.join(",")+
-      ")&select=session_id,profile_id").catch(()=>null)]);
+    sFetchAll("/rest/v1/session_players?session_id=in.("+ids.join(",")+
+      ")&select=session_id,profile_id")]);
   const ms=mr.ok? mr.rows:[];
-  const roster=(rr&&rr.ok)? await rr.json():[];
+  const roster=rr.ok? rr.rows:[];
   if(!ms.length){ window.__pred=out; return out; }
   const heads={}; roster.forEach(r=>heads[r.session_id]=(heads[r.session_id]||0)+1);
   const bySess={};
@@ -5695,8 +5813,8 @@ async function loadClubPnl(range){
   if(!window.__cpPayByS){
     const sids=(window.__allSessions||[]).map(s=>s.id);
     const map={};
-    if(sids.length){ const pr=await sFetch("/rest/v1/payments?session_id=in.("+sids.join(",")+")&select=session_id,amount,verified").catch(()=>null);
-      if(pr&&pr.ok)(await pr.json()).forEach(p=>{ if(p.verified!==false) map[p.session_id]=(map[p.session_id]||0)+(+p.amount||0); }); }
+    if(sids.length){ const pr=await sFetchAll("/rest/v1/payments?session_id=in.("+sids.join(",")+")&select=session_id,amount,verified");
+      if(pr.ok) pr.rows.forEach(p=>{ if(p.verified!==false) map[p.session_id]=(map[p.session_id]||0)+(+p.amount||0); }); }
     window.__cpPayByS=map;
   }
   // resolve the window + optional prior window for the delta
@@ -6347,11 +6465,11 @@ async function loadBalances(keepPage){
     document.getElementById("balSummary").innerHTML=""; return; }
   const ids=feeSess.map(s=>s.id);
   const [rr,pp]=await Promise.all([
-    sFetch("/rest/v1/session_players?session_id=in.("+ids.join(",")+
-      ")&select=session_id,profile_id,profiles!session_players_profile_id_fkey(reclub_name,full_name)").catch(()=>null),
-    sFetch("/rest/v1/payments?session_id=in.("+ids.join(",")+")&select=session_id,profile_id,guest_name,amount,verified").catch(()=>null)]);
-  const roster=(rr&&rr.ok)? await rr.json():[];
-  const pays=(pp&&pp.ok)? await pp.json():[];
+    sFetchAll("/rest/v1/session_players?session_id=in.("+ids.join(",")+
+      ")&select=session_id,profile_id,profiles!session_players_profile_id_fkey(reclub_name,full_name)"),
+    sFetchAll("/rest/v1/payments?session_id=in.("+ids.join(",")+")&select=session_id,profile_id,guest_name,amount,verified")]);
+  const roster=rr.ok? rr.rows:[];
+  const pays=pp.ok? pp.rows:[];
   const feeBy={}; feeSess.forEach(s=>feeBy[s.id]=feeOf(s));
   const dateBy={}, titleBy={}; feeSess.forEach(s=>{ dateBy[s.id]=s.session_date; titleBy[s.id]=s.title||"Session"; });
   // Classify each profile's fee-sessions: a VERIFIED payment > 0 = paid,
@@ -6507,9 +6625,9 @@ async function anCore(){                       // sessions + matches + roster, c
   const [mr,rr]=await Promise.all([
     sFetchAll("/rest/v1/matches?session_id=in.("+ids.join(",")+
       ")&select=id,session_id,match_no,court_name,t1,t2,t1n,t2n,s1,s2,started_at,ended_at,waits"),
-    sFetch("/rest/v1/session_players?session_id=in.("+ids.join(",")+
-      ")&select=session_id,profile_id,time_in,profiles!session_players_profile_id_fkey(reclub_name,full_name)").catch(()=>null)]);
-  return {sess, ms:mr.ok?mr.rows:[], roster:(rr&&rr.ok)?await rr.json():[]};
+    sFetchAll("/rest/v1/session_players?session_id=in.("+ids.join(",")+
+      ")&select=session_id,profile_id,time_in,profiles!session_players_profile_id_fkey(reclub_name,full_name)")]);
+  return {sess, ms:mr.ok?mr.rows:[], roster:rr.ok?rr.rows:[]};
 }
 /* ---------- OPERATIONS ---------- */
 async function loadOps(){
@@ -7515,10 +7633,10 @@ async function loadPeriod(range){
   if(!sess.length){ sum.innerHTML='<p class="hint">No sessions in this period.</p>'; list.innerHTML=""; return; }
   const ids=sess.map(s=>s.id);
   const [pr,rr]=await Promise.all([
-    sFetch("/rest/v1/payments?session_id=in.("+ids.join(",")+")&select=session_id,profile_id,amount,verified").catch(()=>null),
-    sFetch("/rest/v1/session_players?session_id=in.("+ids.join(",")+")&select=session_id,profile_id").catch(()=>null)]);
-  const pays=(pr&&pr.ok)? await pr.json() : [];
-  const roster=(rr&&rr.ok)? await rr.json() : [];
+    sFetchAll("/rest/v1/payments?session_id=in.("+ids.join(",")+")&select=session_id,profile_id,amount,verified"),
+    sFetchAll("/rest/v1/session_players?session_id=in.("+ids.join(",")+")&select=session_id,profile_id")]);
+  const pays=pr.ok? pr.rows : [];
+  const roster=rr.ok? rr.rows : [];
   // chargeable = everyone who joined (walk-ins counted via their payment rows)
   const heads={};
   roster.forEach(r=>{ heads[r.session_id]=(heads[r.session_id]||0)+1; });
@@ -8363,7 +8481,11 @@ async function mountPlayerBoard(sessionId){
   try{ localStorage.setItem("ss_lastSession", sessionId); }catch(e){}
   loadBench(sessionId);
   clearInterval(window.__benchTimer);
-  window.__benchTimer=setInterval(()=>{ if(window.__benchSession) loadBench(window.__benchSession); },60000);
+  // poll every 20s: bench status + who's-in (the latter drives challenge popups)
+  window.__benchTimer=setInterval(()=>{
+    if(window.__benchSession) loadBench(window.__benchSession);
+    if(window.__mySessionId){ try{ loadWhosIn(); }catch(e){} }
+  },20000);
   sFetch("/rest/v1/sessions?id=eq."+sessionId+"&select=settings")
     .then(r=>r.ok?r.json():[]).then(rows=>{
       window.__sessionDouble=!!(rows[0]&&rows[0].settings&&rows[0].settings.doubleXp);
