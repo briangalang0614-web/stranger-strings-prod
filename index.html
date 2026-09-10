@@ -400,6 +400,7 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .cobanner.warn{background:rgba(202,166,78,.08);border:1px solid rgba(202,166,78,.28);color:#d9c48c}
 .cobanner.ok{background:rgba(124,176,138,.1);border:1px solid rgba(124,176,138,.35);color:#9fd6a6}
 .cobanner b{color:inherit}
+.pdisamb{color:var(--gold);font-weight:600;font-size:.92em}
 .payrow{display:flex;align-items:center;gap:11px;padding:10px 4px;border-bottom:1px solid var(--line)}
 .payrow:last-child{border-bottom:none}
 .payrow .pm{flex:1;min-width:0}
@@ -427,8 +428,9 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .cpstream .bar{flex:1;height:8px;border-radius:99px;background:var(--panel2);overflow:hidden}
 .cpstream .bar i{display:block;height:100%;border-radius:99px}
 .cpstream .amt{flex:0 0 76px;text-align:right;font-family:ui-monospace,monospace;font-size:13px}
-.paysum div{flex:1;min-width:110px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-.paysum b{display:block;font-size:20px}.paysum span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.paysum div{flex:1;min-width:110px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center}
+.paysum b{display:block;font:600 20px system-ui,-apple-system,sans-serif;letter-spacing:-.01em;margin-bottom:0}
+.paysum b:not(.pos):not(.neg){color:#f0e6cc}.paysum span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:2px;display:block}
 #payQRimg{max-width:230px;width:100%;border-radius:14px;border:2px solid var(--line);background:#fff}
 .receipt-thumb{width:38px;height:38px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:pointer}
 .mrow{display:flex;align-items:center;gap:10px;padding:6px 0}
@@ -1163,9 +1165,10 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .joinrow input{flex:1;text-transform:uppercase;letter-spacing:.18em;font:700 16px "Courier New",monospace}
 .soon{color:var(--muted);font-size:13px;font-style:italic}
 .mystats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.mstat{flex:1;min-width:86px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 6px;text-align:center}
-.mstat b{display:block;font:800 20px Georgia,serif;color:var(--ink)}
-.mstat span{font-size:9.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.mstat{flex:1;min-width:86px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:9px 6px;text-align:center}
+.mstat b{display:block;font:600 20px system-ui,-apple-system,sans-serif;letter-spacing:-.01em}
+.mstat b:not(.pos):not(.neg){color:#f0e6cc}
+.mstat span{font-size:9.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:2px;display:block}
 .histsess{margin:14px 0 4px;font-weight:800;font-size:13px;color:var(--green)}
 .histsess span{color:var(--muted);font-weight:600;font-size:11.5px;margin-left:6px}
 .histrow{display:flex;gap:8px;align-items:center;padding:7px 2px;border-bottom:1px solid var(--line);font-size:13.5px;flex-wrap:wrap}
@@ -7474,8 +7477,19 @@ async function loadPaymentTracker(){
   window.__ptFee=fee; window.__ptSid=sid;
   // everyone who joined the session is charged — scanning the QR is the check-in
   const rows=roster.map(r=>({id:r.profile_id,
-      name:(r.profiles&&(r.profiles.reclub_name||r.profiles.full_name))||"Player", pay:byId[r.profile_id]||null}))
-    .concat(guests.map(g=>({id:null,name:g.guest_name||"Walk-in",pay:g,guest:true})));
+      name:(r.profiles&&(r.profiles.reclub_name||r.profiles.full_name))||"Player",
+      full:(r.profiles&&r.profiles.full_name)||"", pay:byId[r.profile_id]||null}))
+    .concat(guests.map(g=>({id:null,name:g.guest_name||"Walk-in",full:"",pay:g,guest:true})));
+  // Disambiguation: when a nickname appears more than once in THIS roster (e.g. two
+  // "Mark"s), flag those rows so the render shows a distinguishing detail from full_name.
+  const nickCount={}; rows.forEach(x=>{ const k=x.name.toLowerCase(); nickCount[k]=(nickCount[k]||0)+1; });
+  rows.forEach(x=>{
+    if(nickCount[x.name.toLowerCase()]>1 && x.full){
+      // show the part of the full name that isn't already the nickname (e.g. "Mark Donkor" -> "Donkor")
+      const extra=x.full.replace(new RegExp("^\\s*"+x.name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s*","i"),"").trim();
+      x.disamb = extra || x.full;   // fall back to the whole full name if nickname isn't a prefix
+    }
+  });
   // classify: paid (verified >0), waived (verified ₱0 = comped), unpaid
   const paidRows  = rows.filter(x=>payState(x.pay)==="paid");
   const waivedRows= rows.filter(x=>payState(x.pay)==="waived");
@@ -7521,7 +7535,7 @@ function renderCollectionPage(){
     const rank=x=> x.pay&&x.pay.verified?1:0;
     return rank(a)-rank(b) || a.name.localeCompare(b.name);
   });
-  if(q) rows=rows.filter(x=>x.name.toLowerCase().includes(q));   // live name search
+  if(q) rows=rows.filter(x=>x.name.toLowerCase().includes(q) || (x.full&&x.full.toLowerCase().includes(q)));   // live search (nickname OR full name)
   const searching=!!q;
   const pages=Math.max(1,Math.ceil(rows.length/LIST_PAGE));
   if(ptPageNo>=pages) ptPageNo=pages-1;
@@ -7546,7 +7560,9 @@ function renderCollectionPage(){
     const mid=document.createElement("div"); mid.className="pm";
     const statusTxt = st==="paid"? ("Collected"+(x.pay.verified_at?" · "+String(x.pay.verified_at).slice(0,10):"")) :
                       st==="waived"? "Waived · comped this session" : "Not yet collected";
-    mid.innerHTML='<b>'+esc(x.name)+(x.guest?' <span class="hint">· walk-in</span>':'')+'</b><span>'+statusTxt+'</span>';
+    mid.innerHTML='<b>'+esc(x.name)+
+      (x.disamb?' <span class="pdisamb">· '+esc(x.disamb)+'</span>':'')+
+      (x.guest?' <span class="hint">· walk-in</span>':'')+'</b><span>'+statusTxt+'</span>';
     div.append(dot,mid);
     if(st==="unpaid"){
       const w=document.createElement("button"); w.className="waivebtn"; w.textContent="Waive";
