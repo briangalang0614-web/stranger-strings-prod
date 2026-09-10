@@ -97,6 +97,13 @@ main{max-width:1560px;margin:0 auto;padding:16px}
 .pcard{position:relative;background:var(--chipbg);border:1.5px solid var(--line);border-radius:10px;
   padding:7px 9px 7px 13px;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;overflow:hidden}
 .pcard:active{cursor:grabbing}
+.pcard.swappable{cursor:pointer}
+.pcard.swappable:hover{outline:1.5px solid rgba(226,194,102,.5);outline-offset:1px}
+.swaplist{display:flex;flex-direction:column;gap:7px;max-height:52vh;overflow:auto}
+.swapopt{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;
+  padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);color:var(--ink);cursor:pointer;text-align:left}
+.swapopt:hover{border-color:var(--gold);background:rgba(226,194,102,.06)}
+.swapopt b{font-size:15px} .swapopt span{font-size:12px;color:var(--muted)}
 .pcard.inactive{opacity:.45}
 .pcard.benched{opacity:.62}
 .pcard.benched::before{background:var(--gold)!important}
@@ -1840,6 +1847,15 @@ window.SS_CONFIG = {
     <div class="anpane on" id="ad-sess">
       <div id="adTonight"></div>
 <div class="card" style="max-width:760px;margin:0 auto 14px">
+    <h3>📱 Sessions &amp; Join QR</h3>
+    <div id="sessListSess"><p class="hint">Loading sessions…</p></div>
+    <div class="controls" id="sessPagerSess" style="justify-content:space-between;display:none">
+      <button class="small ghost" id="sessPrevSess" onclick="sessPage(-1)">◀ Prev</button>
+      <span class="hint" id="sessPageLblSess"></span>
+      <button class="small ghost" id="sessNextSess" onclick="sessPage(1)">Next ▶</button>
+    </div>
+</div>
+<div class="card" style="max-width:760px;margin:0 auto 14px">
     <h3>Create Session</h3>
     <div class="controls">
       <input id="asTitle" placeholder="Session title (e.g. Wednesday Night Smash)" style="flex:2;min-width:200px">
@@ -2706,7 +2722,8 @@ function cardEl(p, mini, noMeta){
     (!noMeta&&wm>=20?" whot":!noMeta&&wm>=10?" wmid":"");
   d.draggable=true; d.dataset.pid=p.id;
   d._skill=true;
-  d.title=p.name+(noMeta?" · in a live match":" · drag to move");
+  d.title=p.name+(noMeta?" · tap to swap out of this match":" · drag to move");
+  if(noMeta){ d.classList.add("swappable"); d.onclick=(e)=>{ e.stopPropagation(); swapCourtPlayer(p.id); }; }
   const top=document.createElement("div"); top.className="top";
   const lv=document.createElement("span"); lv.className="lvl";
   lv.style.background=LEVEL_COLORS[LEVELS.indexOf(p.level)]||"#666"; lv.textContent=p.level;
@@ -2980,6 +2997,39 @@ function sendQueueToCourt(q){
 
 /* ======================= COURTS ======================= */
 function addCourt(){ S.courts.push({id:uid(),name:"Court "+(S.courts.length+1),slots:[null,null,null,null],start:null}); save(); renderCourts(); }
+/* Mid-match swap: tap a player on a LIVE court to replace them with an available
+   player. Replaced player just leaves the slot (re-queue manually). No layout change. */
+function swapCourtPlayer(pid){
+  const loc=ownerOf(pid); if(!loc||loc.kind!=="c"||!loc.o.start) return;   // only live courts
+  const court=loc.o, slot=loc.i, outP=player(pid); if(!outP) return;
+  // available = active players not already on any court or queue slot
+  const onCourtOrQ=new Set();
+  S.courts.forEach(c=>c.slots.forEach(x=>x&&onCourtOrQ.add(x)));
+  S.queues.forEach(q=>q.slots.forEach(x=>x&&onCourtOrQ.add(x)));
+  const avail=S.players.filter(p=>p.active && !onCourtOrQ.has(p.id))
+    .sort((a,b)=>(b.waitSince||0)-(a.waitSince||0) || a.name.localeCompare(b.name));
+  let ov=document.getElementById("swapModal");
+  if(!ov){ ov=document.createElement("div"); ov.className="overlay"; ov.id="swapModal";
+    ov.innerHTML='<div class="modal" style="max-width:420px"><h3 id="swapTitle" style="margin:0 0 4px"></h3>'+
+      '<div class="hint" id="swapSub" style="margin-bottom:10px"></div><div id="swapBody"></div>'+
+      '<button class="wide" style="margin-top:12px" onclick="closeModal(\'swapModal\')">Cancel</button></div>';
+    document.body.appendChild(ov); ov.addEventListener("click",e=>{ if(e.target===ov) closeModal("swapModal"); }); }
+  document.getElementById("swapTitle").textContent="Swap out "+outP.name;
+  document.getElementById("swapSub").textContent="On "+court.name+" · tap who takes their place";
+  document.getElementById("swapBody").innerHTML= avail.length
+    ? '<div class="swaplist">'+avail.slice(0,60).map(p=>'<button class="swapopt" onclick="doSwapCourt(\''+court.id+'\','+slot+',\''+p.id+'\')">'+
+        '<b>'+esc(p.name)+'</b><span>'+(waitMin(p)>0?waitMin(p)+"m waiting":"available")+'</span></button>').join("")+'</div>'
+    : '<p class="hint">No available players — everyone is on a court or in the queue.</p>';
+  openModal("swapModal");
+}
+function doSwapCourt(courtId,slot,inId){
+  const court=S.courts.find(c=>c.id===courtId); if(!court) return;
+  const outId=court.slots[slot]; const outP=player(outId);
+  court.slots[slot]=inId;
+  if(outP) outP.waitSince=now();       // replaced player becomes re-queueable
+  save(); renderCourts(); closeModal("swapModal");
+  toast("Swapped in "+(player(inId)||{}).name+(outP?" for "+outP.name:""));
+}
 function renderCourts(){
   setTimeout(()=>{try{predRender();}catch(e){}},0);
   const w=document.getElementById("courts"); w.innerHTML="";
@@ -7970,42 +8020,45 @@ async function adminLoadSessions(){
   renderSessionList();
 }
 function renderSessionList(){
-  const box=document.getElementById("sessList");
+  const boxes=[["sessList","sessPager","sessPageLbl","sessPrev","sessNext"],
+               ["sessListSess","sessPagerSess","sessPageLblSess","sessPrevSess","sessNextSess"]]
+    .map(ids=>({box:document.getElementById(ids[0]),pager:document.getElementById(ids[1]),
+      lbl:document.getElementById(ids[2]),prev:document.getElementById(ids[3]),next:document.getElementById(ids[4])}))
+    .filter(x=>x.box);
+  if(!boxes.length) return;
   const all=window.__sessRows||[];
-  const pager=document.getElementById("sessPager");
-  if(!all.length){ box.innerHTML='<p class="hint">No sessions yet — create the first one above.</p>';
-    if(pager) pager.style.display="none"; return; }
+  if(!all.length){ boxes.forEach(b=>{ b.box.innerHTML='<p class="hint">No sessions yet — create the first one above.</p>';
+    if(b.pager) b.pager.style.display="none"; }); return; }
   const pages=Math.max(1,Math.ceil(all.length/SESS_PAGE));
   if(sessPageNo>=pages) sessPageNo=pages-1;
-  if(pager){
-    pager.style.display= all.length>SESS_PAGE? "flex":"none";
-    document.getElementById("sessPageLbl").textContent="Page "+(sessPageNo+1)+" of "+pages+" · "+all.length+" sessions";
-    document.getElementById("sessPrev").disabled=sessPageNo<=0;
-    document.getElementById("sessNext").disabled=sessPageNo>=pages-1;
-  }
-  box.innerHTML="";
-  all.slice(sessPageNo*SESS_PAGE,(sessPageNo+1)*SESS_PAGE).forEach(s=>{
-    const div=document.createElement("div"); div.className="sessrow";
-    div.innerHTML='<div class="st"><b>'+esc(s.title)+'</b><span>'+esc(s.session_date)+'</span></div>'+
-      '<span class="sesscode">'+esc(s.code)+'</span>'+
-      '<span class="badge '+(s.status||"open")+'">'+String(s.status||"open").toUpperCase()+'</span>'+
-      (isDoubleXp(s)?'<span class="dxchip">⚡ 2× XP</span>':'')+
-      (feeOf(s)?'<span class="feechip">₱'+feeOf(s)+'</span>':'');
-    const copy=document.createElement("button"); copy.className="small ghost"; copy.textContent="Copy code";
-    copy.onclick=async()=>{ try{ await navigator.clipboard.writeText(s.code); }catch(e){} toast("Code "+s.code+" copied"); };
-    const dx=document.createElement("button"); dx.className="small ghost";
-    dx.textContent=isDoubleXp(s)?"⚡ 2× on":"⚡ 2× off"; dx.title="Toggle double XP for this session";
-    dx.onclick=()=>toggleDoubleXp(s);
-    div.appendChild(dx);
-    const qr=document.createElement("button"); qr.className="small"; qr.textContent="📱 QR";
-    qr.title="Show join QR"; qr.onclick=()=>showSessionQR(s);
-    const del=document.createElement("button"); del.className="small ghost"; del.textContent="🗑";
-    del.title="Delete session"; del.onclick=()=>adminDeleteSession(s);
-    const tog=document.createElement("button"); tog.className="small "+(s.status==="open"?"ghost":"");
-    tog.textContent=s.status==="open"?"Close":"Reopen";
-    tog.onclick=async()=>{ await sFetch("/rest/v1/sessions?id=eq."+s.id,{method:"PATCH",
-      body:{status:s.status==="open"?"closed":"open"}}); adminLoadSessions(); };
-    div.append(qr,copy,tog,del); box.appendChild(div);
+  const shown=all.slice(sessPageNo*SESS_PAGE,(sessPageNo+1)*SESS_PAGE);
+  boxes.forEach(b=>{
+    if(b.pager){ b.pager.style.display= all.length>SESS_PAGE? "flex":"none";
+      if(b.lbl) b.lbl.textContent="Page "+(sessPageNo+1)+" of "+pages+" · "+all.length+" sessions";
+      if(b.prev) b.prev.disabled=sessPageNo<=0; if(b.next) b.next.disabled=sessPageNo>=pages-1; }
+    b.box.innerHTML="";
+    shown.forEach(s=>{
+      const div=document.createElement("div"); div.className="sessrow";
+      div.innerHTML='<div class="st"><b>'+esc(s.title)+'</b><span>'+esc(s.session_date)+'</span></div>'+
+        '<span class="sesscode">'+esc(s.code)+'</span>'+
+        '<span class="badge '+(s.status||"open")+'">'+String(s.status||"open").toUpperCase()+'</span>'+
+        (isDoubleXp(s)?'<span class="dxchip">⚡ 2× XP</span>':'')+
+        (feeOf(s)?'<span class="feechip">₱'+feeOf(s)+'</span>':'');
+      const copy=document.createElement("button"); copy.className="small ghost"; copy.textContent="Copy code";
+      copy.onclick=async()=>{ try{ await navigator.clipboard.writeText(s.code); }catch(e){} toast("Code "+s.code+" copied"); };
+      const dx=document.createElement("button"); dx.className="small ghost";
+      dx.textContent=isDoubleXp(s)?"⚡ 2× on":"⚡ 2× off"; dx.title="Toggle double XP for this session";
+      dx.onclick=()=>toggleDoubleXp(s);
+      const qr=document.createElement("button"); qr.className="small"; qr.textContent="📱 QR";
+      qr.title="Show join QR"; qr.onclick=()=>showSessionQR(s);
+      const del=document.createElement("button"); del.className="small ghost"; del.textContent="🗑";
+      del.title="Delete session"; del.onclick=()=>adminDeleteSession(s);
+      const tog=document.createElement("button"); tog.className="small "+(s.status==="open"?"ghost":"");
+      tog.textContent=s.status==="open"?"Close":"Reopen";
+      tog.onclick=async()=>{ await sFetch("/rest/v1/sessions?id=eq."+s.id,{method:"PATCH",
+        body:{status:s.status==="open"?"closed":"open"}}); adminLoadSessions(); };
+      div.append(dx,qr,copy,tog,del); b.box.appendChild(div);
+    });
   });
 }
 
