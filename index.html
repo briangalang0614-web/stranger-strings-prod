@@ -934,6 +934,12 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .predbadge b{font-family:Georgia,serif;font-size:22px;color:var(--gold);line-height:1}
 .predbadge .pu{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800}
 .predbadge .pr{font-family:"Courier New",monospace;font-size:11px;color:var(--muted)}
+.predinputs{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:2px 0 12px}
+.predinputs label{display:flex;flex-direction:column;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);gap:3px}
+.predinputs input,.predinputs select{width:78px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--ink);font-size:15px}
+.predinputs select{width:92px}
+.predreset{align-self:flex-end;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:9px;padding:8px 12px;cursor:pointer;font-size:12px}
+.predreset:hover{color:var(--gold);border-color:var(--gold)}
 .predbar{position:relative;height:24px;background:var(--panel2);border-radius:8px;border:1px solid var(--line);overflow:hidden;margin:8px 0 4px}
 .predbar i{position:absolute;top:0;bottom:0;background:rgba(124,209,143,.22);
   border-left:2px solid var(--ok);border-right:2px solid var(--ok)}
@@ -1655,6 +1661,13 @@ window.SS_CONFIG = {
     <div class="mrow"><label>Cost per tube</label><input id="exTube" type="number" min="0" step="10" oninput="calcFinance()"></div>
     <div class="mrow"><label>Tubes used</label><input id="exTubes" type="number" min="0" step="1" oninput="calcFinance()"></div>
     <p class="mline"><span>Shuttlecock fee</span><b id="exShuttleTotal">₱0</b></p>
+    <button class="small ghost" id="exBrand2Toggle" onclick="exToggleBrand2()" style="margin:2px 0 4px">＋ Add another brand</button>
+    <div id="exBrand2Wrap" style="display:none;border-top:1px dashed var(--line);padding-top:8px;margin-top:4px">
+      <div class="mrow"><label>Shuttle brand 2</label><select id="exBrand2" onchange="calcFinance()" style="max-width:210px"><option value="">— none —</option></select></div>
+      <div class="mrow"><label>Cost per tube</label><input id="exTube2" type="number" min="0" step="10" oninput="calcFinance()"></div>
+      <div class="mrow"><label>Tubes used</label><input id="exTubes2" type="number" min="0" step="1" oninput="calcFinance()"></div>
+      <p class="mline"><span>Brand 2 fee</span><b id="exShuttle2Total">₱0</b></p>
+    </div>
     <div class="mrow" style="margin-top:10px"><label id="exOtherLbl">Other</label><input id="exOtherName" placeholder="e.g. Queue master fee" oninput="calcFinance()" style="max-width:210px"></div>
     <div class="mrow"><label>Amount</label><input id="exOther" type="number" min="0" step="10" oninput="calcFinance()"></div>
     <p class="mline total"><span>Total expenses</span><b id="exTotal">₱0</b></p>
@@ -5471,6 +5484,27 @@ function predCalc(P,players,courts,hours,util){
   const m=Math.max(0,Math.round(theo*(util==null?P.util:util)));
   return {matches:m, gpp:m*4/players};
 }
+/* Apply admin overrides to the calibrated model:
+   - scoring format: games to 31 run longer than to 21 (~1.4x match time)
+   - live recalibration: blend tonight's actual match durations into P.dur as
+     the night progresses (more completed matches -> more weight to tonight). */
+function predEffective(P){
+  const ov=window.__predOv||{};
+  let dur=P.dur;
+  const live=[];
+  (S.matches||[]).forEach(m=>{ if(m.start&&m.end&&m.end>m.start){ const mins=(m.end-m.start)/60000; if(mins>1&&mins<60) live.push(mins); }});
+  let liveNote="";
+  if(live.length>=2){
+    const liveAvg=live.reduce((a,b)=>a+b,0)/live.length;
+    const w=Math.min(0.7, live.length/(live.length+6));
+    dur=Math.round((dur*(1-w)+liveAvg*w)*10)/10;
+    liveNote=" \u00b7 live-tuned on "+live.length+" match"+(live.length===1?"":"es")+" tonight";
+  }
+  const fmt=+ov.format||21;
+  if(fmt===31) dur=Math.round(dur*1.4*10)/10;
+  const cycle=dur+P.idle;
+  return Object.assign({},P,{dur,cycle,format:fmt,liveNote});
+}
 /* live headcount: typed value until the roster is in, then the real count */
 function predHeadcount(){
   const live=(S.players||[]).filter(p=>p.active!==false).length;
@@ -5504,20 +5538,27 @@ async function predRender(){
   r.innerHTML=(Math.round(lo.gpp*10)/10)+"–"+(Math.round(hi.gpp*10)/10)+
     "<br>"+mid.matches+" matches"+(hc.live?"":" · est "+hc.n);
 }
+function predSet(k,v){ (window.__predOv=window.__predOv||{})[k]= (k==='format')? +v : (+v||0); predOpen(); }
+function predReset(){ window.__predOv={}; predOpen(); }
 async function predOpen(){
-  const P=await predStats(); const box=document.getElementById("predBody");
+  const Praw=await predStats(); const box=document.getElementById("predBody");
   const modal=document.getElementById("predModal");
   if(!box||!modal) return;
   openModal("predModal");
-  if(!P.ok){ box.innerHTML='<p class="hint">The projection needs <b>'+PRED_MIN_SESSIONS+
-    ' completed sessions</b> with court hours recorded. You have <b>'+P.n+'</b>.</p>'+
+  if(!Praw.ok){ box.innerHTML='<p class="hint">The projection needs <b>'+PRED_MIN_SESSIONS+
+    ' completed sessions</b> with court hours recorded. You have <b>'+Praw.n+'</b>.</p>'+
     '<p class="hint">Set court rate, hours and courts in Money → Session Finances for each night, '+
     'and this fills in on its own.</p>'; return; }
-  const hc=predHeadcount();
-  const courts=(S.courts||[]).length||4;
-  const s=(window.__sessRows||[]).find(x=>x.id===(S.db&&S.db.sessionId));
-  const hours=(s? expensesOf(s).hours:0)||3;
-  const players=hc.n||20;
+  const P=predEffective(Praw);
+  const hcRaw=predHeadcount();
+  const ov=window.__predOv||(window.__predOv={});
+  const sRow=(window.__sessRows||[]).find(x=>x.id===(S.db&&S.db.sessionId));
+  const derivedCourts=(S.courts||[]).length||4;
+  const derivedHours=(sRow? expensesOf(sRow).hours:0)||3;
+  const courts=+ov.courts||derivedCourts;
+  const hours=+ov.hours||derivedHours;
+  const players=+ov.players||hcRaw.n||20;
+  const hc={n:players, live:hcRaw.live && !ov.players};
   const mid=predCalc(P,players,courts,hours);
   const lo=predCalc(P,players,courts,hours,P.utilLo);
   const hi=predCalc(P,players,courts,hours,P.utilHi);
@@ -5539,9 +5580,18 @@ async function predOpen(){
     }
   const cap=Math.floor(mid.matches*4/6);
   box.innerHTML=
+    '<div class="predinputs">'+
+      '<label>Courts<input type="number" min="1" step="1" value="'+courts+'" oninput="predSet(\'courts\',this.value)"></label>'+
+      '<label>Hours<input type="number" min="0.5" step="0.5" value="'+hours+'" oninput="predSet(\'hours\',this.value)"></label>'+
+      '<label>Players<input type="number" min="1" step="1" value="'+players+'" oninput="predSet(\'players\',this.value)"></label>'+
+      '<label>To<select oninput="predSet(\'format\',this.value)" onchange="predSet(\'format\',this.value)">'+
+        '<option value="21"'+(P.format===21?" selected":"")+'>21 pts</option>'+
+        '<option value="31"'+(P.format===31?" selected":"")+'>31 pts</option></select></label>'+
+      ((ov.courts||ov.hours||ov.players||ov.format)? '<button class="predreset" onclick="predReset()">↺ reset</button>':'')+
+    '</div>'+
     '<p class="hint">'+players+' player'+(players===1?"":"s")+(hc.live?" (live roster)":" (your estimate)")+
-    ' · '+courts+' courts · '+hours+'h. Calibrated on your last '+P.n+' sessions — '+
-    'match '+P.dur+'min, changeover '+P.idle+'min, '+Math.round(P.util*100)+'% utilisation.</p>'+
+    ' · '+courts+' courts · '+hours+'h · to '+P.format+'. Calibrated on your last '+P.n+' sessions — '+
+    'match '+P.dur+'min, changeover '+P.idle+'min, '+Math.round(P.util*100)+'% utilisation'+(P.liveNote||"")+'.</p>'+
     '<div class="predbar"><i style="left:'+pos(lo.gpp)+'%;width:'+Math.max(2,pos(hi.gpp)-pos(lo.gpp))+'%"></i>'+
       '<s style="left:'+pos(mid.gpp)+'%"></s></div>'+
     '<div class="predscale"><span>slow '+(Math.round(lo.gpp*10)/10)+'</span>'+
@@ -5636,16 +5686,22 @@ async function loadShuttles(){
   window.__usedSales=(us&&us.ok)? await us.json():[];
   // queue usage comes from session expenses — one source of truth
   if(!window.__allSessions) await fillFinanceSessions();
-  SH.queue=(window.__allSessions||[]).map(s=>{ const e=expensesOf(s);
-    return (e.tubes>0)? {session:s.title,date:s.session_date,brand:e.brand||"",
-      tubes:e.tubes,price:e.tube} : null; }).filter(Boolean);
-  // fill the expense brand dropdown
-  const eb=document.getElementById("exBrand");
-  if(eb){ const cur=eb.value;
-    eb.innerHTML='<option value="">— none —</option>'+
-      SH.brands.map(b=>'<option value="'+esc(b.name)+'">'+esc(b.name)+'</option>').join("");
-    eb.value=cur; }
+  SH.queue=[];
+  (window.__allSessions||[]).forEach(s=>{ const e=expensesOf(s);
+    if(e.tubes>0) SH.queue.push({session:s.title,date:s.session_date,brand:e.brand||"",tubes:e.tubes,price:e.tube});
+    if(e.tubes2>0) SH.queue.push({session:s.title,date:s.session_date,brand:e.brand2||"",tubes:e.tubes2,price:e.tube2});
+  });
+  // fill the expense brand dropdowns (both slots share the same brand list)
+  ["exBrand","exBrand2"].forEach(gid=>{ const eb=document.getElementById(gid);
+    if(eb){ const cur=eb.value;
+      eb.innerHTML='<option value="">— none —</option>'+
+        SH.brands.map(b=>'<option value="'+esc(b.name)+'">'+esc(b.name)+'</option>').join("");
+      eb.value=cur; } });
   renderShuttles();
+}
+function exToggleBrand2(){
+  const w=document.getElementById("exBrand2Wrap"), t=document.getElementById("exBrand2Toggle");
+  if(w) w.style.display="block"; if(t) t.style.display="none";
 }
 const SH={brands:[],channels:[],prices:[],batches:[],sales:[],queue:[]};
 function shOnHand(b){
@@ -5818,9 +5874,11 @@ function computePnl(from,to){
   const sess=(window.__allSessions||[]).filter(s=>inRange(s.session_date));
   let qFees=0,qCourt=0,qShutSell=0,qOther=0,qTubes=0,qCogs=0;
   sess.forEach(s=>{ const e=expensesOf(s);
-    qCourt+=e.rate*e.hours*e.courts; qShutSell+=e.tube*e.tubes; qOther+=e.other; qTubes+=e.tubes;
+    qCourt+=e.rate*e.hours*e.courts; qShutSell+=e.tube*e.tubes + (e.tube2||0)*(e.tubes2||0);
+    qOther+=e.other; qTubes+=e.tubes + (e.tubes2||0);
     const b=(SH.brands||[]).find(y=>y.name===e.brand);
-    qCogs+=e.tubes*(b? +b.wac||0 : 0); });
+    const b2=(e.brand2)?(SH.brands||[]).find(y=>y.name===e.brand2):null;
+    qCogs+=e.tubes*(b? +b.wac||0 : 0) + (e.tubes2||0)*(b2? +b2.wac||0 : 0); });
   qFees = (window.__cpPayByS||{}) && sess.reduce((a,s)=>a+((window.__cpPayByS||{})[s.id]||0),0);
   let shOutRev=0,shOutCogs=0,shOutTubes=0,shBuy=0,usedRev=0,usedTubes=0;
   if(!window.__shMissing){
@@ -6268,11 +6326,15 @@ async function loadShuttlePnl(range){
   // queue burn, from session expenses
   (window.__allSessions||[]).forEach(s=>{
     if(from && s.session_date < from) return;
-    const e=expensesOf(s); if(!e.tubes) return;
-    const b=SH.brands.find(y=>y.name===e.brand);
-    const cogs=e.tubes*(b? +b.wac||0 : 0);
-    add(per, e.brand||"(unassigned)", e.tubes, e.tubes*e.tube, cogs);
-    add(chan,"Queue sessions", e.tubes, e.tubes*e.tube, cogs);
+    const e=expensesOf(s); if(!e.tubes && !e.tubes2) return;
+    if(e.tubes){ const b=SH.brands.find(y=>y.name===e.brand);
+      const cogs=e.tubes*(b? +b.wac||0 : 0);
+      add(per, e.brand||"(unassigned)", e.tubes, e.tubes*e.tube, cogs);
+      add(chan,"Queue sessions", e.tubes, e.tubes*e.tube, cogs); }
+    if(e.tubes2){ const b2=SH.brands.find(y=>y.name===e.brand2);
+      const cogs2=e.tubes2*(b2? +b2.wac||0 : 0);
+      add(per, e.brand2||"(unassigned)", e.tubes2, e.tubes2*e.tube2, cogs2);
+      add(chan,"Queue sessions", e.tubes2, e.tubes2*e.tube2, cogs2); }
   });
   // outside sales
   SH.sales.forEach(x=>{
@@ -7592,8 +7654,10 @@ async function saveClubNote(){
 function renderMoney(){ fillFinanceSessions(); loadShuttles(); mnShow(window.__mnPane||"sess"); }
 function expensesOf(s){ const e=(s&&s.settings&&s.settings.expenses)||{}; return {
   brand:e.brand||"", rate:+e.rate||0, hours:+e.hours||0, courts:+e.courts||0,
-  tube:+e.tube||0, tubes:+e.tubes||0, otherName:e.otherName||"", other:+e.other||0 }; }
-function expenseTotal(e){ return (e.rate*e.hours*e.courts)+(e.tube*e.tubes)+e.other; }
+  tube:+e.tube||0, tubes:+e.tubes||0,
+  brand2:e.brand2||"", tube2:+e.tube2||0, tubes2:+e.tubes2||0,
+  otherName:e.otherName||"", other:+e.other||0 }; }
+function expenseTotal(e){ return (e.rate*e.hours*e.courts)+(e.tube*e.tubes)+((+e.tube2||0)*(+e.tubes2||0))+e.other; }
 async function fillFinanceSessions(){
   const sel=document.getElementById("fnSession"); if(!sel) return;
   const r=await sFetch("/rest/v1/sessions?select=id,title,session_date,status,settings&order=session_date.desc&limit=60").catch(()=>null);
@@ -7620,6 +7684,12 @@ async function loadSessionFinance(){
   document.getElementById("exTube").value=e.tube||"";
   const eb=document.getElementById("exBrand"); if(eb) eb.value=e.brand||"";
   document.getElementById("exTubes").value=e.tubes||"";
+  if(document.getElementById("exBrand2")){ document.getElementById("exBrand2").value=e.brand2||""; }
+  if(document.getElementById("exTube2")){ document.getElementById("exTube2").value=e.tube2||""; }
+  if(document.getElementById("exTubes2")){ document.getElementById("exTubes2").value=e.tubes2||""; }
+  { const has2=!!(e.brand2||e.tubes2); const w=document.getElementById("exBrand2Wrap"),
+      t=document.getElementById("exBrand2Toggle");
+    if(w) w.style.display=has2?"block":"none"; if(t) t.style.display=has2?"none":""; }
   document.getElementById("exOtherName").value=e.otherName||"";
   document.getElementById("exOther").value=e.other||"";
   window.__ptSid=sid; window.__ptFee=feeOf(s);
@@ -7633,14 +7703,19 @@ function readExpenseInputs(){
     courts:+document.getElementById("exCourts").value||0,
     tube:+document.getElementById("exTube").value||0,
     tubes:+document.getElementById("exTubes").value||0,
+    brand2:(document.getElementById("exBrand2")||{}).value||"",
+    tube2:+((document.getElementById("exTube2")||{}).value)||0,
+    tubes2:+((document.getElementById("exTubes2")||{}).value)||0,
     otherName:document.getElementById("exOtherName").value||"",
     other:+document.getElementById("exOther").value||0};
 }
 function calcFinance(){
   const e=readExpenseInputs();
-  const court=e.rate*e.hours*e.courts, shut=e.tube*e.tubes, tot=court+shut+e.other;
+  const court=e.rate*e.hours*e.courts, shut=e.tube*e.tubes, shut2=(e.tube2||0)*(e.tubes2||0);
+  const tot=court+shut+shut2+e.other;
   document.getElementById("exCourtTotal").textContent=pesos(court);
   document.getElementById("exShuttleTotal").textContent=pesos(shut);
+  const s2=document.getElementById("exShuttle2Total"); if(s2) s2.textContent=pesos(shut2);
   document.getElementById("exTotal").textContent=pesos(tot);
   const collected=window.__fnCollected||0, expected=window.__fnExpected||0;
   const net=collected-tot, pot=expected-tot;
