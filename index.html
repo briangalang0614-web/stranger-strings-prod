@@ -8538,6 +8538,7 @@ async function loadMyHistory(manual){
     }
   }
   myMatches=rows;
+  try{ loadPlayerSearch(); }catch(e){}   // refresh Players card now that match history is in
   if(!rows.length){
     stats.innerHTML="";
     myHistRows=[]; histPageNo=0;
@@ -9206,11 +9207,15 @@ async function playerAutoBoard(){
 let myMatches=[], mySessions={};
 /* ---- Players search + viewer-relative snapshot ---- */
 async function loadPlayerSearch(){
-  if(!window.__plRoster){
+  renderPlayerSearch();                 // paint whatever we have NOW (never leave "Loading…" stuck)
+  if(window.__plRoster || window.__plLoading) return;   // already have it / already fetching
+  window.__plLoading=true;
+  try{
     const r=await sFetchAll("/rest/v1/profiles?select=id,reclub_name,full_name,avatar&order=reclub_name.asc");
-    window.__plRoster = r.ok ? r.rows.filter(p=>p.reclub_name) : [];
-  }
-  renderPlayerSearch();
+    window.__plRoster = (r&&r.ok) ? r.rows.filter(p=>p.reclub_name) : [];
+  }catch(e){ window.__plRoster = window.__plRoster || []; }
+  window.__plLoading=false;
+  renderPlayerSearch();                 // repaint with the roster
 }
 /* the 10 most-recent distinct people I've shared a court with (partners + opponents) */
 function recentPlayers(){
@@ -9236,6 +9241,7 @@ function recentPlayers(){
 function renderPlayerSearch(){
   const box=document.getElementById("plList"); if(!box) return;
   const roster=window.__plRoster||[];
+  if(!roster.length && window.__plLoading){ box.innerHTML='<p class="hint">Loading players…</p>'; return; }
   const q=((document.getElementById("plSearch")||{}).value||"").toLowerCase().trim();
   const nick={}; roster.forEach(p=>{const k=(p.reclub_name||"").toLowerCase();nick[k]=(nick[k]||0)+1;});
   const disamb=p=>{ if(nick[(p.reclub_name||"").toLowerCase()]>1 && p.full_name){
