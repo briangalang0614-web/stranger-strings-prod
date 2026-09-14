@@ -2110,8 +2110,8 @@ window.SS_CONFIG = {
   </div>
   <div class="phcard">
     <h3><span class="htxt">👥 Players</span></h3>
-    <input id="plSearch" class="wsearch" type="text" placeholder="🔍 Search any player…" autocomplete="off" oninput="renderPlayerSearch()">
-    <div id="plList"><p class="hint">Loading…</p></div>
+    <input id="ppSearch" class="wsearch" type="text" placeholder="🔍 Search any player…" autocomplete="off" oninput="renderPlayerSearch()">
+    <div id="ppList"><p class="hint">Loading…</p></div>
   </div>
   <div class="phcard">
     <h3><span class="htxt">💳 Fees &amp; Dues</span></h3>
@@ -9239,10 +9239,10 @@ function recentPlayers(){
   return out;
 }
 function renderPlayerSearch(){
-  const box=document.getElementById("plList"); if(!box) return;
+  const box=document.getElementById("ppList"); if(!box) return;
   const roster=window.__plRoster||[];
   if(!roster.length && window.__plLoading){ box.innerHTML='<p class="hint">Loading players…</p>'; return; }
-  const q=((document.getElementById("plSearch")||{}).value||"").toLowerCase().trim();
+  const q=((document.getElementById("ppSearch")||{}).value||"").toLowerCase().trim();
   const nick={}; roster.forEach(p=>{const k=(p.reclub_name||"").toLowerCase();nick[k]=(nick[k]||0)+1;});
   const disamb=p=>{ if(nick[(p.reclub_name||"").toLowerCase()]>1 && p.full_name){
     const e=p.full_name.replace(new RegExp("^\\s*"+(p.reclub_name||"").replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s*","i"),"").trim();
