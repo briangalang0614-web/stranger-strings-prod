@@ -1069,6 +1069,32 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 #qStatusCard .brfhelp:hover{opacity:1}
 /* --- Who's in tonight: chips were emitted with no CSS, so they rendered as one run of text --- */
 #whosInBody{display:flex;flex-wrap:wrap;gap:6px}
+
+/* Players search + viewer-relative snapshot */
+.pllabel{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:2px 0 8px}
+.pltag{margin-left:auto;font-size:11px;font-weight:700;border-radius:20px;padding:3px 10px;white-space:nowrap}
+.pltag.mate{color:#9fd6a6;background:rgba(124,176,138,.12);border:1px solid rgba(124,176,138,.3)}
+.pltag.opp{color:#e0a08f;background:rgba(207,107,88,.12);border:1px solid rgba(207,107,88,.3)}
+.plrow{display:flex;align-items:center;gap:11px;padding:11px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.plrow:hover{background:rgba(124,176,138,.05)}
+.plav{width:36px;height:36px;border-radius:50%;flex:none;background:#20302a;color:var(--gold);display:flex;align-items:center;justify-content:center;font:700 15px Georgia,serif;overflow:hidden}
+.plav img{width:100%;height:100%;object-fit:cover}
+.plrow b{flex:1;font-size:15px;font-weight:600}
+.plgo{color:var(--muted);font-size:20px} .plme{font-size:10px;font-weight:800;color:#9fd6a6;background:rgba(124,176,138,.14);border:1px solid rgba(124,176,138,.35);border-radius:20px;padding:2px 9px}
+.snaptop{padding:20px 20px 16px;text-align:center;background:radial-gradient(120% 80% at 50% 0%,rgba(200,168,96,.10),transparent 65%);border-bottom:1px solid var(--line)}
+.snapav{width:70px;height:70px;border-radius:50%;margin:0 auto 10px;background:#20302a;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font:700 28px Georgia,serif;color:var(--gold);overflow:hidden}
+.snapav img{width:100%;height:100%;object-fit:cover}
+.snapnm{font-family:Georgia,serif;font-size:23px;color:#f4ecd8}
+.snapcls{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-top:3px}
+.snaplv{display:inline-block;margin-top:9px;font-size:11px;font-weight:700;color:#9fd6a6;background:rgba(124,176,138,.12);border:1px solid rgba(124,176,138,.35);border-radius:20px;padding:4px 13px}
+.snapmodal .sec{padding:14px 18px} .snapmodal .sec+.sec{border-top:1px solid var(--line)}
+.snapmodal .lab{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+.snapmodal .rel{display:flex;align-items:center;gap:11px}
+.snapmodal .rel .ic{width:36px;height:36px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;font-size:18px}
+.snapmodal .rel .who b{font-size:15px;color:#f2ecd8;display:block} .snapmodal .rel .who span{font-size:12px;color:var(--muted)}
+.snapmodal .rel .rec{margin-left:auto;font:700 16px ui-monospace,monospace}
+.snapmodal .h2h .ic{background:rgba(207,107,88,.14)} .snapmodal .h2h .rec{color:var(--red)}
+.snapmodal .duo .ic{background:rgba(124,176,138,.14)} .snapmodal .duo .rec{color:var(--green)}
 .wsearch{width:100%;margin:2px 0 10px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);
   background:var(--panel2);color:var(--ink);font-size:14px;outline:none}
 .wsearch:focus{border-color:var(--gold)}
@@ -1113,7 +1139,9 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 #playerHome{padding-bottom:96px}
 #qStatus{padding:16px 18px;text-align:center}
 #qStatus .qlab{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:800}
-#qStatus .qbig{font-family:Georgia,serif;font-size:30px;line-height:1.15;margin:6px 0 2px}
+#qStatus .voicebtn{display:block;width:calc(100% - 24px);margin:0 12px 12px;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:13px;cursor:pointer}
+.voicebtn.on{color:#9fd6a6;border-color:rgba(124,176,138,.4);background:rgba(124,176,138,.08)}
+.qbig{font-family:Georgia,serif;font-size:30px;line-height:1.15;margin:6px 0 2px}
 #qStatus .qsub{font-size:13.5px;color:var(--muted)}
 #qStatus .qeta{display:inline-block;margin-top:9px;font-size:12.5px;font-weight:800;letter-spacing:.04em;
   background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:5px 13px;color:var(--ink)}
@@ -2081,6 +2109,11 @@ window.SS_CONFIG = {
     </div>
   </div>
   <div class="phcard">
+    <h3><span class="htxt">👥 Players</span></h3>
+    <input id="plSearch" class="wsearch" type="text" placeholder="🔍 Search any player…" autocomplete="off" oninput="renderPlayerSearch()">
+    <div id="plList"><p class="hint">Loading…</p></div>
+  </div>
+  <div class="phcard">
     <h3><span class="htxt">💳 Fees &amp; Dues</span></h3>
     <div id="duesBox"><p class="soon">Your fees appear here.</p></div>
     <div id="myTrainQrCard" style="display:none;margin-top:10px">
@@ -2144,6 +2177,7 @@ window.SS_CONFIG = {
     <p class="soon" id="gateHint" style="margin-top:8px;font-size:12.5px">📱 Scan the session QR at the front desk, or ask the Party Leader for tonight's 6-character code.</p>
   </div><div class="phcard" id="qStatusCard" style="display:none;padding:0;overflow:hidden">
     <div id="qStatus"></div>
+    <button id="voiceBtn" class="voicebtn" onclick="voiceToggle()">🔈 Voice off</button>
   </div><div class="phcard" id="recapCard" style="display:none">
   <h3><span class="htxt">🌙 Your night</span></h3>
   <div id="recapBody"></div>
@@ -4878,7 +4912,7 @@ function briefShow(step,sessionTitle){
       '</div>'+
       '<p class="brfnote"><b>You earn XP even when you lose.</b> Showing up and playing is what levels you \u2014 winning just gets you there faster.</p>'+
       '<div class="brftier">'+
-        [["Rookie",1],["Squire",3],["Knight",5],["Warden",8],["Legend",10],["Mythic",13]]
+        [["Rookie",1],["Squire",3],["Knight",5],["Warden",8],["Legend",10],["Mythic",13],["Demogorgon",17],["Ascendant",21],["Primordial",25]]
           .map(t=>'<div><b>'+t[0]+'</b><span>LV '+t[1]+'</span></div>').join("")+
       '</div>'+
       '<p class="brfnote">Trainings sharpen your game but earn <b>no XP</b> \u2014 only queue matches do.</p>'+
@@ -9019,6 +9053,34 @@ async function renderCareer(){
   initSheetFolds();
 }
 
+/* ---- voice call-outs (speak the player's own queue status, opt-in) ---- */
+function voiceEnabled(){ try{ return localStorage.getItem("ss_voice")==="1"; }catch(e){ return false; } }
+function voiceToggle(){
+  const on=!voiceEnabled();
+  try{ localStorage.setItem("ss_voice", on?"1":"0"); }catch(e){}
+  if(on){ speak("Voice calls on."); }   // also unlocks audio via the user gesture
+  const b=document.getElementById("voiceBtn"); if(b){ b.textContent=on?"🔊 Voice on":"🔈 Voice off"; b.classList.toggle("on",on); }
+  toast(on?"🔊 Voice calls on — you'll be called by name":"Voice calls off");
+}
+function speak(text){
+  if(!voiceEnabled() || !("speechSynthesis" in window)) return;
+  try{
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=0.98; u.pitch=1; u.volume=1;
+    speechSynthesis.cancel();   // don't stack
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function voiceOnStatus(s){
+  if(!voiceEnabled()) return;
+  const mode=s&&s.mode;
+  if(mode!==window.__lastVoiceMode){
+    const nm=(myProfile&&(myProfile.reclub_name||myProfile.full_name)||"").split(" ")[0];
+    if(mode==="oncourt") speak((nm?nm+", ":"")+"you're up! Head to "+(s.court||"your court")+".");
+    else if(mode==="next") speak((nm?nm+", ":"")+"you're up next. Get ready.");
+    window.__lastVoiceMode=mode;
+  }
+}
 function renderQueueStatus(state){
   const card=document.getElementById("qStatusCard"), box=document.getElementById("qStatus");
   if(!card||!box) return;
@@ -9031,6 +9093,9 @@ function renderQueueStatus(state){
   }
   const s=myQueueStatus(state);
   card.style.display="block";
+  { const vb=document.getElementById("voiceBtn"); if(vb){ const on=voiceEnabled(); vb.textContent=on?"🔊 Voice on":"🔈 Voice off"; vb.classList.toggle("on",on); } }
+  // Voice call-out: speak ONCE when MY status changes to on-court / up-next.
+  try{ voiceOnStatus(s); }catch(e){}
   if(s.mode==="playing"){
     const mins=s.start? Math.max(0,Math.round((Date.now()-s.start)/60000)) : 0;
     box.className="playing";
@@ -9139,6 +9204,107 @@ async function playerAutoBoard(){
 
 /* ======================= RPG PLAYER VIEW ======================= */
 let myMatches=[], mySessions={};
+/* ---- Players search + viewer-relative snapshot ---- */
+async function loadPlayerSearch(){
+  if(!window.__plRoster){
+    const r=await sFetchAll("/rest/v1/profiles?select=id,reclub_name,full_name,avatar&order=reclub_name.asc");
+    window.__plRoster = r.ok ? r.rows.filter(p=>p.reclub_name) : [];
+  }
+  renderPlayerSearch();
+}
+/* the 10 most-recent distinct people I've shared a court with (partners + opponents) */
+function recentPlayers(){
+  const me=auth&&auth.uid; const seen=new Set(); const out=[];
+  const byId={}; (window.__plRoster||[]).forEach(p=>byId[p.id]=p);
+  const ord=(myMatches||[]).slice().sort((a,b)=>new Date(b.ended_at||0)-new Date(a.ended_at||0));
+  for(const m of ord){
+    const t1=(m.t1||[]), t2=(m.t2||[]);
+    const meIn1=t1.includes(me), meIn2=t2.includes(me);
+    if(!meIn1&&!meIn2) continue;
+    const mates = meIn1? t1 : t2;
+    const opps  = meIn1? t2 : t1;
+    const rel=[]; mates.forEach(id=>{ if(id&&id!==me) rel.push([id,"partner"]); });
+    opps.forEach(id=>{ if(id) rel.push([id,"opponent"]); });
+    for(const [id,kind] of rel){
+      if(seen.has(id)) continue; seen.add(id);
+      const p=byId[id]; if(p) out.push({p,kind});
+      if(out.length>=10) return out;
+    }
+  }
+  return out;
+}
+function renderPlayerSearch(){
+  const box=document.getElementById("plList"); if(!box) return;
+  const roster=window.__plRoster||[];
+  const q=((document.getElementById("plSearch")||{}).value||"").toLowerCase().trim();
+  const nick={}; roster.forEach(p=>{const k=(p.reclub_name||"").toLowerCase();nick[k]=(nick[k]||0)+1;});
+  const disamb=p=>{ if(nick[(p.reclub_name||"").toLowerCase()]>1 && p.full_name){
+    const e=p.full_name.replace(new RegExp("^\\s*"+(p.reclub_name||"").replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s*","i"),"").trim();
+    return e?' <span class="pdisamb">· '+esc(e)+'</span>':''; } return ""; };
+  const row=(p,tagHtml)=>'<div class="plrow" onclick="openPlayerSnapshot(\''+p.id+'\')"><span class="plav">'+
+    (p.avatar&&p.avatar.startsWith("http")?'<img src="'+esc(p.avatar)+'">':esc((p.reclub_name||"?").slice(0,1).toUpperCase()))+'</span>'+
+    '<b>'+esc(p.reclub_name)+disamb(p)+'</b>'+(tagHtml||'<span class="plgo">›</span>')+'</div>';
+  if(q){
+    const list=roster.filter(p=>(p.reclub_name||"").toLowerCase().includes(q)||(p.full_name||"").toLowerCase().includes(q));
+    box.innerHTML = list.length? list.slice(0,60).map(p=>row(p)).join("")
+      : '<p class="hint">No players match "'+esc(q)+'".</p>';
+    return;
+  }
+  // default: recently played with
+  const recent=recentPlayers();
+  box.innerHTML = recent.length
+    ? '<p class="pllabel">Recently played with</p>'+recent.map(r=>row(r.p,
+        '<span class="pltag '+(r.kind==="partner"?"mate":"opp")+'">'+(r.kind==="partner"?"🤝 partner":"⚔️ opponent")+'</span>')).join("")
+    : '<p class="hint">Play some matches and the people you meet will show here. Or search above.</p>';
+}
+// compute MY record vs / with a given player, from my own match history
+function pairRecord(pid){
+  const me=auth&&auth.uid; const vs={w:0,g:0}, wth={w:0,g:0};
+  (myMatches||[]).forEach(m=>{
+    const t1=(m.t1||[]), t2=(m.t2||[]);
+    const meIn1=t1.includes(me), meIn2=t2.includes(me);
+    const themIn1=t1.includes(pid), themIn2=t2.includes(pid);
+    if(!(meIn1||meIn2) || !(themIn1||themIn2)) return;
+    const myWin = (meIn1 && m.s1>m.s2) || (meIn2 && m.s2>m.s1);
+    if((meIn1&&themIn1)||(meIn2&&themIn2)){ wth.g++; if(myWin) wth.w++; }   // same team
+    else { vs.g++; if(myWin) vs.w++; }                                       // opponents
+  });
+  return {vs,wth};
+}
+async function openPlayerSnapshot(pid){
+  const roster=window.__plRoster||[]; const p=roster.find(x=>x.id===pid); if(!p) return;
+  const me=auth&&auth.uid; const isMe=pid===me;
+  const rec=isMe?null:pairRecord(pid);
+  // their public XP/level — from cache, else fetch just this player's total
+  if(!window.__xpBy) window.__xpBy={};
+  let xp=window.__xpBy[pid];
+  if(xp==null){
+    try{ const r=await sFetch("/rest/v1/leaderboard_alltime?profile_id=eq."+pid+"&select=xp");
+      const rows=r&&r.ok?await r.json():[]; xp=(rows[0]&&rows[0].xp)||0; }catch(e){ xp=0; }
+    window.__xpBy[pid]=xp;
+  }
+  const lv=levelOf(xp), tier=tierOf(lv);
+  const nm=p.reclub_name||"Player";
+  const relRow=(cls,ic,lab,sub,rec2)=>'<div class="sec '+cls+'"><div class="lab">'+lab+'</div>'+
+    (rec2.g>0
+      ? '<div class="rel"><div class="ic">'+ic+'</div><div class="who"><b>'+esc(nm)+'</b><span>'+sub+'</span></div>'+
+        '<div class="rec">'+rec2.w+'\u2013'+(rec2.g-rec2.w)+'</div></div>'
+      : '<div class="rel"><div class="ic">'+ic+'</div><div class="who"><b>No games yet</b><span>go make a rivalry \u2694\uFE0F</span></div></div>')+'</div>';
+  let ov=document.getElementById("snapModal");
+  if(!ov){ ov=document.createElement("div"); ov.className="overlay"; ov.id="snapModal";
+    ov.innerHTML='<div class="modal snapmodal" style="max-width:380px;padding:0;overflow:hidden"><div id="snapBody"></div>'+
+      '<button class="wide" style="margin:0 14px 14px" onclick="closeModal(\'snapModal\')">Close</button></div>';
+    document.body.appendChild(ov); ov.addEventListener("click",e=>{ if(e.target===ov) closeModal("snapModal"); }); }
+  document.getElementById("snapBody").innerHTML=
+    '<div class="snaptop"><div class="snapav">'+
+      (p.avatar&&p.avatar.startsWith("http")?'<img src="'+esc(p.avatar)+'">':esc(nm.slice(0,1).toUpperCase()))+'</div>'+
+      '<div class="snapnm">'+esc(nm)+'</div><div class="snapcls">'+esc(tier)+'</div>'+
+      '<div class="snaplv">LV '+lv+' \u00b7 '+xp.toLocaleString()+' XP</div></div>'+
+    (isMe? '<p class="hint" style="padding:16px;text-align:center">This is you \u2014 open your Profile for the full character sheet.</p>'
+      : relRow("h2h","\u2694\uFE0F","\u2694\uFE0F Head-to-head \u2014 you vs them","when you\u2019ve faced off",rec.vs)+
+        relRow("duo","\uD83E\uDD1D","\uD83E\uDD1D Teamed up \u2014 you two together","your record as partners",rec.wth));
+  openModal("snapModal");
+}
 /* ---------- relationship + form analytics ---------- */
 /* ---------- collapsible player cards ---------- */
 const FOLD_DEFAULT_SHUT=["Session Stat Cards","Quest Log","Badges"];   // long lists start closed
@@ -9520,7 +9686,7 @@ const BADGES=[
  {id:"owl",    em:"🌙", name:"Night Owl",              d:"Finish a match after 10pm",         f:(st,ex)=>ex.nights>=1},
  {id:"leader", em:"⚡", name:"Leader of the Party",    d:"Battle in 5 different sessions",    f:(st,ex,ns)=>ns>=5},
 ];
-const TIERS=[[13,"Mythic"],[10,"Legend"],[8,"Warden"],[5,"Knight"],[3,"Squire"],[1,"Rookie"]];
+const TIERS=[[25,"Primordial"],[21,"Ascendant"],[17,"Demogorgon"],[13,"Mythic"],[10,"Legend"],[8,"Warden"],[5,"Knight"],[3,"Squire"],[1,"Rookie"]];
 function tierOf(lv){ for(const [min,t] of TIERS) if(lv>=min) return t; return "Rookie"; }
 function renderRPG(){
   if(!myProfile) return;
@@ -10433,6 +10599,7 @@ function ptShow(id){
   document.querySelectorAll(".ptab").forEach(t=>t.classList.toggle("on",t.id===id));
   document.querySelectorAll(".pnb").forEach(b=>b.classList.toggle("on",b.dataset.pt===id));
   window.scrollTo({top:0});
+  if(id==="pt-profile"){ try{ loadPlayerSearch(); }catch(e){} }
 }
 function showAchPopup(face,isImg,name,desc,unlocked){
   const f=document.getElementById("achFace");
