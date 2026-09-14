@@ -9695,6 +9695,7 @@ function renderRPG(){
   const nSessions=new Set(myMatches.map(m=>m.session_id)).size;
   window.__myShare={st,ex,name:(myProfile.reclub_name||myProfile.full_name||"Player")};
   try{ renderCareer(); }catch(e){}
+  try{ loadPlayerSearch(); }catch(e){}   // populate the Players card (covers all entry paths, not just the nav tap)
   setTimeout(()=>{ try{ msCheck(); }catch(e){} },900);
   try{ initFolds(); }catch(e){}
   try{ loadMyTrainings(); }catch(e){}
