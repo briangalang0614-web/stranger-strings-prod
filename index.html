@@ -121,6 +121,7 @@ main{max-width:1560px;margin:0 auto;padding:16px}
 .icon{background:transparent;border:none;padding:0 3px;font-size:13px;color:var(--muted);line-height:1}
 .icon:hover{background:transparent;color:var(--green)}
 .pcard .nm{font-weight:700;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcard .nm .nmdis{color:var(--gold);font-weight:600;font-size:.82em}
 .pcard .tl{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;gap:6px;white-space:nowrap}
 .pcard .rec{font-weight:800;color:var(--ink)}
 .pcard.ghosting{opacity:.35}
@@ -1075,26 +1076,65 @@ footer.app{padding:14px;text-align:center;font-size:11px;letter-spacing:.14em;te
 .pltag{margin-left:auto;font-size:11px;font-weight:700;border-radius:20px;padding:3px 10px;white-space:nowrap}
 .pltag.mate{color:#9fd6a6;background:rgba(124,176,138,.12);border:1px solid rgba(124,176,138,.3)}
 .pltag.opp{color:#e0a08f;background:rgba(207,107,88,.12);border:1px solid rgba(207,107,88,.3)}
+/* ---- reimagined Players portal (phone-first) ---- */
+.ppsearch{position:relative;margin-top:4px}
+.ppsearch input{width:100%;padding:14px 16px 14px 44px;border-radius:14px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:16px;outline:none}
+.ppsearch input::placeholder{color:#5f6b5c}
+.ppsearch .ppmag{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.7}
+.ppseg{display:flex;gap:4px;margin-top:12px;background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:4px}
+.ppseg button{flex:1;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:700;padding:9px;border-radius:10px;cursor:pointer;transition:background .12s}
+.ppseg button.on{background:linear-gradient(180deg,rgba(226,194,102,.2),rgba(226,194,102,.08));color:var(--gold);box-shadow:inset 0 0 0 1px rgba(226,194,102,.3)}
+.ppglab{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#5f6b5c;font-weight:800;margin:14px 2px 10px}
+.pprow{display:flex;align-items:center;gap:13px;padding:12px;border-radius:16px;margin-bottom:8px;background:var(--panel);border:1px solid var(--line);cursor:pointer;transition:transform .12s}
+.pprow:active{transform:scale(.98)}
+.ppav{width:46px;height:46px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center;font:700 19px Georgia,serif;color:var(--gold);background:#1c2620;border:1px solid #2b362e;overflow:hidden}
+.ppav img{width:100%;height:100%;object-fit:cover}
+.ppmain{flex:1;min-width:0}
+.ppname{font-size:16px;font-weight:600;color:#f2ecd8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ppname .dis{color:var(--gold);font-weight:600;font-size:13px}
+.ppsub{font-size:12.5px;color:var(--muted);margin-top:1px}
+.pptag{font-size:11px;font-weight:800;border-radius:10px;padding:5px 10px;white-space:nowrap;flex:none}
+.pptag.mate{color:#9fd6a6;background:rgba(124,176,138,.1);border:1px solid rgba(124,176,138,.28)}
+.pptag.opp{color:#e0a08f;background:rgba(207,107,88,.1);border:1px solid rgba(207,107,88,.28)}
+.ppchev{color:var(--muted);font-size:19px;flex:none}
+/* skeleton loading state */
+.ppskel{display:flex;align-items:center;gap:13px;padding:12px;border-radius:16px;margin-bottom:8px;background:var(--panel);border:1px solid var(--line)}
+.ppskel .sk{background:linear-gradient(90deg,rgba(255,255,255,.03),rgba(255,255,255,.07),rgba(255,255,255,.03));background-size:200% 100%;animation:ppsh 1.2s infinite;border-radius:8px}
+.ppskel .sk.av{width:46px;height:46px;border-radius:14px;flex:none} .ppskel .sk.l1{height:13px;width:40%} .ppskel .sk.l2{height:10px;width:24%;margin-top:6px}
+@keyframes ppsh{to{background-position:-200% 0}}
 .plrow{display:flex;align-items:center;gap:11px;padding:11px 4px;border-bottom:1px solid var(--line);cursor:pointer}
 .plrow:hover{background:rgba(124,176,138,.05)}
 .plav{width:36px;height:36px;border-radius:50%;flex:none;background:#20302a;color:var(--gold);display:flex;align-items:center;justify-content:center;font:700 15px Georgia,serif;overflow:hidden}
 .plav img{width:100%;height:100%;object-fit:cover}
 .plrow b{flex:1;font-size:15px;font-weight:600}
 .plgo{color:var(--muted);font-size:20px} .plme{font-size:10px;font-weight:800;color:#9fd6a6;background:rgba(124,176,138,.14);border:1px solid rgba(124,176,138,.35);border-radius:20px;padding:2px 9px}
-.snaptop{padding:20px 20px 16px;text-align:center;background:radial-gradient(120% 80% at 50% 0%,rgba(200,168,96,.10),transparent 65%);border-bottom:1px solid var(--line)}
-.snapav{width:70px;height:70px;border-radius:50%;margin:0 auto 10px;background:#20302a;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font:700 28px Georgia,serif;color:var(--gold);overflow:hidden}
-.snapav img{width:100%;height:100%;object-fit:cover}
-.snapnm{font-family:Georgia,serif;font-size:23px;color:#f4ecd8}
-.snapcls{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-top:3px}
-.snaplv{display:inline-block;margin-top:9px;font-size:11px;font-weight:700;color:#9fd6a6;background:rgba(124,176,138,.12);border:1px solid rgba(124,176,138,.35);border-radius:20px;padding:4px 13px}
-.snapmodal .sec{padding:14px 18px} .snapmodal .sec+.sec{border-top:1px solid var(--line)}
-.snapmodal .lab{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
-.snapmodal .rel{display:flex;align-items:center;gap:11px}
-.snapmodal .rel .ic{width:36px;height:36px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;font-size:18px}
-.snapmodal .rel .who b{font-size:15px;color:#f2ecd8;display:block} .snapmodal .rel .who span{font-size:12px;color:var(--muted)}
-.snapmodal .rel .rec{margin-left:auto;font:700 16px ui-monospace,monospace}
-.snapmodal .h2h .ic{background:rgba(207,107,88,.14)} .snapmodal .h2h .rec{color:var(--red)}
-.snapmodal .duo .ic{background:rgba(124,176,138,.14)} .snapmodal .duo .rec{color:var(--green)}
+/* ---- reimagined player snapshot sheet ---- */
+.snapsheet{display:flex;flex-direction:column}
+.shero{position:relative;padding:44px 22px 22px;text-align:center;overflow:hidden}
+.shero::before{content:"";position:absolute;inset:0;background:radial-gradient(90% 70% at 50% 0%,color-mix(in srgb,var(--tc) 18%,transparent),transparent 62%);pointer-events:none}
+.shclose{position:absolute;top:14px;right:16px;color:var(--muted);font-size:13px;font-weight:700;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:20px;padding:6px 13px;cursor:pointer;z-index:2}
+.savatar{width:92px;height:92px;border-radius:26px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font:700 38px Georgia,serif;color:var(--tc);background:#1c2620;border:2px solid var(--tc);box-shadow:0 0 40px color-mix(in srgb,var(--tc) 30%,transparent);position:relative;z-index:1;overflow:hidden}
+.savatar img{width:100%;height:100%;object-fit:cover;border-radius:24px}
+.sname{font-family:Georgia,serif;font-size:29px;color:#f6efdc;position:relative;z-index:1}
+.sclass{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--tc);margin-top:5px;font-weight:700;position:relative;z-index:1}
+.slv{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:12px;font-weight:800;color:color-mix(in srgb,var(--tc) 75%,#e9e7dc);background:color-mix(in srgb,var(--tc) 12%,transparent);border:1px solid color-mix(in srgb,var(--tc) 32%,transparent);border-radius:20px;padding:6px 14px;position:relative;z-index:1}
+.vsblock{margin:4px 18px 0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.vscard{border-radius:20px;padding:20px 14px;text-align:center;border:1px solid var(--line);background:var(--panel)}
+.vscard.h2h{background:linear-gradient(180deg,rgba(207,107,88,.1),transparent);border-color:rgba(207,107,88,.3)}
+.vscard.duo{background:linear-gradient(180deg,rgba(124,176,138,.1),transparent);border-color:rgba(124,176,138,.3)}
+.vscard.empty{opacity:.6}
+.vscard .vico{font-size:21px}
+.vscard .vlab{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-top:6px}
+.vscard .vrec{font:800 33px ui-monospace,monospace;margin-top:7px;letter-spacing:-1px}
+.vscard .vnew{font:800 30px Georgia,serif;color:var(--muted);margin-top:7px}
+.vscard.h2h .vrec{color:#e0a08f} .vscard.duo .vrec{color:#9fd6a6}
+.vscard .vsub{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.3}
+.scross{text-align:center;font-size:13px;color:var(--muted);margin:16px 20px 0}
+.scross b{color:var(--ink)}
+.challbtn{display:block;margin:16px 18px 20px;text-align:center;padding:15px;border-radius:15px;border:none;cursor:pointer;
+  background:linear-gradient(180deg,#ecd58a,#d3b25e);color:#141207;font-weight:800;font-size:15px;box-shadow:0 6px 20px rgba(226,194,102,.2)}
+.challbtn:active{transform:translateY(1px)}
+.scta-note{text-align:center;font-size:12.5px;color:var(--muted);margin:14px 20px 22px;padding:12px;border:1px dashed var(--line);border-radius:12px}
 .wsearch{width:100%;margin:2px 0 10px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);
   background:var(--panel2);color:var(--ink);font-size:14px;outline:none}
 .wsearch:focus{border-color:var(--gold)}
@@ -2108,9 +2148,13 @@ window.SS_CONFIG = {
       <p class="pemsg" id="peMsg"></p>
     </div>
   </div>
-  <div class="phcard">
+  <div class="phcard ppcard">
     <h3><span class="htxt">👥 Players</span></h3>
-    <input id="ppSearch" class="wsearch" type="text" placeholder="🔍 Search any player…" autocomplete="off" oninput="renderPlayerSearch()">
+    <div class="ppsearch"><span class="ppmag">🔍</span><input id="ppSearch" type="text" placeholder="Search any player…" autocomplete="off" oninput="renderPlayerSearch()"></div>
+    <div class="ppseg" id="ppSeg">
+      <button class="on" data-mode="recent" onclick="ppSegSet('recent')">Recently played</button>
+      <button data-mode="all" onclick="ppSegSet('all')">Everyone</button>
+    </div>
     <div id="ppList"><p class="hint">Loading…</p></div>
   </div>
   <div class="phcard">
@@ -2784,7 +2828,17 @@ function cardEl(p, mini, noMeta){
   if(!mini){
     top.append(iconBtn("🗑","Delete player",e=>{e.stopPropagation();deletePlayer(p.id);}));
   }
-  const nm=document.createElement("div"); nm.className="nm"; nm.textContent=p.name;
+  const nm=document.createElement("div"); nm.className="nm";
+  nm.textContent=p.name;
+  // Disambiguate: if this nickname appears more than once in the roster, show the
+  // distinguishing part of their full name (e.g. two "Mark"s -> "Mark · Donkor").
+  if(p.full){
+    const same=(S.players||[]).filter(x=>x.name&&x.name.toLowerCase()===p.name.toLowerCase());
+    if(same.length>1){
+      const extra=p.full.replace(new RegExp("^\\s*"+p.name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s*","i"),"").trim();
+      if(extra){ const ds=document.createElement("span"); ds.className="nmdis"; ds.textContent=" · "+extra; nm.append(ds); }
+    }
+  }
   d.append(top,nm);
   if(!noMeta){
     const tl=document.createElement("div"); tl.className="tl";
@@ -8358,6 +8412,7 @@ async function importRoster(manual){
     if(!mine){
       if(row.active===false) return;                        // benched before we ever saw them
       S.players.push({id:row.profile_id, name:row.profiles.reclub_name||row.profiles.full_name||"Player",
+        full:row.profiles.full_name||"",
         level:row.profiles.level||"Low Int", timeIn:timeNowHM(), timeOut:"", active:true,
         waitSince:now(), addedAt:now()});
       added++;
@@ -8519,10 +8574,10 @@ async function loadEpoch(){
 async function loadMyHistory(manual){
   const hist=document.getElementById("myHist"), stats=document.getElementById("myStats");
   const uid=auth.uid;
-  const r=await sFetch("/rest/v1/matches?or=(t1.cs.{"+uid+"},t2.cs.{"+uid+"})"+
-    "&select=*&order=ended_at.desc&limit=200").catch(()=>null);
+  const r=await sFetchAll("/rest/v1/matches?or=(t1.cs.{"+uid+"},t2.cs.{"+uid+"})"+
+    "&select=*&order=ended_at.desc");
   if(!r||!r.ok){ if(manual) toast("Could not load history"); return; }
-  let rows=await r.json();
+  let rows=r.rows;
   // a master reset sets an epoch — matches before it stay in the DB but stop counting
   await loadEpoch();
   if(window.__hofEpoch){
@@ -9238,30 +9293,47 @@ function recentPlayers(){
   }
   return out;
 }
+let __ppMode="recent";
+function ppSegSet(m){
+  __ppMode=m;
+  document.querySelectorAll("#ppSeg button").forEach(b=>b.classList.toggle("on",b.dataset.mode===m));
+  renderPlayerSearch();
+}
 function renderPlayerSearch(){
   const box=document.getElementById("ppList"); if(!box) return;
   const roster=window.__plRoster||[];
-  if(!roster.length && window.__plLoading){ box.innerHTML='<p class="hint">Loading players…</p>'; return; }
+  if(!roster.length && window.__plLoading){
+    box.innerHTML=Array.from({length:5}).map(()=>'<div class="ppskel"><div class="sk av"></div><div style="flex:1"><div class="sk l1"></div><div class="sk l2"></div></div></div>').join("");
+    return;
+  }
   const q=((document.getElementById("ppSearch")||{}).value||"").toLowerCase().trim();
+  const seg=document.getElementById("ppSeg"); if(seg) seg.style.display = q? "none":"flex";
   const nick={}; roster.forEach(p=>{const k=(p.reclub_name||"").toLowerCase();nick[k]=(nick[k]||0)+1;});
   const disamb=p=>{ if(nick[(p.reclub_name||"").toLowerCase()]>1 && p.full_name){
     const e=p.full_name.replace(new RegExp("^\\s*"+(p.reclub_name||"").replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s*","i"),"").trim();
-    return e?' <span class="pdisamb">· '+esc(e)+'</span>':''; } return ""; };
-  const row=(p,tagHtml)=>'<div class="plrow" onclick="openPlayerSnapshot(\''+p.id+'\')"><span class="plav">'+
-    (p.avatar&&p.avatar.startsWith("http")?'<img src="'+esc(p.avatar)+'">':esc((p.reclub_name||"?").slice(0,1).toUpperCase()))+'</span>'+
-    '<b>'+esc(p.reclub_name)+disamb(p)+'</b>'+(tagHtml||'<span class="plgo">›</span>')+'</div>';
+    return e?' <span class="dis">· '+esc(e)+'</span>':''; } return ""; };
+  const subOf=p=>{ const xp=(window.__xpBy||{})[p.id];
+    if(xp==null) return "Tap to see your record"; const lv=levelOf(xp); return esc(tierOf(lv))+" · LV "+lv; };
+  const row=(p,tagHtml)=>'<div class="pprow" onclick="openPlayerSnapshot(\''+p.id+'\')">'+
+    '<div class="ppav">'+(p.avatar?'<img src="'+esc(p.avatar)+'">':esc((p.reclub_name||"?").slice(0,1).toUpperCase()))+'</div>'+
+    '<div class="ppmain"><div class="ppname">'+esc(p.reclub_name)+disamb(p)+'</div><div class="ppsub">'+subOf(p)+'</div></div>'+
+    (tagHtml||'<span class="ppchev">›</span>')+'</div>';
   if(q){
     const list=roster.filter(p=>(p.reclub_name||"").toLowerCase().includes(q)||(p.full_name||"").toLowerCase().includes(q));
-    box.innerHTML = list.length? list.slice(0,60).map(p=>row(p)).join("")
-      : '<p class="hint">No players match "'+esc(q)+'".</p>';
+    box.innerHTML = list.length? '<div class="ppglab">'+list.length+' player'+(list.length===1?"":"s")+' found</div>'+list.slice(0,60).map(p=>row(p)).join("")
+      : '<div class="ppglab">Search</div><p class="hint" style="padding:14px 2px">No players match "'+esc(q)+'".</p>';
     return;
   }
-  // default: recently played with
+  if(__ppMode==="all"){
+    box.innerHTML='<div class="ppglab">All players · '+roster.length+'</div>'+roster.slice(0,120).map(p=>row(p)).join("");
+    return;
+  }
+  // recent mode
   const recent=recentPlayers();
   box.innerHTML = recent.length
-    ? '<p class="pllabel">Recently played with</p>'+recent.map(r=>row(r.p,
-        '<span class="pltag '+(r.kind==="partner"?"mate":"opp")+'">'+(r.kind==="partner"?"🤝 partner":"⚔️ opponent")+'</span>')).join("")
-    : '<p class="hint">Play some matches and the people you meet will show here. Or search above.</p>';
+    ? '<div class="ppglab">Last 10 you\u2019ve shared a court with</div>'+recent.map(r=>row(r.p,
+        '<span class="pptag '+(r.kind==="partner"?"mate":"opp")+'">'+(r.kind==="partner"?"🤝 partner":"⚔ opponent")+'</span>')).join("")
+    : '<div class="ppglab">Recently played</div><p class="hint" style="padding:14px 2px">Play some matches and the people you meet show up here. Or search anyone above.</p>';
 }
 // compute MY record vs / with a given player, from my own match history
 function pairRecord(pid){
@@ -9291,24 +9363,44 @@ async function openPlayerSnapshot(pid){
   }
   const lv=levelOf(xp), tier=tierOf(lv);
   const nm=p.reclub_name||"Player";
-  const relRow=(cls,ic,lab,sub,rec2)=>'<div class="sec '+cls+'"><div class="lab">'+lab+'</div>'+
-    (rec2.g>0
-      ? '<div class="rel"><div class="ic">'+ic+'</div><div class="who"><b>'+esc(nm)+'</b><span>'+sub+'</span></div>'+
-        '<div class="rec">'+rec2.w+'\u2013'+(rec2.g-rec2.w)+'</div></div>'
-      : '<div class="rel"><div class="ic">'+ic+'</div><div class="who"><b>No games yet</b><span>go make a rivalry \u2694\uFE0F</span></div></div>')+'</div>';
+  const isNem=(window.__nemeses3||[]).some(n=>n.id===pid);
+  const inTonight=(window.__whosInIds||[]).indexOf(pid)>=0;
+  const alreadyCh=(window.__myChTargets||[]).indexOf(pid)>=0;
+  const canChallenge = !isMe && isNem && inTonight && !alreadyCh;
+  const total=rec? (rec.vs.g+rec.wth.g):0;
+  const tierCol = tier==="Mythic"||tier==="Demogorgon"||tier==="Ascendant"||tier==="Primordial" ? "var(--red)" : "var(--gold)";
+  const vsCard=(cls,ic,lab,r,goodSub,badSub)=>{
+    if(!r || r.g===0) return '<div class="vscard '+cls+' empty"><div class="vico">'+ic+'</div><div class="vlab">'+lab+'</div>'+
+      '<div class="vnew">—</div><div class="vsub">no games yet</div></div>';
+    const w=r.w, l=r.g-r.w, edge=w>l?goodSub:(w<l?badSub:"dead even");
+    return '<div class="vscard '+cls+'"><div class="vico">'+ic+'</div><div class="vlab">'+lab+'</div>'+
+      '<div class="vrec">'+w+'\u2013'+l+'</div><div class="vsub">'+edge+'</div></div>';
+  };
   let ov=document.getElementById("snapModal");
   if(!ov){ ov=document.createElement("div"); ov.className="overlay"; ov.id="snapModal";
-    ov.innerHTML='<div class="modal snapmodal" style="max-width:380px;padding:0;overflow:hidden"><div id="snapBody"></div>'+
-      '<button class="wide" style="margin:0 14px 14px" onclick="closeModal(\'snapModal\')">Close</button></div>';
+    ov.innerHTML='<div class="modal snapsheet" style="max-width:400px;padding:0;overflow:hidden"><div id="snapBody"></div></div>';
     document.body.appendChild(ov); ov.addEventListener("click",e=>{ if(e.target===ov) closeModal("snapModal"); }); }
+  const av=(p.avatar)?'<img src="'+esc(p.avatar)+'">':esc(nm.slice(0,1).toUpperCase());
   document.getElementById("snapBody").innerHTML=
-    '<div class="snaptop"><div class="snapav">'+
-      (p.avatar&&p.avatar.startsWith("http")?'<img src="'+esc(p.avatar)+'">':esc(nm.slice(0,1).toUpperCase()))+'</div>'+
-      '<div class="snapnm">'+esc(nm)+'</div><div class="snapcls">'+esc(tier)+'</div>'+
-      '<div class="snaplv">LV '+lv+' \u00b7 '+xp.toLocaleString()+' XP</div></div>'+
-    (isMe? '<p class="hint" style="padding:16px;text-align:center">This is you \u2014 open your Profile for the full character sheet.</p>'
-      : relRow("h2h","\u2694\uFE0F","\u2694\uFE0F Head-to-head \u2014 you vs them","when you\u2019ve faced off",rec.vs)+
-        relRow("duo","\uD83E\uDD1D","\uD83E\uDD1D Teamed up \u2014 you two together","your record as partners",rec.wth));
+    '<div class="shero" style="--tc:'+tierCol+'">'+
+      '<button class="shclose" onclick="closeModal(\'snapModal\')">\u2715 Close</button>'+
+      '<div class="savatar">'+av+'</div>'+
+      '<div class="sname">'+esc(nm)+'</div>'+
+      '<div class="sclass">'+esc(tier)+'</div>'+
+      '<div class="slv">'+(tierCol==="var(--red)"?"\uD83D\uDC51 ":"")+'LV '+lv+' \u00b7 '+xp.toLocaleString()+' XP</div>'+
+    '</div>'+
+    (isMe
+      ? '<p class="hint" style="padding:26px;text-align:center">This is you \u2014 open your Profile above for the full character sheet.</p>'
+      : '<div class="vsblock">'+
+          vsCard("h2h","\u2694\uFE0F","You vs them",rec.vs,"you\u2019ve got their number","they own this matchup")+
+          vsCard("duo","\uD83E\uDD1D","Teamed up",rec.wth,"a strong duo","room to click")+
+        '</div>'+
+        (total>0? '<p class="scross">You\u2019ve crossed paths <b>'+total+' time'+(total===1?"":"s")+'</b> this season.</p>'
+                : '<p class="scross">No games together yet \u2014 <b>go make a rivalry</b> \u2694\uFE0F</p>')+
+        (canChallenge
+          ? '<button class="challbtn" onclick="chIssue(\''+pid+'\');closeModal(\'snapModal\')">\u2694\uFE0F Challenge '+esc(nm)+' tonight</button>'
+          : (isNem && !inTonight ? '<p class="scta-note">\uD83D\uDE24 Your nemesis \u2014 challenge them when they\u2019re in tonight.</p>'
+            : alreadyCh ? '<p class="scta-note">\u2694\uFE0F Challenge already sent \u00b7 waiting on them.</p>':'')));
   openModal("snapModal");
 }
 /* ---------- relationship + form analytics ---------- */
@@ -10515,6 +10607,8 @@ async function loadPlayerList(){
       : '<span style="width:34px;height:34px;border-radius:50%;flex:none;background:var(--panel2);border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-weight:800">'+esc((p.reclub_name||"?").slice(0,1).toUpperCase())+'</span>';
     div.innerHTML=av+'<div class="st"><b>'+esc(p.reclub_name||"Player")+'</b>'+
       '<span>@'+esc(p.username||"")+' \u00b7 joined '+(p.created_at||"").slice(0,10)+'</span></div>';
+    div.style.cursor="pointer";
+    div.onclick=(e)=>{ if(e.target.closest("button")) return; openAdminPlayer(p); };
     if(p.id!==auth.uid){
       const key=document.createElement("button"); key.className="small ghost"; key.textContent="🔑";
       key.title="Set a temporary password"; key.onclick=()=>resetPlayerPassword(p);
@@ -10536,6 +10630,48 @@ async function loadPlayerList(){
   document.getElementById("plPageLbl").textContent="Page "+(plPageNo+1)+" of "+pages+" \u00b7 "+plTotal+" players";
   document.getElementById("plPrev").disabled=plPageNo<=0;
   document.getElementById("plNext").disabled=plPageNo>=pages-1;
+}
+async function openAdminPlayer(p){
+  let ov=document.getElementById("apModal");
+  if(!ov){ ov=document.createElement("div"); ov.className="overlay"; ov.id="apModal";
+    ov.innerHTML='<div class="modal" style="max-width:380px"><div id="apBody"></div>'+
+      '<button class="wide" style="margin-top:12px" onclick="closeModal(\'apModal\')">Close</button></div>';
+    document.body.appendChild(ov); ov.addEventListener("click",e=>{ if(e.target===ov) closeModal("apModal"); }); }
+  const av=p.avatar
+    ? '<img src="'+esc(p.avatar)+'" style="width:74px;height:74px;border-radius:50%;object-fit:cover;border:2px solid var(--green)">'
+    : '<span style="width:74px;height:74px;border-radius:50%;background:var(--panel2);border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:30px">'+esc((p.reclub_name||"?").slice(0,1).toUpperCase())+'</span>';
+  const nn=esc(p.reclub_name||"Player"), fn=esc(p.full_name||"\u2014");
+  document.getElementById("apBody").innerHTML=
+    '<div style="text-align:center;padding:6px 0 10px">'+av+
+      '<div style="font-family:Georgia,serif;font-size:22px;margin-top:8px">'+nn+'</div>'+
+      '<div class="hint">@'+esc(p.username||"")+'</div></div>'+
+    '<div class="mrow"><label>Full name</label><b>'+fn+'</b></div>'+
+    '<div class="mrow"><label>Nickname</label><b>'+nn+'</b></div>'+
+    '<div class="mrow"><label>Joined</label><b>'+((p.created_at||"").slice(0,10)||"\u2014")+'</b></div>'+
+    '<div class="paysum" id="apWL" style="margin-top:12px"><div><b>\u2026</b><span>loading record\u2026</span></div></div>';
+  openModal("apModal");
+  try{
+    const ep=await loadEpoch();
+    const r=await sFetchAll("/rest/v1/matches?or=(t1.cs.{"+p.id+"},t2.cs.{"+p.id+"})&select=t1,t2,s1,s2,session_id,ended_at");
+    let ms=r.ok?r.rows:[];
+    // epoch gate the same way loadMyHistory does: play_date = session_date, fallback ended_at date
+    if(ep){
+      const sids=[...new Set(ms.map(m=>m.session_id).filter(Boolean))];
+      const sd={};
+      if(sids.length){ const sr=await sFetch("/rest/v1/sessions?id=in.("+sids.join(",")+")&select=id,session_date").catch(()=>null);
+        if(sr&&sr.ok) (await sr.json()).forEach(s=>sd[s.id]=s.session_date); }
+      ms=ms.filter(m=>{ const d=sd[m.session_id]||(m.ended_at||"").slice(0,10); return !d || d>=ep; });
+    }
+    let w=0,l=0;
+    ms.forEach(m=>{ if(m.s1===m.s2) return; const in1=(m.t1||[]).includes(p.id);
+      const win=(in1&&m.s1>m.s2)||(!in1&&m.s2>m.s1); win?w++:l++; });
+    const g=w+l, rate=g?Math.round(100*w/g):0;
+    const el=document.getElementById("apWL");
+    if(el) el.innerHTML='<div><b class="pos">'+w+'</b><span>Wins</span></div>'+
+      '<div><b class="neg">'+l+'</b><span>Losses</span></div>'+
+      '<div><b>'+rate+'%</b><span>Win rate</span></div>'+
+      '<div><b>'+g+'</b><span>Games</span></div>';
+  }catch(e){ const el=document.getElementById("apWL"); if(el) el.innerHTML='<div><b>\u2014</b><span>record unavailable</span></div>'; }
 }
 async function loadPlayerStats(){
   const el=document.getElementById("plStats"); if(!el) return;
