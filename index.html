@@ -10342,16 +10342,28 @@ function msCheck(){
   try{ localStorage.setItem("ss_lastLv",String(lv)); }catch(e){}
   // new badge / new tier / secret found \u2014 tracked by badge+tier key
   const earnedK=(window.__myEarnedKeys||[]), bidx=(window.__badgeIndex||{});
-  let prevK=null; try{ prevK=JSON.parse(localStorage.getItem("ss_badgesK")||"null"); }catch(e){}
-  if(!prevK){   // first run after the badge update: carry old badge names over as already seen
-    let old=[]; try{ old=JSON.parse(localStorage.getItem("ss_badges")||"[]"); }catch(e){}
-    const custByName={}; (window.__customBadges||[]).forEach(b=>custByName[b.name]="c:"+b.id);
-    prevK=[]; old.forEach(n=>{ const ks=[].concat(BADGE_OLD_KEYS[n]||custByName[n]||[]);
-      ks.forEach(k=>{ prevK.push(k); const [id,t]=k.split(":"); for(let i=1;i<+(t||0);i++) prevK.push(id+":"+i); }); });
+  let prevK=null; try{ prevK=JSON.parse(localStorage.getItem("ss_badgesV2")||"null"); }catch(e){}
+  if(!prevK){
+    // First run on this badge system: we can't tell which old popups were really seen
+    // (the old code marked them seen even when the popup was blocked), so instead of
+    // replaying a flood, celebrate everything already on the wall in ONE recap popup.
+    try{ localStorage.setItem("ss_badgesV2",JSON.stringify(earnedK)); }catch(e){}
+    const fams=[]; const allB=(window.__myAllBadges||[]);
+    earnedK.forEach(k=>{ const b=bidx[k]; if(!b) return; const base=k.split(":")[0];
+      const i=fams.findIndex(f=>f.base===base); if(i>=0) fams[i]=Object.assign(fams[i],{b}); else fams.push({base,b}); });
+    if(fams.length){
+      const n=fams.length, icons=fams.map(f=>f.b.em).join(" ");
+      cands.push({id:"recap-v2",pri:0,noCap:true,kick:"TROPHY ROOM UNLOCKED",emoji:"\uD83C\uDFC6",
+        head:n+" BADGE"+(n===1?"":"S")+"<br>UNLOCKED",
+        sub:"Your badge wall got an upgrade. Here\u2019s everything you\u2019ve earned so far:<br><b>"+icons+"</b>",
+        xp:0,prog:{label:"COLLECTED",now:n,goal:allB.length||n}});
+      cands.sort((a,b)=>a.pri-b.pri); msShow(cands[0]);
+    }
+    return;   // everything currently earned is now "seen"; new badges pop one by one from here
   }
   const freshK=earnedK.filter(k=>!prevK.includes(k))
     .sort((a,b)=>((bidx[b]||{}).tier||0)-((bidx[a]||{}).tier||0));   // highest new tier first
-  if(freshK.length && prevK.length && bidx[freshK[0]]){
+  if(freshK.length && bidx[freshK[0]]){
     const b=bidx[freshK[0]], all=(window.__myAllBadges||[]), earnedN=(window.__myEarned||[]).length;
     const words=b.name.toUpperCase().split(" "), lines=[]; let ln="";
     words.forEach(w=>{ const t=ln? ln+" "+w : w; if(t.length>12&&ln){ lines.push(ln); ln=w; } else ln=t; }); if(ln) lines.push(ln);
@@ -10368,14 +10380,14 @@ function msCheck(){
     cands.push(m);
   }
   // a badge counts as "seen" only once its popup has shown — the rest stay queued
-  const baseSeen= prevK.length? prevK.concat(earnedK.filter(k=>!freshK.includes(k))) : earnedK.slice();
+  const baseSeen= prevK.concat(earnedK.filter(k=>!freshK.includes(k)));
   const saveSeen=extra=>{ const u=[...new Set(baseSeen.concat(extra||[]))];
-    try{ localStorage.setItem("ss_badgesK",JSON.stringify(u)); }catch(e){} };
+    try{ localStorage.setItem("ss_badgesV2",JSON.stringify(u)); }catch(e){} };
   saveSeen([]);
   try{ localStorage.setItem("ss_badges",JSON.stringify(window.__myEarned||[])); }catch(e){}
   // streaks
   const STREAK_BADGES=["streak","wall","hill"];
-  if(ex.curStreak>=3 && !(prevK.length && freshK.some(k=>STREAK_BADGES.includes(k)))){
+  if(ex.curStreak>=3 && !freshK.some(k=>STREAK_BADGES.includes(k))){
     // the ladder must always stay ahead of the streak
     const LADDER=[5,7,10,15,20,25,30,40,50,75,100];
     const nextGoal=LADDER.find(n=>n>ex.curStreak) || (Math.ceil((ex.curStreak+1)/25)*25);
@@ -10402,7 +10414,7 @@ function msCheck(){
     if(STREAK_BADGES.includes(top.badgeKey)) msMarkSilent("st"+ex.curStreak);   // skip the duplicate streak popup
   }
   const left=freshK.filter(k=>!(shown&&k===top.badgeKey)).length;
-  window.__msMore = prevK.length>0 && left>0;                                   // more badges waiting
+  window.__msMore = left>0;                                   // more badges waiting
 }
 /* ================= RPG CHARACTER SHEET ================= */
 function rpgAttrs(rows,uid,nSess){
