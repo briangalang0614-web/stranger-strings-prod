@@ -10120,13 +10120,15 @@ const MS_CAP=2;                                  // per session — rare keeps i
 function msSeenKey(){ return "ss_ms_"+(window.__mySessionId||"x"); }
 function msSeen(){ try{ return JSON.parse(localStorage.getItem(msSeenKey())||'{"n":0,"ids":[]}'); }
   catch(e){ return {n:0,ids:[]}; } }
-function msMark(id){ const s=msSeen(); s.n++; s.ids.push(id);
+function msMarkSilent(id){ const s=msSeen(); if(!s.ids.includes(id)) s.ids.push(id);
+  try{ localStorage.setItem(msSeenKey(),JSON.stringify(s)); }catch(e){} }
+function msMark(id,noCount){ const s=msSeen(); if(!noCount) s.n++; s.ids.push(id);
   try{ localStorage.setItem(msSeenKey(),JSON.stringify(s)); }catch(e){} }
 function msShow(m){
   if(!document.getElementById("msOver")) return false;   // parked build — nothing to show
   const s=msSeen();
   if(s.ids.includes(m.id)) return false;          // never twice
-  if(s.n>=MS_CAP) return false;                   // rare by design
+  if(s.n>=MS_CAP && !m.noCap) return false;       // rare by design — badges are exempt
   { const ov=document.getElementById("msOver"); ov.classList.remove("bdayover");   // undo birthday styling
     const okb=ov.querySelector(".msok"); if(okb) okb.textContent="Nice";
     if(m.theme==="secret") ov.classList.add("bdayover");                        // secrets get the pink treatment
@@ -10155,13 +10157,14 @@ function msShow(m){
   popPrepare({kick:m.kick, emoji:m.emoji, head:m.head, sub:m.sub, metal:m.tier||3,
     pill:m.xp? {text:"⚡ +"+m.xp+" XP"} : null, prog:m.prog||null, theme:m.theme==="secret"?"bday":"gold",
     file:String(m.id||"milestone").replace(/[^a-z0-9]+/gi,"_")});
-  msMark(m.id);
+  msMark(m.id, !!m.noCap);
   try{ if(navigator.vibrate) navigator.vibrate([18,60,18]); }catch(e){}
   return true;
 }
 function msClose(e,force){
   if(e && !force && e.target && e.target.id!=="msOver") return;
   document.getElementById("msOver").classList.remove("on");
+  if(window.__msMore){ window.__msMore=false; setTimeout(()=>{ try{ msCheck(); }catch(_){} },650); }   // next queued badge
 }
 /* ======================= POPUP SHARE CARDS =======================
    Every celebratory popup shares an image of ITSELF (not the career card).
@@ -10352,7 +10355,7 @@ function msCheck(){
     const b=bidx[freshK[0]], all=(window.__myAllBadges||[]), earnedN=(window.__myEarned||[]).length;
     const words=b.name.toUpperCase().split(" "), lines=[]; let ln="";
     words.forEach(w=>{ const t=ln? ln+" "+w : w; if(t.length>12&&ln){ lines.push(ln); ln=w; } else ln=t; }); if(ln) lines.push(ln);
-    const m={id:"bg:"+freshK[0],pri:2,emoji:b.em,head:lines.join("<br>"),xp:0};
+    const m={id:"bg:"+freshK[0],pri:2,emoji:b.em,head:lines.join("<br>"),xp:0,badgeKey:freshK[0],noCap:true};
     if(b.secret){ Object.assign(m,{kick:"SECRET BADGE FOUND",theme:"secret",
       sub:(b.flavor||b.d)+"<br><b>"+b.found+" of 3 secrets found.</b>"}); }
     else if(b.tier>=1){ Object.assign(m,{kick:b.tier>=2?"BADGE LEVELLED UP":"BADGE EARNED",tier:b.tier,
@@ -10364,10 +10367,15 @@ function msCheck(){
       prog:{label:"RELICS",now:earnedN,goal:all.length}});
     cands.push(m);
   }
-  try{ localStorage.setItem("ss_badgesK",JSON.stringify(earnedK)); }catch(e){}
+  // a badge counts as "seen" only once its popup has shown — the rest stay queued
+  const baseSeen= prevK.length? prevK.concat(earnedK.filter(k=>!freshK.includes(k))) : earnedK.slice();
+  const saveSeen=extra=>{ const u=[...new Set(baseSeen.concat(extra||[]))];
+    try{ localStorage.setItem("ss_badgesK",JSON.stringify(u)); }catch(e){} };
+  saveSeen([]);
   try{ localStorage.setItem("ss_badges",JSON.stringify(window.__myEarned||[])); }catch(e){}
   // streaks
-  if(ex.curStreak>=3){
+  const STREAK_BADGES=["streak","wall","hill"];
+  if(ex.curStreak>=3 && !(prevK.length && freshK.some(k=>STREAK_BADGES.includes(k)))){
     // the ladder must always stay ahead of the streak
     const LADDER=[5,7,10,15,20,25,30,40,50,75,100];
     const nextGoal=LADDER.find(n=>n>ex.curStreak) || (Math.ceil((ex.curStreak+1)/25)*25);
@@ -10388,7 +10396,13 @@ function msCheck(){
     prog:{label:"NIGHTS",now:nSess,goal:n*2}}); });
   if(!cands.length) return;
   cands.sort((a,b)=>a.pri-b.pri);
-  msShow(cands[0]);
+  const top=cands[0], shown=msShow(top);
+  if(shown && top.badgeKey){
+    saveSeen([top.badgeKey]);
+    if(STREAK_BADGES.includes(top.badgeKey)) msMarkSilent("st"+ex.curStreak);   // skip the duplicate streak popup
+  }
+  const left=freshK.filter(k=>!(shown&&k===top.badgeKey)).length;
+  window.__msMore = prevK.length>0 && left>0;                                   // more badges waiting
 }
 /* ================= RPG CHARACTER SHEET ================= */
 function rpgAttrs(rows,uid,nSess){
